@@ -1,0 +1,23 @@
+// File generated from our OpenAPI spec by Stainless.
+
+package com.plazafyi.models.geocode
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+internal class GeocodeBatchParamsTest {
+
+    @Test
+    fun create() {
+        GeocodeBatchParams.builder().addAddress("string").build()
+    }
+
+    @Test
+    fun body() {
+        val params = GeocodeBatchParams.builder().addAddress("string").build()
+
+        val body = params._body()
+
+        assertThat(body.addresses()).containsExactly("string")
+    }
+}
