@@ -11,6 +11,7 @@ internal class GeocodeReversePostParamsTest {
     @Test
     fun create() {
         GeocodeReversePostParams.builder()
+            .format("format")
             .lang("lang")
             .lat(0.0)
             .layer("layer")
@@ -25,6 +26,7 @@ internal class GeocodeReversePostParamsTest {
     fun queryParams() {
         val params =
             GeocodeReversePostParams.builder()
+                .format("format")
                 .lang("lang")
                 .lat(0.0)
                 .layer("layer")
@@ -39,6 +41,7 @@ internal class GeocodeReversePostParamsTest {
         assertThat(queryParams)
             .isEqualTo(
                 QueryParams.builder()
+                    .put("format", "format")
                     .put("lang", "lang")
                     .put("lat", "0.0")
                     .put("layer", "layer")

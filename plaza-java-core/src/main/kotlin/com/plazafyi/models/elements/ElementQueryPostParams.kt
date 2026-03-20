@@ -18,6 +18,7 @@ private constructor(
     private val contains: String?,
     private val crosses: String?,
     private val cursor: String?,
+    private val format: String?,
     private val h3: String?,
     private val intersects: String?,
     private val limit: Long?,
@@ -53,6 +54,12 @@ private constructor(
 
     /** Cursor for pagination */
     fun cursor(): Optional<String> = Optional.ofNullable(cursor)
+
+    /**
+     * Response format. json (default) returns paginated GeoJSON. geojson/csv/ndjson stream via
+     * chunked transfer encoding.
+     */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
     /** Legacy shorthand. H3 cell index. Use spatial predicates instead. */
     fun h3(): Optional<String> = Optional.ofNullable(h3)
@@ -128,6 +135,7 @@ private constructor(
         private var contains: String? = null
         private var crosses: String? = null
         private var cursor: String? = null
+        private var format: String? = null
         private var h3: String? = null
         private var intersects: String? = null
         private var limit: Long? = null
@@ -154,6 +162,7 @@ private constructor(
             contains = elementQueryPostParams.contains
             crosses = elementQueryPostParams.crosses
             cursor = elementQueryPostParams.cursor
+            format = elementQueryPostParams.format
             h3 = elementQueryPostParams.h3
             intersects = elementQueryPostParams.intersects
             limit = elementQueryPostParams.limit
@@ -202,6 +211,15 @@ private constructor(
 
         /** Alias for calling [Builder.cursor] with `cursor.orElse(null)`. */
         fun cursor(cursor: Optional<String>) = cursor(cursor.getOrNull())
+
+        /**
+         * Response format. json (default) returns paginated GeoJSON. geojson/csv/ndjson stream via
+         * chunked transfer encoding.
+         */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
         /** Legacy shorthand. H3 cell index. Use spatial predicates instead. */
         fun h3(h3: String?) = apply { this.h3 = h3 }
@@ -490,6 +508,7 @@ private constructor(
                 contains,
                 crosses,
                 cursor,
+                format,
                 h3,
                 intersects,
                 limit,
@@ -524,6 +543,7 @@ private constructor(
                 contains?.let { put("contains", it) }
                 crosses?.let { put("crosses", it) }
                 cursor?.let { put("cursor", it) }
+                format?.let { put("format", it) }
                 h3?.let { put("h3", it) }
                 intersects?.let { put("intersects", it) }
                 limit?.let { put("limit", it.toString()) }
@@ -554,6 +574,7 @@ private constructor(
             contains == other.contains &&
             crosses == other.crosses &&
             cursor == other.cursor &&
+            format == other.format &&
             h3 == other.h3 &&
             intersects == other.intersects &&
             limit == other.limit &&
@@ -581,6 +602,7 @@ private constructor(
             contains,
             crosses,
             cursor,
+            format,
             h3,
             intersects,
             limit,
@@ -603,5 +625,5 @@ private constructor(
         )
 
     override fun toString() =
-        "ElementQueryPostParams{bbox=$bbox, contains=$contains, crosses=$crosses, cursor=$cursor, h3=$h3, intersects=$intersects, limit=$limit, near=$near, outputBuffer=$outputBuffer, outputCentroid=$outputCentroid, outputFields=$outputFields, outputGeometry=$outputGeometry, outputInclude=$outputInclude, outputPrecision=$outputPrecision, outputSimplify=$outputSimplify, outputSort=$outputSort, radius=$radius, touches=$touches, type=$type, within=$within, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ElementQueryPostParams{bbox=$bbox, contains=$contains, crosses=$crosses, cursor=$cursor, format=$format, h3=$h3, intersects=$intersects, limit=$limit, near=$near, outputBuffer=$outputBuffer, outputCentroid=$outputCentroid, outputFields=$outputFields, outputGeometry=$outputGeometry, outputInclude=$outputInclude, outputPrecision=$outputPrecision, outputSimplify=$outputSimplify, outputSort=$outputSort, radius=$radius, touches=$touches, type=$type, within=$within, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

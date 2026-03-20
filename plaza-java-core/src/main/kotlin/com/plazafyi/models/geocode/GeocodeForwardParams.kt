@@ -16,6 +16,7 @@ private constructor(
     private val q: String,
     private val bbox: String?,
     private val countryCode: String?,
+    private val format: String?,
     private val lang: String?,
     private val lat: Double?,
     private val layer: String?,
@@ -33,6 +34,9 @@ private constructor(
 
     /** ISO 3166-1 alpha-2 country code filter */
     fun countryCode(): Optional<String> = Optional.ofNullable(countryCode)
+
+    /** Response format: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
     /** Language code for localized names (e.g. en, de, fr) */
     fun lang(): Optional<String> = Optional.ofNullable(lang)
@@ -76,6 +80,7 @@ private constructor(
         private var q: String? = null
         private var bbox: String? = null
         private var countryCode: String? = null
+        private var format: String? = null
         private var lang: String? = null
         private var lat: Double? = null
         private var layer: String? = null
@@ -89,6 +94,7 @@ private constructor(
             q = geocodeForwardParams.q
             bbox = geocodeForwardParams.bbox
             countryCode = geocodeForwardParams.countryCode
+            format = geocodeForwardParams.format
             lang = geocodeForwardParams.lang
             lat = geocodeForwardParams.lat
             layer = geocodeForwardParams.layer
@@ -112,6 +118,12 @@ private constructor(
 
         /** Alias for calling [Builder.countryCode] with `countryCode.orElse(null)`. */
         fun countryCode(countryCode: Optional<String>) = countryCode(countryCode.getOrNull())
+
+        /** Response format: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
         /** Language code for localized names (e.g. en, de, fr) */
         fun lang(lang: String?) = apply { this.lang = lang }
@@ -279,6 +291,7 @@ private constructor(
                 checkRequired("q", q),
                 bbox,
                 countryCode,
+                format,
                 lang,
                 lat,
                 layer,
@@ -297,6 +310,7 @@ private constructor(
                 put("q", q)
                 bbox?.let { put("bbox", it) }
                 countryCode?.let { put("country_code", it) }
+                format?.let { put("format", it) }
                 lang?.let { put("lang", it) }
                 lat?.let { put("lat", it.toString()) }
                 layer?.let { put("layer", it) }
@@ -315,6 +329,7 @@ private constructor(
             q == other.q &&
             bbox == other.bbox &&
             countryCode == other.countryCode &&
+            format == other.format &&
             lang == other.lang &&
             lat == other.lat &&
             layer == other.layer &&
@@ -329,6 +344,7 @@ private constructor(
             q,
             bbox,
             countryCode,
+            format,
             lang,
             lat,
             layer,
@@ -339,5 +355,5 @@ private constructor(
         )
 
     override fun toString() =
-        "GeocodeForwardParams{q=$q, bbox=$bbox, countryCode=$countryCode, lang=$lang, lat=$lat, layer=$layer, limit=$limit, lng=$lng, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "GeocodeForwardParams{q=$q, bbox=$bbox, countryCode=$countryCode, format=$format, lang=$lang, lat=$lat, layer=$layer, limit=$limit, lng=$lng, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

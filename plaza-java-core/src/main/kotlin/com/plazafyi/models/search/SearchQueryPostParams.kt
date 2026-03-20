@@ -17,6 +17,7 @@ class SearchQueryPostParams
 private constructor(
     private val q: String,
     private val cursor: String?,
+    private val format: String?,
     private val limit: Long?,
     private val outputFields: String?,
     private val outputInclude: String?,
@@ -32,6 +33,9 @@ private constructor(
 
     /** Cursor for pagination */
     fun cursor(): Optional<String> = Optional.ofNullable(cursor)
+
+    /** Response format: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
     /** Maximum results (default 25, max 100) */
     fun limit(): Optional<Long> = Optional.ofNullable(limit)
@@ -77,6 +81,7 @@ private constructor(
 
         private var q: String? = null
         private var cursor: String? = null
+        private var format: String? = null
         private var limit: Long? = null
         private var outputFields: String? = null
         private var outputInclude: String? = null
@@ -90,6 +95,7 @@ private constructor(
         internal fun from(searchQueryPostParams: SearchQueryPostParams) = apply {
             q = searchQueryPostParams.q
             cursor = searchQueryPostParams.cursor
+            format = searchQueryPostParams.format
             limit = searchQueryPostParams.limit
             outputFields = searchQueryPostParams.outputFields
             outputInclude = searchQueryPostParams.outputInclude
@@ -108,6 +114,12 @@ private constructor(
 
         /** Alias for calling [Builder.cursor] with `cursor.orElse(null)`. */
         fun cursor(cursor: Optional<String>) = cursor(cursor.getOrNull())
+
+        /** Response format: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
         /** Maximum results (default 25, max 100) */
         fun limit(limit: Long?) = apply { this.limit = limit }
@@ -293,6 +305,7 @@ private constructor(
             SearchQueryPostParams(
                 checkRequired("q", q),
                 cursor,
+                format,
                 limit,
                 outputFields,
                 outputInclude,
@@ -314,6 +327,7 @@ private constructor(
             .apply {
                 put("q", q)
                 cursor?.let { put("cursor", it) }
+                format?.let { put("format", it) }
                 limit?.let { put("limit", it.toString()) }
                 outputFields?.let { put("output[fields]", it) }
                 outputInclude?.let { put("output[include]", it) }
@@ -331,6 +345,7 @@ private constructor(
         return other is SearchQueryPostParams &&
             q == other.q &&
             cursor == other.cursor &&
+            format == other.format &&
             limit == other.limit &&
             outputFields == other.outputFields &&
             outputInclude == other.outputInclude &&
@@ -345,6 +360,7 @@ private constructor(
         Objects.hash(
             q,
             cursor,
+            format,
             limit,
             outputFields,
             outputInclude,
@@ -356,5 +372,5 @@ private constructor(
         )
 
     override fun toString() =
-        "SearchQueryPostParams{q=$q, cursor=$cursor, limit=$limit, outputFields=$outputFields, outputInclude=$outputInclude, outputPrecision=$outputPrecision, outputSort=$outputSort, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "SearchQueryPostParams{q=$q, cursor=$cursor, format=$format, limit=$limit, outputFields=$outputFields, outputInclude=$outputInclude, outputPrecision=$outputPrecision, outputSort=$outputSort, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

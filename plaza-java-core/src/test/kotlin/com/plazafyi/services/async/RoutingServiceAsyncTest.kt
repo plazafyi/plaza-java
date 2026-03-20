@@ -10,6 +10,7 @@ import com.plazafyi.models.routing.RoutingIsochroneParams
 import com.plazafyi.models.routing.RoutingIsochronePostParams
 import com.plazafyi.models.routing.RoutingNearestParams
 import com.plazafyi.models.routing.RoutingNearestPostParams
+import com.plazafyi.models.routing.RoutingRouteParams
 import java.time.OffsetDateTime
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,6 +33,7 @@ internal class RoutingServiceAsyncTest {
                     .lat(0.0)
                     .lng(0.0)
                     .time(0.0)
+                    .format("format")
                     .mode("mode")
                     .outputFields("output[fields]")
                     .outputGeometry(true)
@@ -60,6 +62,7 @@ internal class RoutingServiceAsyncTest {
                     .lat(0.0)
                     .lng(0.0)
                     .time(0.0)
+                    .format("format")
                     .mode("mode")
                     .outputFields("output[fields]")
                     .outputGeometry(true)
@@ -161,30 +164,37 @@ internal class RoutingServiceAsyncTest {
 
         val routeResultFuture =
             routingServiceAsync.route(
-                RouteRequest.builder()
-                    .destination(
-                        RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
-                    )
-                    .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
-                    .alternatives(0L)
-                    .annotations(true)
-                    .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                    .ev(
-                        RouteRequest.Ev.builder()
-                            .batteryCapacityWh(75000.0)
-                            .addConnectorType("string")
-                            .initialChargePct(0.0)
-                            .minChargePct(0.0)
-                            .minPowerKw(0.0)
+                RoutingRouteParams.builder()
+                    .format("format")
+                    .routeRequest(
+                        RouteRequest.builder()
+                            .destination(
+                                RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                            )
+                            .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                            .alternatives(0L)
+                            .annotations(true)
+                            .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                            .ev(
+                                RouteRequest.Ev.builder()
+                                    .batteryCapacityWh(75000.0)
+                                    .addConnectorType("string")
+                                    .initialChargePct(0.0)
+                                    .minChargePct(0.0)
+                                    .minPowerKw(0.0)
+                                    .build()
+                            )
+                            .exclude("exclude")
+                            .geometries(RouteRequest.Geometries.GEOJSON)
+                            .mode(RouteRequest.Mode.AUTO)
+                            .overview(RouteRequest.Overview.FULL)
+                            .steps(true)
+                            .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
+                            .addWaypoint(
+                                RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build()
+                            )
                             .build()
                     )
-                    .exclude("exclude")
-                    .geometries(RouteRequest.Geometries.GEOJSON)
-                    .mode(RouteRequest.Mode.AUTO)
-                    .overview(RouteRequest.Overview.FULL)
-                    .steps(true)
-                    .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
-                    .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
                     .build()
             )
 

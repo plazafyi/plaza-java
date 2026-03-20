@@ -11,6 +11,7 @@ internal class ElevationLookupPostParamsTest {
     @Test
     fun create() {
         ElevationLookupPostParams.builder()
+            .format("format")
             .lat(0.0)
             .lng(0.0)
             .locations("locations")
@@ -24,6 +25,7 @@ internal class ElevationLookupPostParamsTest {
     fun queryParams() {
         val params =
             ElevationLookupPostParams.builder()
+                .format("format")
                 .lat(0.0)
                 .lng(0.0)
                 .locations("locations")
@@ -37,6 +39,7 @@ internal class ElevationLookupPostParamsTest {
         assertThat(queryParams)
             .isEqualTo(
                 QueryParams.builder()
+                    .put("format", "format")
                     .put("lat", "0.0")
                     .put("lng", "0.0")
                     .put("locations", "locations")

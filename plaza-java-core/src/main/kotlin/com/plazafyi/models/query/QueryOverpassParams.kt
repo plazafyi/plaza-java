@@ -8,14 +8,20 @@ import com.plazafyi.core.checkRequired
 import com.plazafyi.core.http.Headers
 import com.plazafyi.core.http.QueryParams
 import java.util.Objects
+import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
 /** Execute an Overpass QL query */
 class QueryOverpassParams
 private constructor(
+    private val format: String?,
     private val overpassQuery: OverpassQuery,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
+
+    /** Response format: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
     /**
      * Overpass QL query request. The query is executed against Plaza's OSM database and results are
@@ -49,16 +55,24 @@ private constructor(
     /** A builder for [QueryOverpassParams]. */
     class Builder internal constructor() {
 
+        private var format: String? = null
         private var overpassQuery: OverpassQuery? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         @JvmSynthetic
         internal fun from(queryOverpassParams: QueryOverpassParams) = apply {
+            format = queryOverpassParams.format
             overpassQuery = queryOverpassParams.overpassQuery
             additionalHeaders = queryOverpassParams.additionalHeaders.toBuilder()
             additionalQueryParams = queryOverpassParams.additionalQueryParams.toBuilder()
         }
+
+        /** Response format: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
         /**
          * Overpass QL query request. The query is executed against Plaza's OSM database and results
@@ -180,6 +194,7 @@ private constructor(
          */
         fun build(): QueryOverpassParams =
             QueryOverpassParams(
+                format,
                 checkRequired("overpassQuery", overpassQuery),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -190,7 +205,13 @@ private constructor(
 
     override fun _headers(): Headers = additionalHeaders
 
-    override fun _queryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams =
+        QueryParams.builder()
+            .apply {
+                format?.let { put("format", it) }
+                putAll(additionalQueryParams)
+            }
+            .build()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -198,14 +219,15 @@ private constructor(
         }
 
         return other is QueryOverpassParams &&
+            format == other.format &&
             overpassQuery == other.overpassQuery &&
             additionalHeaders == other.additionalHeaders &&
             additionalQueryParams == other.additionalQueryParams
     }
 
     override fun hashCode(): Int =
-        Objects.hash(overpassQuery, additionalHeaders, additionalQueryParams)
+        Objects.hash(format, overpassQuery, additionalHeaders, additionalQueryParams)
 
     override fun toString() =
-        "QueryOverpassParams{overpassQuery=$overpassQuery, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "QueryOverpassParams{format=$format, overpassQuery=$overpassQuery, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

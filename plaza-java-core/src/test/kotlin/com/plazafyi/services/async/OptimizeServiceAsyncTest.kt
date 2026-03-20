@@ -4,6 +4,7 @@ package com.plazafyi.services.async
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
+import com.plazafyi.models.optimize.OptimizeCreateParams
 import com.plazafyi.models.optimize.OptimizeRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -22,16 +23,30 @@ internal class OptimizeServiceAsyncTest {
 
         val optimizeResultFuture =
             optimizeServiceAsync.create(
-                OptimizeRequest.builder()
-                    .waypoints(
-                        listOf(
-                            OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
-                            OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
-                            OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
-                        )
+                OptimizeCreateParams.builder()
+                    .format("format")
+                    .optimizeRequest(
+                        OptimizeRequest.builder()
+                            .waypoints(
+                                listOf(
+                                    OptimizeRequest.Waypoint.builder()
+                                        .lat(48.8566)
+                                        .lng(2.3522)
+                                        .build(),
+                                    OptimizeRequest.Waypoint.builder()
+                                        .lat(48.8606)
+                                        .lng(2.3376)
+                                        .build(),
+                                    OptimizeRequest.Waypoint.builder()
+                                        .lat(48.8584)
+                                        .lng(2.2945)
+                                        .build(),
+                                )
+                            )
+                            .mode(OptimizeRequest.Mode.AUTO)
+                            .roundtrip(false)
+                            .build()
                     )
-                    .mode(OptimizeRequest.Mode.AUTO)
-                    .roundtrip(false)
                     .build()
             )
 

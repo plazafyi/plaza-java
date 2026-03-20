@@ -90,6 +90,7 @@ internal class DatasetServiceTest {
                 DatasetFeaturesParams.builder()
                     .id("id")
                     .cursor("cursor")
+                    .format("format")
                     .limit(0L)
                     .outputBuffer(0.0)
                     .outputCentroid(true)

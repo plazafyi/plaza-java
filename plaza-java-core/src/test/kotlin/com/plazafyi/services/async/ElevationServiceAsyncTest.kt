@@ -26,6 +26,7 @@ internal class ElevationServiceAsyncTest {
         val elevationBatchResultFuture =
             elevationServiceAsync.batch(
                 ElevationBatchParams.builder()
+                    .format("format")
                     .addCoordinate(
                         ElevationBatchParams.Coordinate.builder().lat(48.8566).lng(2.3522).build()
                     )
@@ -51,6 +52,7 @@ internal class ElevationServiceAsyncTest {
         val elevationLookupResultFuture =
             elevationServiceAsync.lookup(
                 ElevationLookupParams.builder()
+                    .format("format")
                     .lat(0.0)
                     .lng(0.0)
                     .locations("locations")
@@ -76,6 +78,7 @@ internal class ElevationServiceAsyncTest {
         val elevationLookupResultFuture =
             elevationServiceAsync.lookupPost(
                 ElevationLookupPostParams.builder()
+                    .format("format")
                     .lat(0.0)
                     .lng(0.0)
                     .locations("locations")

@@ -19,15 +19,20 @@ import com.plazafyi.core.toImmutable
 import com.plazafyi.errors.PlazaInvalidDataException
 import java.util.Collections
 import java.util.Objects
+import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
 /** Look up elevation for multiple coordinates */
 class ElevationBatchParams
 private constructor(
+    private val format: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
+
+    /** Response format: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
     /**
      * Coordinates to look up elevations for (max 50)
@@ -70,16 +75,24 @@ private constructor(
     /** A builder for [ElevationBatchParams]. */
     class Builder internal constructor() {
 
+        private var format: String? = null
         private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         @JvmSynthetic
         internal fun from(elevationBatchParams: ElevationBatchParams) = apply {
+            format = elevationBatchParams.format
             body = elevationBatchParams.body.toBuilder()
             additionalHeaders = elevationBatchParams.additionalHeaders.toBuilder()
             additionalQueryParams = elevationBatchParams.additionalQueryParams.toBuilder()
         }
+
+        /** Response format: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
         /**
          * Sets the entire request body.
@@ -242,6 +255,7 @@ private constructor(
          */
         fun build(): ElevationBatchParams =
             ElevationBatchParams(
+                format,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -252,7 +266,13 @@ private constructor(
 
     override fun _headers(): Headers = additionalHeaders
 
-    override fun _queryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams =
+        QueryParams.builder()
+            .apply {
+                format?.let { put("format", it) }
+                putAll(additionalQueryParams)
+            }
+            .build()
 
     /** Request body for batch elevation lookup. Maximum 50 coordinates per request. */
     class Body
@@ -638,13 +658,15 @@ private constructor(
         }
 
         return other is ElevationBatchParams &&
+            format == other.format &&
             body == other.body &&
             additionalHeaders == other.additionalHeaders &&
             additionalQueryParams == other.additionalQueryParams
     }
 
-    override fun hashCode(): Int = Objects.hash(body, additionalHeaders, additionalQueryParams)
+    override fun hashCode(): Int =
+        Objects.hash(format, body, additionalHeaders, additionalQueryParams)
 
     override fun toString() =
-        "ElevationBatchParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ElevationBatchParams{format=$format, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

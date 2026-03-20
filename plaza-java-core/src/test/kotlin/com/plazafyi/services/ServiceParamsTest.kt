@@ -44,6 +44,7 @@ internal class ServiceParamsTest {
                 .contains("contains")
                 .crosses("crosses")
                 .cursor("cursor")
+                .format("format")
                 .h3("h3")
                 .intersects("intersects")
                 .limit(0L)
