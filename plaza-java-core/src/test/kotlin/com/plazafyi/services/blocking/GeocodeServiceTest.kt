@@ -31,6 +31,7 @@ internal class GeocodeServiceTest {
                 GeocodeAutocompleteParams.builder()
                     .q("q")
                     .countryCode("country_code")
+                    .format("format")
                     .lang("lang")
                     .lat(0.0)
                     .layer("layer")
@@ -56,6 +57,7 @@ internal class GeocodeServiceTest {
                 GeocodeAutocompletePostParams.builder()
                     .q("q")
                     .countryCode("country_code")
+                    .format("format")
                     .lang("lang")
                     .lat(0.0)
                     .layer("layer")
@@ -97,6 +99,7 @@ internal class GeocodeServiceTest {
                     .q("q")
                     .bbox("bbox")
                     .countryCode("country_code")
+                    .format("format")
                     .lang("lang")
                     .lat(0.0)
                     .layer("layer")
@@ -123,6 +126,7 @@ internal class GeocodeServiceTest {
                     .q("q")
                     .bbox("bbox")
                     .countryCode("country_code")
+                    .format("format")
                     .lang("lang")
                     .lat(0.0)
                     .layer("layer")
@@ -146,6 +150,7 @@ internal class GeocodeServiceTest {
         val reverseGeocodeResult =
             geocodeService.reverse(
                 GeocodeReverseParams.builder()
+                    .format("format")
                     .lang("lang")
                     .lat(0.0)
                     .layer("layer")
@@ -171,6 +176,7 @@ internal class GeocodeServiceTest {
         val reverseGeocodeResult =
             geocodeService.reversePost(
                 GeocodeReversePostParams.builder()
+                    .format("format")
                     .lang("lang")
                     .lat(0.0)
                     .layer("layer")

@@ -13,6 +13,7 @@ internal class DatasetFeaturesParamsTest {
         DatasetFeaturesParams.builder()
             .id("id")
             .cursor("cursor")
+            .format("format")
             .limit(0L)
             .outputBuffer(0.0)
             .outputCentroid(true)
@@ -40,6 +41,7 @@ internal class DatasetFeaturesParamsTest {
             DatasetFeaturesParams.builder()
                 .id("id")
                 .cursor("cursor")
+                .format("format")
                 .limit(0L)
                 .outputBuffer(0.0)
                 .outputCentroid(true)
@@ -57,6 +59,7 @@ internal class DatasetFeaturesParamsTest {
             .isEqualTo(
                 QueryParams.builder()
                     .put("cursor", "cursor")
+                    .put("format", "format")
                     .put("limit", "0")
                     .put("output[buffer]", "0.0")
                     .put("output[centroid]", "true")

@@ -14,6 +14,7 @@ import kotlin.jvm.optionals.getOrNull
 /** Reverse geocode a coordinate */
 class GeocodeReversePostParams
 private constructor(
+    private val format: String?,
     private val lang: String?,
     private val lat: Double?,
     private val layer: String?,
@@ -25,6 +26,9 @@ private constructor(
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
+
+    /** Response format: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
     /** Language code for localized names (e.g. en, de, fr) */
     fun lang(): Optional<String> = Optional.ofNullable(lang)
@@ -69,6 +73,7 @@ private constructor(
     /** A builder for [GeocodeReversePostParams]. */
     class Builder internal constructor() {
 
+        private var format: String? = null
         private var lang: String? = null
         private var lat: Double? = null
         private var layer: String? = null
@@ -82,6 +87,7 @@ private constructor(
 
         @JvmSynthetic
         internal fun from(geocodeReversePostParams: GeocodeReversePostParams) = apply {
+            format = geocodeReversePostParams.format
             lang = geocodeReversePostParams.lang
             lat = geocodeReversePostParams.lat
             layer = geocodeReversePostParams.layer
@@ -94,6 +100,12 @@ private constructor(
             additionalBodyProperties =
                 geocodeReversePostParams.additionalBodyProperties.toMutableMap()
         }
+
+        /** Response format: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
         /** Language code for localized names (e.g. en, de, fr) */
         fun lang(lang: String?) = apply { this.lang = lang }
@@ -294,6 +306,7 @@ private constructor(
          */
         fun build(): GeocodeReversePostParams =
             GeocodeReversePostParams(
+                format,
                 lang,
                 lat,
                 layer,
@@ -315,6 +328,7 @@ private constructor(
     override fun _queryParams(): QueryParams =
         QueryParams.builder()
             .apply {
+                format?.let { put("format", it) }
                 lang?.let { put("lang", it) }
                 lat?.let { put("lat", it.toString()) }
                 layer?.let { put("layer", it) }
@@ -332,6 +346,7 @@ private constructor(
         }
 
         return other is GeocodeReversePostParams &&
+            format == other.format &&
             lang == other.lang &&
             lat == other.lat &&
             layer == other.layer &&
@@ -346,6 +361,7 @@ private constructor(
 
     override fun hashCode(): Int =
         Objects.hash(
+            format,
             lang,
             lat,
             layer,
@@ -359,5 +375,5 @@ private constructor(
         )
 
     override fun toString() =
-        "GeocodeReversePostParams{lang=$lang, lat=$lat, layer=$layer, limit=$limit, lng=$lng, near=$near, radius=$radius, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "GeocodeReversePostParams{format=$format, lang=$lang, lat=$lat, layer=$layer, limit=$limit, lng=$lng, near=$near, radius=$radius, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

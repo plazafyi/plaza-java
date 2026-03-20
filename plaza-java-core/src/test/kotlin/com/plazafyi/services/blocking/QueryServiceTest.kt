@@ -6,6 +6,7 @@ import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
 import com.plazafyi.models.query.OverpassQuery
 import com.plazafyi.models.query.QueryExecuteParams
+import com.plazafyi.models.query.QueryOverpassParams
 import com.plazafyi.models.query.SparqlQuery
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -48,8 +49,15 @@ internal class QueryServiceTest {
 
         val featureCollection =
             queryService.overpass(
-                OverpassQuery.builder()
-                    .data("[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;")
+                QueryOverpassParams.builder()
+                    .format("format")
+                    .overpassQuery(
+                        OverpassQuery.builder()
+                            .data(
+                                "[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;"
+                            )
+                            .build()
+                    )
                     .build()
             )
 

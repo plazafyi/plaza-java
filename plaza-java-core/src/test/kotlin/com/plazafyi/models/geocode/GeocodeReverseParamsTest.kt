@@ -11,6 +11,7 @@ internal class GeocodeReverseParamsTest {
     @Test
     fun create() {
         GeocodeReverseParams.builder()
+            .format("format")
             .lang("lang")
             .lat(0.0)
             .layer("layer")
@@ -25,6 +26,7 @@ internal class GeocodeReverseParamsTest {
     fun queryParams() {
         val params =
             GeocodeReverseParams.builder()
+                .format("format")
                 .lang("lang")
                 .lat(0.0)
                 .layer("layer")
@@ -39,6 +41,7 @@ internal class GeocodeReverseParamsTest {
         assertThat(queryParams)
             .isEqualTo(
                 QueryParams.builder()
+                    .put("format", "format")
                     .put("lang", "lang")
                     .put("lat", "0.0")
                     .put("layer", "layer")
