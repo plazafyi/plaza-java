@@ -10,13 +10,27 @@ internal class ElevationLookupParamsTest {
 
     @Test
     fun create() {
-        ElevationLookupParams.builder().lat(0.0).lng(0.0).locations("locations").build()
+        ElevationLookupParams.builder()
+            .lat(0.0)
+            .lng(0.0)
+            .locations("locations")
+            .outputFields("output[fields]")
+            .outputInclude("output[include]")
+            .outputPrecision(0L)
+            .build()
     }
 
     @Test
     fun queryParams() {
         val params =
-            ElevationLookupParams.builder().lat(0.0).lng(0.0).locations("locations").build()
+            ElevationLookupParams.builder()
+                .lat(0.0)
+                .lng(0.0)
+                .locations("locations")
+                .outputFields("output[fields]")
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .build()
 
         val queryParams = params._queryParams()
 
@@ -26,6 +40,9 @@ internal class ElevationLookupParamsTest {
                     .put("lat", "0.0")
                     .put("lng", "0.0")
                     .put("locations", "locations")
+                    .put("output[fields]", "output[fields]")
+                    .put("output[include]", "output[include]")
+                    .put("output[precision]", "0")
                     .build()
             )
     }

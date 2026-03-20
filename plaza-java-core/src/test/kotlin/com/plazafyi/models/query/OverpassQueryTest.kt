@@ -11,15 +11,22 @@ internal class OverpassQueryTest {
 
     @Test
     fun create() {
-        val overpassQuery = OverpassQuery.builder().data("data").build()
+        val overpassQuery =
+            OverpassQuery.builder()
+                .data("[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;")
+                .build()
 
-        assertThat(overpassQuery.data()).isEqualTo("data")
+        assertThat(overpassQuery.data())
+            .isEqualTo("[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;")
     }
 
     @Test
     fun roundtrip() {
         val jsonMapper = jsonMapper()
-        val overpassQuery = OverpassQuery.builder().data("data").build()
+        val overpassQuery =
+            OverpassQuery.builder()
+                .data("[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;")
+                .build()
 
         val roundtrippedOverpassQuery =
             jsonMapper.readValue(

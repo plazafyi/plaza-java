@@ -18,7 +18,10 @@ import com.plazafyi.errors.PlazaInvalidDataException
 import java.util.Objects
 import java.util.Optional
 
-/** Optimization response — either a completed GeoJSON Feature route or an async job reference */
+/**
+ * Optimization response — either a completed FeatureCollection with the optimized route, or an
+ * async job reference to poll.
+ */
 @JsonDeserialize(using = OptimizeResult.Deserializer::class)
 @JsonSerialize(using = OptimizeResult.Serializer::class)
 class OptimizeResult
@@ -28,20 +31,32 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
-    /** Completed optimization — GeoJSON Feature with optimized route */
+    /**
+     * Completed optimization result as a GeoJSON FeatureCollection. Each Feature is a waypoint in
+     * optimized visit order. Top-level fields provide summary statistics.
+     */
     fun completed(): Optional<OptimizeCompletedResult> = Optional.ofNullable(completed)
 
-    /** Async optimization in progress — poll with the job_id */
+    /**
+     * Async optimization in progress. Poll `GET /api/v1/optimize/{job_id}` until the status changes
+     * to `completed` or `failed`.
+     */
     fun processing(): Optional<OptimizeProcessingResult> = Optional.ofNullable(processing)
 
     fun isCompleted(): Boolean = completed != null
 
     fun isProcessing(): Boolean = processing != null
 
-    /** Completed optimization — GeoJSON Feature with optimized route */
+    /**
+     * Completed optimization result as a GeoJSON FeatureCollection. Each Feature is a waypoint in
+     * optimized visit order. Top-level fields provide summary statistics.
+     */
     fun asCompleted(): OptimizeCompletedResult = completed.getOrThrow("completed")
 
-    /** Async optimization in progress — poll with the job_id */
+    /**
+     * Async optimization in progress. Poll `GET /api/v1/optimize/{job_id}` until the status changes
+     * to `completed` or `failed`.
+     */
     fun asProcessing(): OptimizeProcessingResult = processing.getOrThrow("processing")
 
     fun _json(): Optional<JsonValue> = Optional.ofNullable(_json)
@@ -123,11 +138,17 @@ private constructor(
 
     companion object {
 
-        /** Completed optimization — GeoJSON Feature with optimized route */
+        /**
+         * Completed optimization result as a GeoJSON FeatureCollection. Each Feature is a waypoint
+         * in optimized visit order. Top-level fields provide summary statistics.
+         */
         @JvmStatic
         fun ofCompleted(completed: OptimizeCompletedResult) = OptimizeResult(completed = completed)
 
-        /** Async optimization in progress — poll with the job_id */
+        /**
+         * Async optimization in progress. Poll `GET /api/v1/optimize/{job_id}` until the status
+         * changes to `completed` or `failed`.
+         */
         @JvmStatic
         fun ofProcessing(processing: OptimizeProcessingResult) =
             OptimizeResult(processing = processing)
@@ -138,10 +159,16 @@ private constructor(
      */
     interface Visitor<out T> {
 
-        /** Completed optimization — GeoJSON Feature with optimized route */
+        /**
+         * Completed optimization result as a GeoJSON FeatureCollection. Each Feature is a waypoint
+         * in optimized visit order. Top-level fields provide summary statistics.
+         */
         fun visitCompleted(completed: OptimizeCompletedResult): T
 
-        /** Async optimization in progress — poll with the job_id */
+        /**
+         * Async optimization in progress. Poll `GET /api/v1/optimize/{job_id}` until the status
+         * changes to `completed` or `failed`.
+         */
         fun visitProcessing(processing: OptimizeProcessingResult): T
 
         /**

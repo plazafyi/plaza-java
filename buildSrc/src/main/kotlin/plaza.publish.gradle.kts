@@ -43,7 +43,7 @@ configure<MavenPublishBaseExtension> {
 
     pom {
         name.set("Plaza API")
-        description.set("Geospatial data API serving the complete OpenStreetMap planet dataset")
+        description.set("Geospatial data API serving the complete OpenStreetMap planet dataset.\n\nPlaza provides geocoding, routing, search, isochrones, elevation, map matching,\nroute optimization, and raw OSM element queries — all from a single API. Spatial\ndata is indexed using a proprietary H3 hexagonal tiling system for fast lookups\nat any scale.\n\n**Authentication**: Pass your API key via `Authorization: Bearer <key>`,\n`x-api-key: <key>` header, or `api_key=<key>` query parameter.\n\n**Response format**: Spatial endpoints return GeoJSON (`application/geo+json`).\nPaginated responses put metadata in HTTP headers (`X-Limit`, `X-Has-More`,\n`X-Next-Cursor`, `Link`), not the body.")
         url.set("https://docs.plaza.fyi")
 
         licenses {

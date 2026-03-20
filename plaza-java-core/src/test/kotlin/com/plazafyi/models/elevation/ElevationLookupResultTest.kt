@@ -16,23 +16,23 @@ internal class ElevationLookupResultTest {
             ElevationLookupResult.builder()
                 .geometry(
                     GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
+                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
                         .type(GeoJsonGeometry.Type.POINT)
                         .build()
                 )
-                .properties(ElevationLookupResult.Properties.builder().elevationM(0.0).build())
+                .properties(ElevationLookupResult.Properties.builder().elevationM(35.2).build())
                 .type(ElevationLookupResult.Type.FEATURE)
                 .build()
 
         assertThat(elevationLookupResult.geometry())
             .isEqualTo(
                 GeoJsonGeometry.builder()
-                    .coordinatesOfNumber(listOf(0.0))
+                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
                     .type(GeoJsonGeometry.Type.POINT)
                     .build()
             )
         assertThat(elevationLookupResult.properties())
-            .isEqualTo(ElevationLookupResult.Properties.builder().elevationM(0.0).build())
+            .isEqualTo(ElevationLookupResult.Properties.builder().elevationM(35.2).build())
         assertThat(elevationLookupResult.type()).isEqualTo(ElevationLookupResult.Type.FEATURE)
     }
 
@@ -43,11 +43,11 @@ internal class ElevationLookupResultTest {
             ElevationLookupResult.builder()
                 .geometry(
                     GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
+                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
                         .type(GeoJsonGeometry.Type.POINT)
                         .build()
                 )
-                .properties(ElevationLookupResult.Properties.builder().elevationM(0.0).build())
+                .properties(ElevationLookupResult.Properties.builder().elevationM(35.2).build())
                 .type(ElevationLookupResult.Type.FEATURE)
                 .build()
 

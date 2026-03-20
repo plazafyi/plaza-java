@@ -17,6 +17,10 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * Fetch multiple OSM elements by their type and ID in a single request. Maximum 100 elements
+     * per batch.
+     */
     fun batchRequest(): BatchRequest = batchRequest
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = batchRequest._additionalProperties()
@@ -56,6 +60,10 @@ private constructor(
             additionalQueryParams = elementBatchParams.additionalQueryParams.toBuilder()
         }
 
+        /**
+         * Fetch multiple OSM elements by their type and ID in a single request. Maximum 100
+         * elements per batch.
+         */
         fun batchRequest(batchRequest: BatchRequest) = apply { this.batchRequest = batchRequest }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {

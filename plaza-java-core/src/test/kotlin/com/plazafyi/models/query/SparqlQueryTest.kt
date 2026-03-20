@@ -11,15 +11,28 @@ internal class SparqlQueryTest {
 
     @Test
     fun create() {
-        val sparqlQuery = SparqlQuery.builder().query("query").build()
+        val sparqlQuery =
+            SparqlQuery.builder()
+                .query(
+                    "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
+                )
+                .build()
 
-        assertThat(sparqlQuery.query()).isEqualTo("query")
+        assertThat(sparqlQuery.query())
+            .isEqualTo(
+                "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
+            )
     }
 
     @Test
     fun roundtrip() {
         val jsonMapper = jsonMapper()
-        val sparqlQuery = SparqlQuery.builder().query("query").build()
+        val sparqlQuery =
+            SparqlQuery.builder()
+                .query(
+                    "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
+                )
+                .build()
 
         val roundtrippedSparqlQuery =
             jsonMapper.readValue(

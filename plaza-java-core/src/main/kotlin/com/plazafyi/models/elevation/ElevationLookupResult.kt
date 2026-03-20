@@ -16,10 +16,12 @@ import com.plazafyi.errors.PlazaInvalidDataException
 import com.plazafyi.models.GeoJsonGeometry
 import java.util.Collections
 import java.util.Objects
-import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
-/** GeoJSON Point Feature with 3D coordinate [lng, lat, elevation] (RFC 7946 §3.1.1) */
+/**
+ * GeoJSON Point Feature with a 3D coordinate [lng, lat, elevation] per RFC 7946 §3.1.1. The
+ * elevation is also available in `properties.elevation_m` for convenience.
+ */
 class ElevationLookupResult
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -41,6 +43,9 @@ private constructor(
     ) : this(geometry, properties, type, mutableMapOf())
 
     /**
+     * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+     * coordinates [lng, lat, elevation] are used for elevation endpoints.
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -124,6 +129,10 @@ private constructor(
             additionalProperties = elevationLookupResult.additionalProperties.toMutableMap()
         }
 
+        /**
+         * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+         * coordinates [lng, lat, elevation] are used for elevation endpoints.
+         */
         fun geometry(geometry: GeoJsonGeometry) = geometry(JsonField.of(geometry))
 
         /**
@@ -245,12 +254,12 @@ private constructor(
         ) : this(elevationM, mutableMapOf())
 
         /**
-         * Elevation in meters above mean sea level
+         * Elevation in meters above mean sea level (WGS84 EGM96 geoid)
          *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-         *   server responded with an unexpected value).
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
-        fun elevationM(): Optional<Double> = elevationM.getOptional("elevation_m")
+        fun elevationM(): Double = elevationM.getRequired("elevation_m")
 
         /**
          * Returns the raw JSON value of [elevationM].
@@ -275,14 +284,21 @@ private constructor(
 
         companion object {
 
-            /** Returns a mutable builder for constructing an instance of [Properties]. */
+            /**
+             * Returns a mutable builder for constructing an instance of [Properties].
+             *
+             * The following fields are required:
+             * ```java
+             * .elevationM()
+             * ```
+             */
             @JvmStatic fun builder() = Builder()
         }
 
         /** A builder for [Properties]. */
         class Builder internal constructor() {
 
-            private var elevationM: JsonField<Double> = JsonMissing.of()
+            private var elevationM: JsonField<Double>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             @JvmSynthetic
@@ -291,7 +307,7 @@ private constructor(
                 additionalProperties = properties.additionalProperties.toMutableMap()
             }
 
-            /** Elevation in meters above mean sea level */
+            /** Elevation in meters above mean sea level (WGS84 EGM96 geoid) */
             fun elevationM(elevationM: Double) = elevationM(JsonField.of(elevationM))
 
             /**
@@ -326,8 +342,19 @@ private constructor(
              * Returns an immutable instance of [Properties].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```java
+             * .elevationM()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): Properties = Properties(elevationM, additionalProperties.toMutableMap())
+            fun build(): Properties =
+                Properties(
+                    checkRequired("elevationM", elevationM),
+                    additionalProperties.toMutableMap(),
+                )
         }
 
         private var validated: Boolean = false

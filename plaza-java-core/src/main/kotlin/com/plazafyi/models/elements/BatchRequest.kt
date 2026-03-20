@@ -19,6 +19,10 @@ import java.util.Collections
 import java.util.Objects
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * Fetch multiple OSM elements by their type and ID in a single request. Maximum 100 elements per
+ * batch.
+ */
 class BatchRequest
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -34,6 +38,8 @@ private constructor(
     ) : this(elements, mutableMapOf())
 
     /**
+     * Array of element references to fetch
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -83,6 +89,7 @@ private constructor(
             additionalProperties = batchRequest.additionalProperties.toMutableMap()
         }
 
+        /** Array of element references to fetch */
         fun elements(elements: List<Element>) = elements(JsonField.of(elements))
 
         /**
@@ -174,6 +181,7 @@ private constructor(
     internal fun validity(): Int =
         (elements.asKnown().getOrNull()?.sumOf { it.validity().toInt() } ?: 0)
 
+    /** Reference to a single OSM element */
     class Element
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     private constructor(
@@ -189,12 +197,16 @@ private constructor(
         ) : this(id, type, mutableMapOf())
 
         /**
+         * OSM element ID
+         *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
          *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
         fun id(): Long = id.getRequired("id")
 
         /**
+         * OSM element type
+         *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
          *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
@@ -254,6 +266,7 @@ private constructor(
                 additionalProperties = element.additionalProperties.toMutableMap()
             }
 
+            /** OSM element ID */
             fun id(id: Long) = id(JsonField.of(id))
 
             /**
@@ -265,6 +278,7 @@ private constructor(
              */
             fun id(id: JsonField<Long>) = apply { this.id = id }
 
+            /** OSM element type */
             fun type(type: Type) = type(JsonField.of(type))
 
             /**
@@ -346,6 +360,7 @@ private constructor(
         internal fun validity(): Int =
             (if (id.asKnown().isPresent) 1 else 0) + (type.asKnown().getOrNull()?.validity() ?: 0)
 
+        /** OSM element type */
         class Type @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
             /**

@@ -17,7 +17,10 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** GPS trace to match against the road network */
+    /**
+     * GPS trace to snap to the road network. Provide an array of coordinate objects representing
+     * the GPS points. Maximum 50 points per request.
+     */
     fun mapMatchRequest(): MapMatchRequest = mapMatchRequest
 
     fun _additionalBodyProperties(): Map<String, JsonValue> =
@@ -58,7 +61,10 @@ private constructor(
             additionalQueryParams = mapMatchMatchParams.additionalQueryParams.toBuilder()
         }
 
-        /** GPS trace to match against the road network */
+        /**
+         * GPS trace to snap to the road network. Provide an array of coordinate objects
+         * representing the GPS points. Maximum 50 points per request.
+         */
         fun mapMatchRequest(mapMatchRequest: MapMatchRequest) = apply {
             this.mapMatchRequest = mapMatchRequest
         }

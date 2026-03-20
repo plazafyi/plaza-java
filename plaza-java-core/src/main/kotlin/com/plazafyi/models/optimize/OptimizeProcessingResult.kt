@@ -17,7 +17,10 @@ import java.util.Collections
 import java.util.Objects
 import kotlin.jvm.optionals.getOrNull
 
-/** Async optimization in progress — poll with the job_id */
+/**
+ * Async optimization in progress. Poll `GET /api/v1/optimize/{job_id}` until the status changes to
+ * `completed` or `failed`.
+ */
 class OptimizeProcessingResult
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -33,7 +36,7 @@ private constructor(
     ) : this(jobId, status, mutableMapOf())
 
     /**
-     * Job ID for polling
+     * Job ID for polling the result
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -41,7 +44,7 @@ private constructor(
     fun jobId(): String = jobId.getRequired("job_id")
 
     /**
-     * Job status
+     * Always `processing`
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -102,7 +105,7 @@ private constructor(
             additionalProperties = optimizeProcessingResult.additionalProperties.toMutableMap()
         }
 
-        /** Job ID for polling */
+        /** Job ID for polling the result */
         fun jobId(jobId: String) = jobId(JsonField.of(jobId))
 
         /**
@@ -113,7 +116,7 @@ private constructor(
          */
         fun jobId(jobId: JsonField<String>) = apply { this.jobId = jobId }
 
-        /** Job status */
+        /** Always `processing` */
         fun status(status: Status) = status(JsonField.of(status))
 
         /**
@@ -193,7 +196,7 @@ private constructor(
     internal fun validity(): Int =
         (if (jobId.asKnown().isPresent) 1 else 0) + (status.asKnown().getOrNull()?.validity() ?: 0)
 
-    /** Job status */
+    /** Always `processing` */
     class Status @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
         /**

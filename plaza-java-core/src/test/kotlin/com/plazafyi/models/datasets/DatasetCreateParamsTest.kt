@@ -10,12 +10,12 @@ internal class DatasetCreateParamsTest {
     @Test
     fun create() {
         DatasetCreateParams.builder()
-            .name("name")
-            .slug("slug")
+            .name("NYC Bike Lanes")
+            .slug("nyc-bike-lanes")
             .attribution("attribution")
             .description("description")
             .license("license")
-            .sourceUrl("source_url")
+            .sourceUrl("https://example.com")
             .build()
     }
 
@@ -23,31 +23,32 @@ internal class DatasetCreateParamsTest {
     fun body() {
         val params =
             DatasetCreateParams.builder()
-                .name("name")
-                .slug("slug")
+                .name("NYC Bike Lanes")
+                .slug("nyc-bike-lanes")
                 .attribution("attribution")
                 .description("description")
                 .license("license")
-                .sourceUrl("source_url")
+                .sourceUrl("https://example.com")
                 .build()
 
         val body = params._body()
 
-        assertThat(body.name()).isEqualTo("name")
-        assertThat(body.slug()).isEqualTo("slug")
+        assertThat(body.name()).isEqualTo("NYC Bike Lanes")
+        assertThat(body.slug()).isEqualTo("nyc-bike-lanes")
         assertThat(body.attribution()).contains("attribution")
         assertThat(body.description()).contains("description")
         assertThat(body.license()).contains("license")
-        assertThat(body.sourceUrl()).contains("source_url")
+        assertThat(body.sourceUrl()).contains("https://example.com")
     }
 
     @Test
     fun bodyWithoutOptionalFields() {
-        val params = DatasetCreateParams.builder().name("name").slug("slug").build()
+        val params =
+            DatasetCreateParams.builder().name("NYC Bike Lanes").slug("nyc-bike-lanes").build()
 
         val body = params._body()
 
-        assertThat(body.name()).isEqualTo("name")
-        assertThat(body.slug()).isEqualTo("slug")
+        assertThat(body.name()).isEqualTo("NYC Bike Lanes")
+        assertThat(body.slug()).isEqualTo("nyc-bike-lanes")
     }
 }

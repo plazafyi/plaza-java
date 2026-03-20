@@ -17,6 +17,10 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * SPARQL query request. Queries OSM data using SPARQL syntax. Results are returned as a JSON
+     * object with a `results` array.
+     */
     fun sparqlQuery(): SparqlQuery = sparqlQuery
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = sparqlQuery._additionalProperties()
@@ -56,6 +60,10 @@ private constructor(
             additionalQueryParams = querySparqlParams.additionalQueryParams.toBuilder()
         }
 
+        /**
+         * SPARQL query request. Queries OSM data using SPARQL syntax. Results are returned as a
+         * JSON object with a `results` array.
+         */
         fun sparqlQuery(sparqlQuery: SparqlQuery) = apply { this.sparqlQuery = sparqlQuery }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {

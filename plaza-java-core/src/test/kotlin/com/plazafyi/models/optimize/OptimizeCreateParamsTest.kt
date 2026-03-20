@@ -2,7 +2,6 @@
 
 package com.plazafyi.models.optimize
 
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,13 +13,14 @@ internal class OptimizeCreateParamsTest {
             .optimizeRequest(
                 OptimizeRequest.builder()
                     .waypoints(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                        listOf(
+                            OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+                        )
                     )
                     .mode(OptimizeRequest.Mode.AUTO)
-                    .roundtrip(true)
+                    .roundtrip(false)
                     .build()
             )
             .build()
@@ -33,13 +33,14 @@ internal class OptimizeCreateParamsTest {
                 .optimizeRequest(
                     OptimizeRequest.builder()
                         .waypoints(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
+                            listOf(
+                                OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
+                                OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
+                                OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+                            )
                         )
                         .mode(OptimizeRequest.Mode.AUTO)
-                        .roundtrip(true)
+                        .roundtrip(false)
                         .build()
                 )
                 .build()
@@ -50,13 +51,14 @@ internal class OptimizeCreateParamsTest {
             .isEqualTo(
                 OptimizeRequest.builder()
                     .waypoints(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                        listOf(
+                            OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+                        )
                     )
                     .mode(OptimizeRequest.Mode.AUTO)
-                    .roundtrip(true)
+                    .roundtrip(false)
                     .build()
             )
     }
@@ -68,10 +70,11 @@ internal class OptimizeCreateParamsTest {
                 .optimizeRequest(
                     OptimizeRequest.builder()
                         .waypoints(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
+                            listOf(
+                                OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
+                                OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
+                                OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+                            )
                         )
                         .build()
                 )
@@ -83,10 +86,11 @@ internal class OptimizeCreateParamsTest {
             .isEqualTo(
                 OptimizeRequest.builder()
                     .waypoints(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                        listOf(
+                            OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+                        )
                     )
                     .build()
             )

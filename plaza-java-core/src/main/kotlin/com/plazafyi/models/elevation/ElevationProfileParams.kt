@@ -17,7 +17,10 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** Request body for elevation profile */
+    /**
+     * Request body for elevation profile along a path. Provide at least 2 coordinates defining the
+     * path. Maximum 50 coordinates per request.
+     */
     fun elevationProfileRequest(): ElevationProfileRequest = elevationProfileRequest
 
     fun _additionalBodyProperties(): Map<String, JsonValue> =
@@ -58,7 +61,10 @@ private constructor(
             additionalQueryParams = elevationProfileParams.additionalQueryParams.toBuilder()
         }
 
-        /** Request body for elevation profile */
+        /**
+         * Request body for elevation profile along a path. Provide at least 2 coordinates defining
+         * the path. Maximum 50 coordinates per request.
+         */
         fun elevationProfileRequest(elevationProfileRequest: ElevationProfileRequest) = apply {
             this.elevationProfileRequest = elevationProfileRequest
         }

@@ -16,9 +16,13 @@ internal class ErrorTest {
             Error.builder()
                 .error(
                     Error.InnerError.builder()
-                        .code("code")
-                        .message("message")
-                        .details(JsonValue.from(mapOf<String, Any>()))
+                        .code("invalid_request")
+                        .message("Missing required parameter: q")
+                        .details(
+                            Error.InnerError.Details.builder()
+                                .putAdditionalProperty("foo", JsonValue.from("bar"))
+                                .build()
+                        )
                         .build()
                 )
                 .build()
@@ -26,9 +30,13 @@ internal class ErrorTest {
         assertThat(error.error())
             .isEqualTo(
                 Error.InnerError.builder()
-                    .code("code")
-                    .message("message")
-                    .details(JsonValue.from(mapOf<String, Any>()))
+                    .code("invalid_request")
+                    .message("Missing required parameter: q")
+                    .details(
+                        Error.InnerError.Details.builder()
+                            .putAdditionalProperty("foo", JsonValue.from("bar"))
+                            .build()
+                    )
                     .build()
             )
     }
@@ -40,9 +48,13 @@ internal class ErrorTest {
             Error.builder()
                 .error(
                     Error.InnerError.builder()
-                        .code("code")
-                        .message("message")
-                        .details(JsonValue.from(mapOf<String, Any>()))
+                        .code("invalid_request")
+                        .message("Missing required parameter: q")
+                        .details(
+                            Error.InnerError.Details.builder()
+                                .putAdditionalProperty("foo", JsonValue.from("bar"))
+                                .build()
+                        )
                         .build()
                 )
                 .build()

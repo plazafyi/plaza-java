@@ -10,7 +10,19 @@ internal class DatasetFeaturesParamsTest {
 
     @Test
     fun create() {
-        DatasetFeaturesParams.builder().id("id").cursor("cursor").limit(0L).build()
+        DatasetFeaturesParams.builder()
+            .id("id")
+            .cursor("cursor")
+            .limit(0L)
+            .outputBuffer(0.0)
+            .outputCentroid(true)
+            .outputFields("output[fields]")
+            .outputGeometry(true)
+            .outputInclude("output[include]")
+            .outputPrecision(0L)
+            .outputSimplify(0.0)
+            .outputSort("output[sort]")
+            .build()
     }
 
     @Test
@@ -24,12 +36,38 @@ internal class DatasetFeaturesParamsTest {
 
     @Test
     fun queryParams() {
-        val params = DatasetFeaturesParams.builder().id("id").cursor("cursor").limit(0L).build()
+        val params =
+            DatasetFeaturesParams.builder()
+                .id("id")
+                .cursor("cursor")
+                .limit(0L)
+                .outputBuffer(0.0)
+                .outputCentroid(true)
+                .outputFields("output[fields]")
+                .outputGeometry(true)
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .outputSimplify(0.0)
+                .outputSort("output[sort]")
+                .build()
 
         val queryParams = params._queryParams()
 
         assertThat(queryParams)
-            .isEqualTo(QueryParams.builder().put("cursor", "cursor").put("limit", "0").build())
+            .isEqualTo(
+                QueryParams.builder()
+                    .put("cursor", "cursor")
+                    .put("limit", "0")
+                    .put("output[buffer]", "0.0")
+                    .put("output[centroid]", "true")
+                    .put("output[fields]", "output[fields]")
+                    .put("output[geometry]", "true")
+                    .put("output[include]", "output[include]")
+                    .put("output[precision]", "0")
+                    .put("output[simplify]", "0.0")
+                    .put("output[sort]", "output[sort]")
+                    .build()
+            )
     }
 
     @Test

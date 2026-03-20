@@ -60,18 +60,17 @@ This library requires Java 8 or later.
 import com.plazafyi.client.PlazaClient;
 import com.plazafyi.client.okhttp.PlazaOkHttpClient;
 import com.plazafyi.models.FeatureCollection;
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
 
 // Configures using the `plaza.apiKey` and `plaza.baseUrl` system properties
 // Or configures using the `PLAZA_API_KEY` and `PLAZA_BASE_URL` environment variables
 PlazaClient client = PlazaOkHttpClient.fromEnv();
 
-ElementNearbyParams params = ElementNearbyParams.builder()
-    .lat(48.8584)
-    .lng(0.0)
-    .radius(500L)
+ElementQueryParams params = ElementQueryParams.builder()
+    .near("48.8584,2.2945")
+    .radius(500.0)
     .build();
-FeatureCollection featureCollection = client.elements().nearby(params);
+FeatureCollection featureCollection = client.elements().query(params);
 ```
 
 ## Client configuration
@@ -144,7 +143,7 @@ The `withOptions()` method does not affect the original client or service.
 
 To send a request to the Plaza API, build an instance of some `Params` class and pass it to the corresponding client method. When the response is received, it will be deserialized into an instance of a Java class.
 
-For example, `client.elements().nearby(...)` should be called with an instance of `ElementNearbyParams`, and it will return an instance of `FeatureCollection`.
+For example, `client.elements().query(...)` should be called with an instance of `ElementQueryParams`, and it will return an instance of `FeatureCollection`.
 
 ## Immutability
 
@@ -162,19 +161,18 @@ The default client is synchronous. To switch to asynchronous execution, call the
 import com.plazafyi.client.PlazaClient;
 import com.plazafyi.client.okhttp.PlazaOkHttpClient;
 import com.plazafyi.models.FeatureCollection;
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
 import java.util.concurrent.CompletableFuture;
 
 // Configures using the `plaza.apiKey` and `plaza.baseUrl` system properties
 // Or configures using the `PLAZA_API_KEY` and `PLAZA_BASE_URL` environment variables
 PlazaClient client = PlazaOkHttpClient.fromEnv();
 
-ElementNearbyParams params = ElementNearbyParams.builder()
-    .lat(48.8584)
-    .lng(0.0)
-    .radius(500L)
+ElementQueryParams params = ElementQueryParams.builder()
+    .near("48.8584,2.2945")
+    .radius(500.0)
     .build();
-CompletableFuture<FeatureCollection> featureCollection = client.async().elements().nearby(params);
+CompletableFuture<FeatureCollection> featureCollection = client.async().elements().query(params);
 ```
 
 Or create an asynchronous client from the beginning:
@@ -183,19 +181,18 @@ Or create an asynchronous client from the beginning:
 import com.plazafyi.client.PlazaClientAsync;
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync;
 import com.plazafyi.models.FeatureCollection;
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
 import java.util.concurrent.CompletableFuture;
 
 // Configures using the `plaza.apiKey` and `plaza.baseUrl` system properties
 // Or configures using the `PLAZA_API_KEY` and `PLAZA_BASE_URL` environment variables
 PlazaClientAsync client = PlazaOkHttpClientAsync.fromEnv();
 
-ElementNearbyParams params = ElementNearbyParams.builder()
-    .lat(48.8584)
-    .lng(0.0)
-    .radius(500L)
+ElementQueryParams params = ElementQueryParams.builder()
+    .near("48.8584,2.2945")
+    .radius(500.0)
     .build();
-CompletableFuture<FeatureCollection> featureCollection = client.elements().nearby(params);
+CompletableFuture<FeatureCollection> featureCollection = client.elements().query(params);
 ```
 
 The asynchronous client supports the same options as the synchronous one, except most methods return `CompletableFuture`s.
@@ -263,14 +260,13 @@ To access this data, prefix any HTTP method call on a client or service with `wi
 import com.plazafyi.core.http.Headers;
 import com.plazafyi.core.http.HttpResponseFor;
 import com.plazafyi.models.FeatureCollection;
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
 
-ElementNearbyParams params = ElementNearbyParams.builder()
-    .lat(48.8584)
-    .lng(0.0)
-    .radius(500L)
+ElementQueryParams params = ElementQueryParams.builder()
+    .near("48.8584,2.2945")
+    .radius(500.0)
     .build();
-HttpResponseFor<FeatureCollection> featureCollection = client.elements().withRawResponse().nearby(params);
+HttpResponseFor<FeatureCollection> featureCollection = client.elements().withRawResponse().query(params);
 
 int statusCode = featureCollection.statusCode();
 Headers headers = featureCollection.headers();
@@ -381,9 +377,7 @@ To set a custom timeout, configure the method call using the `timeout` method:
 ```java
 import com.plazafyi.models.FeatureCollection;
 
-FeatureCollection featureCollection = client.elements().nearby(
-  params, RequestOptions.builder().timeout(Duration.ofSeconds(30)).build()
-);
+FeatureCollection featureCollection = client.elements().query(RequestOptions.builder().timeout(Duration.ofSeconds(30)).build());
 ```
 
 Or configure the default for all method calls at the client level:
@@ -519,9 +513,9 @@ To set undocumented parameters, call the `putAdditionalHeader`, `putAdditionalQu
 
 ```java
 import com.plazafyi.core.JsonValue;
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
 
-ElementNearbyParams params = ElementNearbyParams.builder()
+ElementQueryParams params = ElementQueryParams.builder()
     .putAdditionalHeader("Secret-Header", "42")
     .putAdditionalQueryParam("secret_query_param", "42")
     .putAdditionalBodyProperty("secretProperty", JsonValue.from("42"))
@@ -533,12 +527,11 @@ These can be accessed on the built object later using the `_additionalHeaders()`
 To set a documented parameter or property to an undocumented or not yet supported _value_, pass a [`JsonValue`](plaza-java-core/src/main/kotlin/com/plazafyi/core/Values.kt) object to its setter:
 
 ```java
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
 
-ElementNearbyParams params = ElementNearbyParams.builder()
-    .lat(48.8584)
-    .lng(0.0)
-    .radius(500L)
+ElementQueryParams params = ElementQueryParams.builder()
+    .near("48.8584,2.2945")
+    .radius(500.0)
     .build();
 ```
 
@@ -587,11 +580,11 @@ To forcibly omit a required parameter or property, pass [`JsonMissing`](plaza-ja
 
 ```java
 import com.plazafyi.core.JsonMissing;
-import com.plazafyi.models.elements.ElementNearbyParams;
+import com.plazafyi.models.elements.ElementQueryParams;
+import com.plazafyi.models.elements.ElementRetrieveParams;
 
-ElementNearbyParams params = ElementNearbyParams.builder()
-    .lng(0.0)
-    .lat(JsonMissing.of())
+ElementQueryParams params = ElementRetrieveParams.builder()
+    .type(JsonMissing.of())
     .build();
 ```
 
@@ -603,7 +596,7 @@ To access undocumented response properties, call the `_additionalProperties()` m
 import com.plazafyi.core.JsonValue;
 import java.util.Map;
 
-Map<String, JsonValue> additionalProperties = client.elements().nearby(params)._additionalProperties();
+Map<String, JsonValue> additionalProperties = client.elements().query(params)._additionalProperties();
 JsonValue secretPropertyValue = additionalProperties.get("secretProperty");
 
 String result = secretPropertyValue.accept(new JsonValue.Visitor<>() {
@@ -633,7 +626,7 @@ To access a property's raw JSON value, which may be undocumented, call its `_` p
 import com.plazafyi.core.JsonField;
 import java.util.Optional;
 
-JsonField<Object> field = client.elements().nearby(params)._field();
+JsonField<Object> field = client.elements().query(params)._field();
 
 if (field.isMissing()) {
   // The property is absent from the JSON response
@@ -660,7 +653,7 @@ If you would prefer to check that the response is completely well-typed upfront,
 ```java
 import com.plazafyi.models.FeatureCollection;
 
-FeatureCollection featureCollection = client.elements().nearby(params).validate();
+FeatureCollection featureCollection = client.elements().query(params).validate();
 ```
 
 Or configure the method call to validate the response using the `responseValidation` method:
@@ -668,9 +661,7 @@ Or configure the method call to validate the response using the `responseValidat
 ```java
 import com.plazafyi.models.FeatureCollection;
 
-FeatureCollection featureCollection = client.elements().nearby(
-  params, RequestOptions.builder().responseValidation(true).build()
-);
+FeatureCollection featureCollection = client.elements().query(RequestOptions.builder().responseValidation(true).build());
 ```
 
 Or configure the default for all method calls at the client level:

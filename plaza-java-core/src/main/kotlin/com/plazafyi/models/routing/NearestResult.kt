@@ -19,7 +19,10 @@ import java.util.Objects
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
-/** GeoJSON Point Feature snapped to the nearest road segment */
+/**
+ * GeoJSON Point Feature representing the nearest point on the road network to the input coordinate.
+ * Used for snapping GPS coordinates to roads.
+ */
 class NearestResult
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -41,12 +44,17 @@ private constructor(
     ) : this(geometry, properties, type, mutableMapOf())
 
     /**
+     * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+     * coordinates [lng, lat, elevation] are used for elevation endpoints.
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
     fun geometry(): GeoJsonGeometry = geometry.getRequired("geometry")
 
     /**
+     * Snap result metadata
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -124,6 +132,10 @@ private constructor(
             additionalProperties = nearestResult.additionalProperties.toMutableMap()
         }
 
+        /**
+         * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+         * coordinates [lng, lat, elevation] are used for elevation endpoints.
+         */
         fun geometry(geometry: GeoJsonGeometry) = geometry(JsonField.of(geometry))
 
         /**
@@ -135,6 +147,7 @@ private constructor(
          */
         fun geometry(geometry: JsonField<GeoJsonGeometry>) = apply { this.geometry = geometry }
 
+        /** Snap result metadata */
         fun properties(properties: Properties) = properties(JsonField.of(properties))
 
         /**
@@ -230,11 +243,16 @@ private constructor(
             (properties.asKnown().getOrNull()?.validity() ?: 0) +
             (type.asKnown().getOrNull()?.validity() ?: 0)
 
+    /** Snap result metadata */
     class Properties
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     private constructor(
         private val distanceM: JsonField<Double>,
         private val edgeId: JsonField<Long>,
+        private val edgeLengthM: JsonField<Double>,
+        private val highway: JsonField<String>,
+        private val osmWayId: JsonField<Long>,
+        private val surface: JsonField<String>,
         private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
 
@@ -244,10 +262,18 @@ private constructor(
             @ExcludeMissing
             distanceM: JsonField<Double> = JsonMissing.of(),
             @JsonProperty("edge_id") @ExcludeMissing edgeId: JsonField<Long> = JsonMissing.of(),
-        ) : this(distanceM, edgeId, mutableMapOf())
+            @JsonProperty("edge_length_m")
+            @ExcludeMissing
+            edgeLengthM: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("highway") @ExcludeMissing highway: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("osm_way_id")
+            @ExcludeMissing
+            osmWayId: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("surface") @ExcludeMissing surface: JsonField<String> = JsonMissing.of(),
+        ) : this(distanceM, edgeId, edgeLengthM, highway, osmWayId, surface, mutableMapOf())
 
         /**
-         * Distance to nearest road in meters
+         * Distance from the input coordinate to the snapped point in meters
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
@@ -255,12 +281,44 @@ private constructor(
         fun distanceM(): Optional<Double> = distanceM.getOptional("distance_m")
 
         /**
-         * Road edge ID
+         * ID of the road network edge that was snapped to
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
          */
         fun edgeId(): Optional<Long> = edgeId.getOptional("edge_id")
+
+        /**
+         * Length of the matched road edge in meters
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
+         */
+        fun edgeLengthM(): Optional<Double> = edgeLengthM.getOptional("edge_length_m")
+
+        /**
+         * OSM highway tag value (e.g. `residential`, `primary`, `motorway`)
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
+         */
+        fun highway(): Optional<String> = highway.getOptional("highway")
+
+        /**
+         * OSM way ID of the matched road segment
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
+         */
+        fun osmWayId(): Optional<Long> = osmWayId.getOptional("osm_way_id")
+
+        /**
+         * OSM surface tag value (e.g. `asphalt`, `gravel`, `paved`)
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
+         */
+        fun surface(): Optional<String> = surface.getOptional("surface")
 
         /**
          * Returns the raw JSON value of [distanceM].
@@ -275,6 +333,36 @@ private constructor(
          * Unlike [edgeId], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("edge_id") @ExcludeMissing fun _edgeId(): JsonField<Long> = edgeId
+
+        /**
+         * Returns the raw JSON value of [edgeLengthM].
+         *
+         * Unlike [edgeLengthM], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("edge_length_m")
+        @ExcludeMissing
+        fun _edgeLengthM(): JsonField<Double> = edgeLengthM
+
+        /**
+         * Returns the raw JSON value of [highway].
+         *
+         * Unlike [highway], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("highway") @ExcludeMissing fun _highway(): JsonField<String> = highway
+
+        /**
+         * Returns the raw JSON value of [osmWayId].
+         *
+         * Unlike [osmWayId], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("osm_way_id") @ExcludeMissing fun _osmWayId(): JsonField<Long> = osmWayId
+
+        /**
+         * Returns the raw JSON value of [surface].
+         *
+         * Unlike [surface], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("surface") @ExcludeMissing fun _surface(): JsonField<String> = surface
 
         @JsonAnySetter
         private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -299,16 +387,24 @@ private constructor(
 
             private var distanceM: JsonField<Double> = JsonMissing.of()
             private var edgeId: JsonField<Long> = JsonMissing.of()
+            private var edgeLengthM: JsonField<Double> = JsonMissing.of()
+            private var highway: JsonField<String> = JsonMissing.of()
+            private var osmWayId: JsonField<Long> = JsonMissing.of()
+            private var surface: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             @JvmSynthetic
             internal fun from(properties: Properties) = apply {
                 distanceM = properties.distanceM
                 edgeId = properties.edgeId
+                edgeLengthM = properties.edgeLengthM
+                highway = properties.highway
+                osmWayId = properties.osmWayId
+                surface = properties.surface
                 additionalProperties = properties.additionalProperties.toMutableMap()
             }
 
-            /** Distance to nearest road in meters */
+            /** Distance from the input coordinate to the snapped point in meters */
             fun distanceM(distanceM: Double) = distanceM(JsonField.of(distanceM))
 
             /**
@@ -320,18 +416,8 @@ private constructor(
              */
             fun distanceM(distanceM: JsonField<Double>) = apply { this.distanceM = distanceM }
 
-            /** Road edge ID */
-            fun edgeId(edgeId: Long?) = edgeId(JsonField.ofNullable(edgeId))
-
-            /**
-             * Alias for [Builder.edgeId].
-             *
-             * This unboxed primitive overload exists for backwards compatibility.
-             */
-            fun edgeId(edgeId: Long) = edgeId(edgeId as Long?)
-
-            /** Alias for calling [Builder.edgeId] with `edgeId.orElse(null)`. */
-            fun edgeId(edgeId: Optional<Long>) = edgeId(edgeId.getOrNull())
+            /** ID of the road network edge that was snapped to */
+            fun edgeId(edgeId: Long) = edgeId(JsonField.of(edgeId))
 
             /**
              * Sets [Builder.edgeId] to an arbitrary JSON value.
@@ -341,6 +427,62 @@ private constructor(
              * value.
              */
             fun edgeId(edgeId: JsonField<Long>) = apply { this.edgeId = edgeId }
+
+            /** Length of the matched road edge in meters */
+            fun edgeLengthM(edgeLengthM: Double) = edgeLengthM(JsonField.of(edgeLengthM))
+
+            /**
+             * Sets [Builder.edgeLengthM] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.edgeLengthM] with a well-typed [Double] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun edgeLengthM(edgeLengthM: JsonField<Double>) = apply {
+                this.edgeLengthM = edgeLengthM
+            }
+
+            /** OSM highway tag value (e.g. `residential`, `primary`, `motorway`) */
+            fun highway(highway: String?) = highway(JsonField.ofNullable(highway))
+
+            /** Alias for calling [Builder.highway] with `highway.orElse(null)`. */
+            fun highway(highway: Optional<String>) = highway(highway.getOrNull())
+
+            /**
+             * Sets [Builder.highway] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.highway] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun highway(highway: JsonField<String>) = apply { this.highway = highway }
+
+            /** OSM way ID of the matched road segment */
+            fun osmWayId(osmWayId: Long) = osmWayId(JsonField.of(osmWayId))
+
+            /**
+             * Sets [Builder.osmWayId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.osmWayId] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun osmWayId(osmWayId: JsonField<Long>) = apply { this.osmWayId = osmWayId }
+
+            /** OSM surface tag value (e.g. `asphalt`, `gravel`, `paved`) */
+            fun surface(surface: String?) = surface(JsonField.ofNullable(surface))
+
+            /** Alias for calling [Builder.surface] with `surface.orElse(null)`. */
+            fun surface(surface: Optional<String>) = surface(surface.getOrNull())
+
+            /**
+             * Sets [Builder.surface] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.surface] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun surface(surface: JsonField<String>) = apply { this.surface = surface }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -367,7 +509,15 @@ private constructor(
              * Further updates to this [Builder] will not mutate the returned instance.
              */
             fun build(): Properties =
-                Properties(distanceM, edgeId, additionalProperties.toMutableMap())
+                Properties(
+                    distanceM,
+                    edgeId,
+                    edgeLengthM,
+                    highway,
+                    osmWayId,
+                    surface,
+                    additionalProperties.toMutableMap(),
+                )
         }
 
         private var validated: Boolean = false
@@ -379,6 +529,10 @@ private constructor(
 
             distanceM()
             edgeId()
+            edgeLengthM()
+            highway()
+            osmWayId()
+            surface()
             validated = true
         }
 
@@ -399,7 +553,11 @@ private constructor(
         @JvmSynthetic
         internal fun validity(): Int =
             (if (distanceM.asKnown().isPresent) 1 else 0) +
-                (if (edgeId.asKnown().isPresent) 1 else 0)
+                (if (edgeId.asKnown().isPresent) 1 else 0) +
+                (if (edgeLengthM.asKnown().isPresent) 1 else 0) +
+                (if (highway.asKnown().isPresent) 1 else 0) +
+                (if (osmWayId.asKnown().isPresent) 1 else 0) +
+                (if (surface.asKnown().isPresent) 1 else 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -409,15 +567,29 @@ private constructor(
             return other is Properties &&
                 distanceM == other.distanceM &&
                 edgeId == other.edgeId &&
+                edgeLengthM == other.edgeLengthM &&
+                highway == other.highway &&
+                osmWayId == other.osmWayId &&
+                surface == other.surface &&
                 additionalProperties == other.additionalProperties
         }
 
-        private val hashCode: Int by lazy { Objects.hash(distanceM, edgeId, additionalProperties) }
+        private val hashCode: Int by lazy {
+            Objects.hash(
+                distanceM,
+                edgeId,
+                edgeLengthM,
+                highway,
+                osmWayId,
+                surface,
+                additionalProperties,
+            )
+        }
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Properties{distanceM=$distanceM, edgeId=$edgeId, additionalProperties=$additionalProperties}"
+            "Properties{distanceM=$distanceM, edgeId=$edgeId, edgeLengthM=$edgeLengthM, highway=$highway, osmWayId=$osmWayId, surface=$surface, additionalProperties=$additionalProperties}"
     }
 
     class Type @JsonCreator private constructor(private val value: JsonField<String>) : Enum {

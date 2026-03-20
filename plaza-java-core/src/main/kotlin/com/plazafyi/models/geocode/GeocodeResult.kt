@@ -19,7 +19,10 @@ import java.util.Collections
 import java.util.Objects
 import kotlin.jvm.optionals.getOrNull
 
-/** GeoJSON FeatureCollection of geocoding results */
+/**
+ * GeoJSON FeatureCollection of forward geocoding results, ordered by relevance. Content-Type:
+ * `application/geo+json`.
+ */
 class GeocodeResult
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -37,6 +40,8 @@ private constructor(
     ) : this(features, type, mutableMapOf())
 
     /**
+     * Geocoding results ordered by relevance score
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -104,6 +109,7 @@ private constructor(
             additionalProperties = geocodeResult.additionalProperties.toMutableMap()
         }
 
+        /** Geocoding results ordered by relevance score */
         fun features(features: List<GeocodingFeature>) = features(JsonField.of(features))
 
         /**

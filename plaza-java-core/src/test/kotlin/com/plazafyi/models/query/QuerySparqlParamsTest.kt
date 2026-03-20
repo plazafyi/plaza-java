@@ -10,7 +10,13 @@ internal class QuerySparqlParamsTest {
     @Test
     fun create() {
         QuerySparqlParams.builder()
-            .sparqlQuery(SparqlQuery.builder().query("query").build())
+            .sparqlQuery(
+                SparqlQuery.builder()
+                    .query(
+                        "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
+                    )
+                    .build()
+            )
             .build()
     }
 
@@ -18,11 +24,24 @@ internal class QuerySparqlParamsTest {
     fun body() {
         val params =
             QuerySparqlParams.builder()
-                .sparqlQuery(SparqlQuery.builder().query("query").build())
+                .sparqlQuery(
+                    SparqlQuery.builder()
+                        .query(
+                            "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
+                        )
+                        .build()
+                )
                 .build()
 
         val body = params._body()
 
-        assertThat(body).isEqualTo(SparqlQuery.builder().query("query").build())
+        assertThat(body)
+            .isEqualTo(
+                SparqlQuery.builder()
+                    .query(
+                        "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
+                    )
+                    .build()
+            )
     }
 }

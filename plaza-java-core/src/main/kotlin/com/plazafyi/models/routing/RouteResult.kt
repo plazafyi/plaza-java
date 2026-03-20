@@ -11,7 +11,9 @@ import com.plazafyi.core.ExcludeMissing
 import com.plazafyi.core.JsonField
 import com.plazafyi.core.JsonMissing
 import com.plazafyi.core.JsonValue
+import com.plazafyi.core.checkKnown
 import com.plazafyi.core.checkRequired
+import com.plazafyi.core.toImmutable
 import com.plazafyi.errors.PlazaInvalidDataException
 import com.plazafyi.models.GeoJsonGeometry
 import java.util.Collections
@@ -19,6 +21,11 @@ import java.util.Objects
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * GeoJSON Feature representing a calculated route. The geometry is a LineString or MultiLineString
+ * of the route path. When `alternatives > 0`, the response is a FeatureCollection containing
+ * multiple route Features.
+ */
 class RouteResult
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -40,12 +47,17 @@ private constructor(
     ) : this(geometry, properties, type, mutableMapOf())
 
     /**
+     * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+     * coordinates [lng, lat, elevation] are used for elevation endpoints.
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
     fun geometry(): GeoJsonGeometry = geometry.getRequired("geometry")
 
     /**
+     * Route metadata
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -123,6 +135,10 @@ private constructor(
             additionalProperties = routeResult.additionalProperties.toMutableMap()
         }
 
+        /**
+         * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+         * coordinates [lng, lat, elevation] are used for elevation endpoints.
+         */
         fun geometry(geometry: GeoJsonGeometry) = geometry(JsonField.of(geometry))
 
         /**
@@ -134,6 +150,7 @@ private constructor(
          */
         fun geometry(geometry: JsonField<GeoJsonGeometry>) = apply { this.geometry = geometry }
 
+        /** Route metadata */
         fun properties(properties: Properties) = properties(JsonField.of(properties))
 
         /**
@@ -229,70 +246,170 @@ private constructor(
             (properties.asKnown().getOrNull()?.validity() ?: 0) +
             (type.asKnown().getOrNull()?.validity() ?: 0)
 
+    /** Route metadata */
     class Properties
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     private constructor(
-        private val distance: JsonField<Double>,
-        private val duration: JsonField<Double>,
-        private val mode: JsonField<String>,
+        private val distanceM: JsonField<Double>,
+        private val durationS: JsonField<Double>,
+        private val annotations: JsonField<Annotations>,
+        private val chargeProfile: JsonField<List<List<Double>>>,
+        private val chargingStops: JsonField<List<ChargingStop>>,
+        private val edges: JsonField<List<Edge>>,
+        private val energyUsedWh: JsonField<Double>,
         private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
 
         @JsonCreator
         private constructor(
-            @JsonProperty("distance")
+            @JsonProperty("distance_m")
             @ExcludeMissing
-            distance: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("duration")
+            distanceM: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("duration_s")
             @ExcludeMissing
-            duration: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("mode") @ExcludeMissing mode: JsonField<String> = JsonMissing.of(),
-        ) : this(distance, duration, mode, mutableMapOf())
+            durationS: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("annotations")
+            @ExcludeMissing
+            annotations: JsonField<Annotations> = JsonMissing.of(),
+            @JsonProperty("charge_profile")
+            @ExcludeMissing
+            chargeProfile: JsonField<List<List<Double>>> = JsonMissing.of(),
+            @JsonProperty("charging_stops")
+            @ExcludeMissing
+            chargingStops: JsonField<List<ChargingStop>> = JsonMissing.of(),
+            @JsonProperty("edges") @ExcludeMissing edges: JsonField<List<Edge>> = JsonMissing.of(),
+            @JsonProperty("energy_used_wh")
+            @ExcludeMissing
+            energyUsedWh: JsonField<Double> = JsonMissing.of(),
+        ) : this(
+            distanceM,
+            durationS,
+            annotations,
+            chargeProfile,
+            chargingStops,
+            edges,
+            energyUsedWh,
+            mutableMapOf(),
+        )
 
         /**
-         * Total distance in meters
+         * Total route distance in meters
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+         */
+        fun distanceM(): Double = distanceM.getRequired("distance_m")
+
+        /**
+         * Estimated travel duration in seconds
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+         */
+        fun durationS(): Double = durationS.getRequired("duration_s")
+
+        /**
+         * Per-edge annotations (present when `annotations: true` in request)
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
          */
-        fun distance(): Optional<Double> = distance.getOptional("distance")
+        fun annotations(): Optional<Annotations> = annotations.getOptional("annotations")
 
         /**
-         * Estimated duration in seconds
+         * Battery charge level at route waypoints as [distance_fraction, charge_pct] pairs (EV
+         * routes only)
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
          */
-        fun duration(): Optional<Double> = duration.getOptional("duration")
+        fun chargeProfile(): Optional<List<List<Double>>> =
+            chargeProfile.getOptional("charge_profile")
 
         /**
-         * Travel mode used
+         * Recommended charging stops along the route (EV routes only)
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
          */
-        fun mode(): Optional<String> = mode.getOptional("mode")
+        fun chargingStops(): Optional<List<ChargingStop>> =
+            chargingStops.getOptional("charging_stops")
 
         /**
-         * Returns the raw JSON value of [distance].
+         * Edge-level route details (present when `annotations: true`)
          *
-         * Unlike [distance], this method doesn't throw if the JSON field has an unexpected type.
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
          */
-        @JsonProperty("distance") @ExcludeMissing fun _distance(): JsonField<Double> = distance
+        fun edges(): Optional<List<Edge>> = edges.getOptional("edges")
 
         /**
-         * Returns the raw JSON value of [duration].
+         * Total energy consumed in watt-hours (EV routes only)
          *
-         * Unlike [duration], this method doesn't throw if the JSON field has an unexpected type.
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
          */
-        @JsonProperty("duration") @ExcludeMissing fun _duration(): JsonField<Double> = duration
+        fun energyUsedWh(): Optional<Double> = energyUsedWh.getOptional("energy_used_wh")
 
         /**
-         * Returns the raw JSON value of [mode].
+         * Returns the raw JSON value of [distanceM].
          *
-         * Unlike [mode], this method doesn't throw if the JSON field has an unexpected type.
+         * Unlike [distanceM], this method doesn't throw if the JSON field has an unexpected type.
          */
-        @JsonProperty("mode") @ExcludeMissing fun _mode(): JsonField<String> = mode
+        @JsonProperty("distance_m") @ExcludeMissing fun _distanceM(): JsonField<Double> = distanceM
+
+        /**
+         * Returns the raw JSON value of [durationS].
+         *
+         * Unlike [durationS], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("duration_s") @ExcludeMissing fun _durationS(): JsonField<Double> = durationS
+
+        /**
+         * Returns the raw JSON value of [annotations].
+         *
+         * Unlike [annotations], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("annotations")
+        @ExcludeMissing
+        fun _annotations(): JsonField<Annotations> = annotations
+
+        /**
+         * Returns the raw JSON value of [chargeProfile].
+         *
+         * Unlike [chargeProfile], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("charge_profile")
+        @ExcludeMissing
+        fun _chargeProfile(): JsonField<List<List<Double>>> = chargeProfile
+
+        /**
+         * Returns the raw JSON value of [chargingStops].
+         *
+         * Unlike [chargingStops], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("charging_stops")
+        @ExcludeMissing
+        fun _chargingStops(): JsonField<List<ChargingStop>> = chargingStops
+
+        /**
+         * Returns the raw JSON value of [edges].
+         *
+         * Unlike [edges], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("edges") @ExcludeMissing fun _edges(): JsonField<List<Edge>> = edges
+
+        /**
+         * Returns the raw JSON value of [energyUsedWh].
+         *
+         * Unlike [energyUsedWh], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("energy_used_wh")
+        @ExcludeMissing
+        fun _energyUsedWh(): JsonField<Double> = energyUsedWh
 
         @JsonAnySetter
         private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -308,61 +425,204 @@ private constructor(
 
         companion object {
 
-            /** Returns a mutable builder for constructing an instance of [Properties]. */
+            /**
+             * Returns a mutable builder for constructing an instance of [Properties].
+             *
+             * The following fields are required:
+             * ```java
+             * .distanceM()
+             * .durationS()
+             * ```
+             */
             @JvmStatic fun builder() = Builder()
         }
 
         /** A builder for [Properties]. */
         class Builder internal constructor() {
 
-            private var distance: JsonField<Double> = JsonMissing.of()
-            private var duration: JsonField<Double> = JsonMissing.of()
-            private var mode: JsonField<String> = JsonMissing.of()
+            private var distanceM: JsonField<Double>? = null
+            private var durationS: JsonField<Double>? = null
+            private var annotations: JsonField<Annotations> = JsonMissing.of()
+            private var chargeProfile: JsonField<MutableList<List<Double>>>? = null
+            private var chargingStops: JsonField<MutableList<ChargingStop>>? = null
+            private var edges: JsonField<MutableList<Edge>>? = null
+            private var energyUsedWh: JsonField<Double> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             @JvmSynthetic
             internal fun from(properties: Properties) = apply {
-                distance = properties.distance
-                duration = properties.duration
-                mode = properties.mode
+                distanceM = properties.distanceM
+                durationS = properties.durationS
+                annotations = properties.annotations
+                chargeProfile = properties.chargeProfile.map { it.toMutableList() }
+                chargingStops = properties.chargingStops.map { it.toMutableList() }
+                edges = properties.edges.map { it.toMutableList() }
+                energyUsedWh = properties.energyUsedWh
                 additionalProperties = properties.additionalProperties.toMutableMap()
             }
 
-            /** Total distance in meters */
-            fun distance(distance: Double) = distance(JsonField.of(distance))
+            /** Total route distance in meters */
+            fun distanceM(distanceM: Double) = distanceM(JsonField.of(distanceM))
 
             /**
-             * Sets [Builder.distance] to an arbitrary JSON value.
+             * Sets [Builder.distanceM] to an arbitrary JSON value.
              *
-             * You should usually call [Builder.distance] with a well-typed [Double] value instead.
+             * You should usually call [Builder.distanceM] with a well-typed [Double] value instead.
              * This method is primarily for setting the field to an undocumented or not yet
              * supported value.
              */
-            fun distance(distance: JsonField<Double>) = apply { this.distance = distance }
+            fun distanceM(distanceM: JsonField<Double>) = apply { this.distanceM = distanceM }
 
-            /** Estimated duration in seconds */
-            fun duration(duration: Double) = duration(JsonField.of(duration))
+            /** Estimated travel duration in seconds */
+            fun durationS(durationS: Double) = durationS(JsonField.of(durationS))
 
             /**
-             * Sets [Builder.duration] to an arbitrary JSON value.
+             * Sets [Builder.durationS] to an arbitrary JSON value.
              *
-             * You should usually call [Builder.duration] with a well-typed [Double] value instead.
+             * You should usually call [Builder.durationS] with a well-typed [Double] value instead.
              * This method is primarily for setting the field to an undocumented or not yet
              * supported value.
              */
-            fun duration(duration: JsonField<Double>) = apply { this.duration = duration }
+            fun durationS(durationS: JsonField<Double>) = apply { this.durationS = durationS }
 
-            /** Travel mode used */
-            fun mode(mode: String) = mode(JsonField.of(mode))
+            /** Per-edge annotations (present when `annotations: true` in request) */
+            fun annotations(annotations: Annotations?) =
+                annotations(JsonField.ofNullable(annotations))
+
+            /** Alias for calling [Builder.annotations] with `annotations.orElse(null)`. */
+            fun annotations(annotations: Optional<Annotations>) =
+                annotations(annotations.getOrNull())
 
             /**
-             * Sets [Builder.mode] to an arbitrary JSON value.
+             * Sets [Builder.annotations] to an arbitrary JSON value.
              *
-             * You should usually call [Builder.mode] with a well-typed [String] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
+             * You should usually call [Builder.annotations] with a well-typed [Annotations] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
-            fun mode(mode: JsonField<String>) = apply { this.mode = mode }
+            fun annotations(annotations: JsonField<Annotations>) = apply {
+                this.annotations = annotations
+            }
+
+            /**
+             * Battery charge level at route waypoints as [distance_fraction, charge_pct] pairs (EV
+             * routes only)
+             */
+            fun chargeProfile(chargeProfile: List<List<Double>>?) =
+                chargeProfile(JsonField.ofNullable(chargeProfile))
+
+            /** Alias for calling [Builder.chargeProfile] with `chargeProfile.orElse(null)`. */
+            fun chargeProfile(chargeProfile: Optional<List<List<Double>>>) =
+                chargeProfile(chargeProfile.getOrNull())
+
+            /**
+             * Sets [Builder.chargeProfile] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.chargeProfile] with a well-typed
+             * `List<List<Double>>` value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
+            fun chargeProfile(chargeProfile: JsonField<List<List<Double>>>) = apply {
+                this.chargeProfile = chargeProfile.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [List<Double>] to [Builder.chargeProfile].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addChargeProfile(chargeProfile: List<Double>) = apply {
+                this.chargeProfile =
+                    (this.chargeProfile ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("chargeProfile", it).add(chargeProfile)
+                    }
+            }
+
+            /** Recommended charging stops along the route (EV routes only) */
+            fun chargingStops(chargingStops: List<ChargingStop>?) =
+                chargingStops(JsonField.ofNullable(chargingStops))
+
+            /** Alias for calling [Builder.chargingStops] with `chargingStops.orElse(null)`. */
+            fun chargingStops(chargingStops: Optional<List<ChargingStop>>) =
+                chargingStops(chargingStops.getOrNull())
+
+            /**
+             * Sets [Builder.chargingStops] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.chargingStops] with a well-typed
+             * `List<ChargingStop>` value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
+            fun chargingStops(chargingStops: JsonField<List<ChargingStop>>) = apply {
+                this.chargingStops = chargingStops.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [ChargingStop] to [chargingStops].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addChargingStop(chargingStop: ChargingStop) = apply {
+                chargingStops =
+                    (chargingStops ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("chargingStops", it).add(chargingStop)
+                    }
+            }
+
+            /** Edge-level route details (present when `annotations: true`) */
+            fun edges(edges: List<Edge>?) = edges(JsonField.ofNullable(edges))
+
+            /** Alias for calling [Builder.edges] with `edges.orElse(null)`. */
+            fun edges(edges: Optional<List<Edge>>) = edges(edges.getOrNull())
+
+            /**
+             * Sets [Builder.edges] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.edges] with a well-typed `List<Edge>` value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun edges(edges: JsonField<List<Edge>>) = apply {
+                this.edges = edges.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Edge] to [edges].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addEdge(edge: Edge) = apply {
+                edges =
+                    (edges ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("edges", it).add(edge)
+                    }
+            }
+
+            /** Total energy consumed in watt-hours (EV routes only) */
+            fun energyUsedWh(energyUsedWh: Double?) =
+                energyUsedWh(JsonField.ofNullable(energyUsedWh))
+
+            /**
+             * Alias for [Builder.energyUsedWh].
+             *
+             * This unboxed primitive overload exists for backwards compatibility.
+             */
+            fun energyUsedWh(energyUsedWh: Double) = energyUsedWh(energyUsedWh as Double?)
+
+            /** Alias for calling [Builder.energyUsedWh] with `energyUsedWh.orElse(null)`. */
+            fun energyUsedWh(energyUsedWh: Optional<Double>) =
+                energyUsedWh(energyUsedWh.getOrNull())
+
+            /**
+             * Sets [Builder.energyUsedWh] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.energyUsedWh] with a well-typed [Double] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun energyUsedWh(energyUsedWh: JsonField<Double>) = apply {
+                this.energyUsedWh = energyUsedWh
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -387,9 +647,26 @@ private constructor(
              * Returns an immutable instance of [Properties].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```java
+             * .distanceM()
+             * .durationS()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
              */
             fun build(): Properties =
-                Properties(distance, duration, mode, additionalProperties.toMutableMap())
+                Properties(
+                    checkRequired("distanceM", distanceM),
+                    checkRequired("durationS", durationS),
+                    annotations,
+                    (chargeProfile ?: JsonMissing.of()).map { it.toImmutable() },
+                    (chargingStops ?: JsonMissing.of()).map { it.toImmutable() },
+                    (edges ?: JsonMissing.of()).map { it.toImmutable() },
+                    energyUsedWh,
+                    additionalProperties.toMutableMap(),
+                )
         }
 
         private var validated: Boolean = false
@@ -399,9 +676,13 @@ private constructor(
                 return@apply
             }
 
-            distance()
-            duration()
-            mode()
+            distanceM()
+            durationS()
+            annotations().ifPresent { it.validate() }
+            chargeProfile()
+            chargingStops().ifPresent { it.forEach { it.validate() } }
+            edges().ifPresent { it.forEach { it.validate() } }
+            energyUsedWh()
             validated = true
         }
 
@@ -421,9 +702,320 @@ private constructor(
          */
         @JvmSynthetic
         internal fun validity(): Int =
-            (if (distance.asKnown().isPresent) 1 else 0) +
-                (if (duration.asKnown().isPresent) 1 else 0) +
-                (if (mode.asKnown().isPresent) 1 else 0)
+            (if (distanceM.asKnown().isPresent) 1 else 0) +
+                (if (durationS.asKnown().isPresent) 1 else 0) +
+                (annotations.asKnown().getOrNull()?.validity() ?: 0) +
+                (chargeProfile.asKnown().getOrNull()?.sumOf { it.size.toInt() } ?: 0) +
+                (chargingStops.asKnown().getOrNull()?.sumOf { it.validity().toInt() } ?: 0) +
+                (edges.asKnown().getOrNull()?.sumOf { it.validity().toInt() } ?: 0) +
+                (if (energyUsedWh.asKnown().isPresent) 1 else 0)
+
+        /** Per-edge annotations (present when `annotations: true` in request) */
+        class Annotations
+        @JsonCreator
+        private constructor(
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
+        ) {
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                /** Returns a mutable builder for constructing an instance of [Annotations]. */
+                @JvmStatic fun builder() = Builder()
+            }
+
+            /** A builder for [Annotations]. */
+            class Builder internal constructor() {
+
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                @JvmSynthetic
+                internal fun from(annotations: Annotations) = apply {
+                    additionalProperties = annotations.additionalProperties.toMutableMap()
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                /**
+                 * Returns an immutable instance of [Annotations].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
+                fun build(): Annotations = Annotations(additionalProperties.toImmutable())
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): Annotations = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: PlazaInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            @JvmSynthetic
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return other is Annotations && additionalProperties == other.additionalProperties
+            }
+
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() = "Annotations{additionalProperties=$additionalProperties}"
+        }
+
+        class ChargingStop
+        @JsonCreator
+        private constructor(
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
+        ) {
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                /** Returns a mutable builder for constructing an instance of [ChargingStop]. */
+                @JvmStatic fun builder() = Builder()
+            }
+
+            /** A builder for [ChargingStop]. */
+            class Builder internal constructor() {
+
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                @JvmSynthetic
+                internal fun from(chargingStop: ChargingStop) = apply {
+                    additionalProperties = chargingStop.additionalProperties.toMutableMap()
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                /**
+                 * Returns an immutable instance of [ChargingStop].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
+                fun build(): ChargingStop = ChargingStop(additionalProperties.toImmutable())
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): ChargingStop = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: PlazaInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            @JvmSynthetic
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return other is ChargingStop && additionalProperties == other.additionalProperties
+            }
+
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() = "ChargingStop{additionalProperties=$additionalProperties}"
+        }
+
+        class Edge
+        @JsonCreator
+        private constructor(
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
+        ) {
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                /** Returns a mutable builder for constructing an instance of [Edge]. */
+                @JvmStatic fun builder() = Builder()
+            }
+
+            /** A builder for [Edge]. */
+            class Builder internal constructor() {
+
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                @JvmSynthetic
+                internal fun from(edge: Edge) = apply {
+                    additionalProperties = edge.additionalProperties.toMutableMap()
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                /**
+                 * Returns an immutable instance of [Edge].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
+                fun build(): Edge = Edge(additionalProperties.toImmutable())
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): Edge = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: PlazaInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            @JvmSynthetic
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return other is Edge && additionalProperties == other.additionalProperties
+            }
+
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() = "Edge{additionalProperties=$additionalProperties}"
+        }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -431,20 +1023,33 @@ private constructor(
             }
 
             return other is Properties &&
-                distance == other.distance &&
-                duration == other.duration &&
-                mode == other.mode &&
+                distanceM == other.distanceM &&
+                durationS == other.durationS &&
+                annotations == other.annotations &&
+                chargeProfile == other.chargeProfile &&
+                chargingStops == other.chargingStops &&
+                edges == other.edges &&
+                energyUsedWh == other.energyUsedWh &&
                 additionalProperties == other.additionalProperties
         }
 
         private val hashCode: Int by lazy {
-            Objects.hash(distance, duration, mode, additionalProperties)
+            Objects.hash(
+                distanceM,
+                durationS,
+                annotations,
+                chargeProfile,
+                chargingStops,
+                edges,
+                energyUsedWh,
+                additionalProperties,
+            )
         }
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Properties{distance=$distance, duration=$duration, mode=$mode, additionalProperties=$additionalProperties}"
+            "Properties{distanceM=$distanceM, durationS=$durationS, annotations=$annotations, chargeProfile=$chargeProfile, chargingStops=$chargingStops, edges=$edges, energyUsedWh=$energyUsedWh, additionalProperties=$additionalProperties}"
     }
 
     class Type @JsonCreator private constructor(private val value: JsonField<String>) : Enum {

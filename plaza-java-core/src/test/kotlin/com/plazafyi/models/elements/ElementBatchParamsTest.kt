@@ -14,8 +14,14 @@ internal class ElementBatchParamsTest {
                 BatchRequest.builder()
                     .addElement(
                         BatchRequest.Element.builder()
-                            .id(0L)
+                            .id(21154906L)
                             .type(BatchRequest.Element.Type.NODE)
+                            .build()
+                    )
+                    .addElement(
+                        BatchRequest.Element.builder()
+                            .id(4589123L)
+                            .type(BatchRequest.Element.Type.WAY)
                             .build()
                     )
                     .build()
@@ -31,8 +37,14 @@ internal class ElementBatchParamsTest {
                     BatchRequest.builder()
                         .addElement(
                             BatchRequest.Element.builder()
-                                .id(0L)
+                                .id(21154906L)
                                 .type(BatchRequest.Element.Type.NODE)
+                                .build()
+                        )
+                        .addElement(
+                            BatchRequest.Element.builder()
+                                .id(4589123L)
+                                .type(BatchRequest.Element.Type.WAY)
                                 .build()
                         )
                         .build()
@@ -46,8 +58,14 @@ internal class ElementBatchParamsTest {
                 BatchRequest.builder()
                     .addElement(
                         BatchRequest.Element.builder()
-                            .id(0L)
+                            .id(21154906L)
                             .type(BatchRequest.Element.Type.NODE)
+                            .build()
+                    )
+                    .addElement(
+                        BatchRequest.Element.builder()
+                            .id(4589123L)
+                            .type(BatchRequest.Element.Type.WAY)
                             .build()
                     )
                     .build()

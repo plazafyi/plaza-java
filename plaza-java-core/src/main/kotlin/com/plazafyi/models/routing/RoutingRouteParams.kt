@@ -17,6 +17,11 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * Request body for route calculation. Origin and destination are lat/lng coordinate objects.
+     * Supports optional waypoints, alternative routes, turn-by-turn steps, and EV routing
+     * parameters.
+     */
     fun routeRequest(): RouteRequest = routeRequest
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = routeRequest._additionalProperties()
@@ -56,6 +61,11 @@ private constructor(
             additionalQueryParams = routingRouteParams.additionalQueryParams.toBuilder()
         }
 
+        /**
+         * Request body for route calculation. Origin and destination are lat/lng coordinate
+         * objects. Supports optional waypoints, alternative routes, turn-by-turn steps, and EV
+         * routing parameters.
+         */
         fun routeRequest(routeRequest: RouteRequest) = apply { this.routeRequest = routeRequest }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {

@@ -17,7 +17,11 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** Route optimization request through waypoints */
+    /**
+     * Route optimization (Travelling Salesman) request. Finds the most efficient order to visit a
+     * set of waypoints. Minimum 2 waypoints, maximum 50. For large inputs, the request may be
+     * processed asynchronously.
+     */
     fun optimizeRequest(): OptimizeRequest = optimizeRequest
 
     fun _additionalBodyProperties(): Map<String, JsonValue> =
@@ -58,7 +62,11 @@ private constructor(
             additionalQueryParams = optimizeCreateParams.additionalQueryParams.toBuilder()
         }
 
-        /** Route optimization request through waypoints */
+        /**
+         * Route optimization (Travelling Salesman) request. Finds the most efficient order to visit
+         * a set of waypoints. Minimum 2 waypoints, maximum 50. For large inputs, the request may be
+         * processed asynchronously.
+         */
         fun optimizeRequest(optimizeRequest: OptimizeRequest) = apply {
             this.optimizeRequest = optimizeRequest
         }
