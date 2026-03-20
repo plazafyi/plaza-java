@@ -5,7 +5,6 @@ package com.plazafyi.models.query
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonFeature
 import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,47 +15,43 @@ internal class SparqlResultTest {
     fun create() {
         val sparqlResult =
             SparqlResult.builder()
-                .addFeature(
-                    GeoJsonFeature.builder()
+                .addResult(
+                    SparqlResult.Result.builder()
                         .geometry(
                             GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
+                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
                                 .type(GeoJsonGeometry.Type.POINT)
                                 .build()
                         )
                         .properties(
-                            GeoJsonFeature.Properties.builder()
+                            SparqlResult.Result.Properties.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("bar"))
                                 .build()
                         )
-                        .type(GeoJsonFeature.Type.FEATURE)
+                        .type(SparqlResult.Result.Type.FEATURE)
                         .id("id")
-                        .osmId(0L)
                         .build()
                 )
-                .type(SparqlResult.Type.FEATURE_COLLECTION)
                 .build()
 
-        assertThat(sparqlResult.features())
+        assertThat(sparqlResult.results())
             .containsExactly(
-                GeoJsonFeature.builder()
+                SparqlResult.Result.builder()
                     .geometry(
                         GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
+                            .coordinatesOfPoint(listOf(2.3522, 48.8566))
                             .type(GeoJsonGeometry.Type.POINT)
                             .build()
                     )
                     .properties(
-                        GeoJsonFeature.Properties.builder()
+                        SparqlResult.Result.Properties.builder()
                             .putAdditionalProperty("foo", JsonValue.from("bar"))
                             .build()
                     )
-                    .type(GeoJsonFeature.Type.FEATURE)
+                    .type(SparqlResult.Result.Type.FEATURE)
                     .id("id")
-                    .osmId(0L)
                     .build()
             )
-        assertThat(sparqlResult.type()).isEqualTo(SparqlResult.Type.FEATURE_COLLECTION)
     }
 
     @Test
@@ -64,25 +59,23 @@ internal class SparqlResultTest {
         val jsonMapper = jsonMapper()
         val sparqlResult =
             SparqlResult.builder()
-                .addFeature(
-                    GeoJsonFeature.builder()
+                .addResult(
+                    SparqlResult.Result.builder()
                         .geometry(
                             GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
+                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
                                 .type(GeoJsonGeometry.Type.POINT)
                                 .build()
                         )
                         .properties(
-                            GeoJsonFeature.Properties.builder()
+                            SparqlResult.Result.Properties.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("bar"))
                                 .build()
                         )
-                        .type(GeoJsonFeature.Type.FEATURE)
+                        .type(SparqlResult.Result.Type.FEATURE)
                         .id("id")
-                        .osmId(0L)
                         .build()
                 )
-                .type(SparqlResult.Type.FEATURE_COLLECTION)
                 .build()
 
         val roundtrippedSparqlResult =

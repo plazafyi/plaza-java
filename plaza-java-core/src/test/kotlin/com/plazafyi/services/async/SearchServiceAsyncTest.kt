@@ -5,6 +5,7 @@ package com.plazafyi.services.async
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
 import com.plazafyi.models.search.SearchQueryParams
+import com.plazafyi.models.search.SearchQueryPostParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -22,7 +23,41 @@ internal class SearchServiceAsyncTest {
 
         val featureCollectionFuture =
             searchServiceAsync.query(
-                SearchQueryParams.builder().q("q").cursor("cursor").limit(0L).build()
+                SearchQueryParams.builder()
+                    .q("q")
+                    .cursor("cursor")
+                    .limit(0L)
+                    .outputFields("output[fields]")
+                    .outputInclude("output[include]")
+                    .outputPrecision(0L)
+                    .outputSort("output[sort]")
+                    .build()
+            )
+
+        val featureCollection = featureCollectionFuture.get()
+        featureCollection.validate()
+    }
+
+    @Test
+    fun queryPost() {
+        val client =
+            PlazaOkHttpClientAsync.builder()
+                .baseUrl(TestServerExtension.BASE_URL)
+                .apiKey("My API Key")
+                .build()
+        val searchServiceAsync = client.search()
+
+        val featureCollectionFuture =
+            searchServiceAsync.queryPost(
+                SearchQueryPostParams.builder()
+                    .q("q")
+                    .cursor("cursor")
+                    .limit(0L)
+                    .outputFields("output[fields]")
+                    .outputInclude("output[include]")
+                    .outputPrecision(0L)
+                    .outputSort("output[sort]")
+                    .build()
             )
 
         val featureCollection = featureCollectionFuture.get()

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
 import com.plazafyi.models.GeoJsonGeometry
-import kotlin.jvm.optionals.getOrNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -16,49 +15,66 @@ internal class MapMatchResultTest {
     fun create() {
         val mapMatchResult =
             MapMatchResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
+                .addFeature(
+                    MapMatchResult.Feature.builder()
+                        .geometry(
+                            GeoJsonGeometry.builder()
+                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
+                                .type(GeoJsonGeometry.Type.POINT)
+                                .build()
+                        )
+                        .properties(
+                            MapMatchResult.Feature.Properties.builder()
+                                .distanceM(0.0)
+                                .edgeId(0L)
+                                .matchingsIndex(0L)
+                                .name("name")
+                                .addOriginal(0.0)
+                                .addOriginal(0.0)
+                                .waypointIndex(0L)
+                                .build()
+                        )
+                        .type(MapMatchResult.Feature.Type.FEATURE)
                         .build()
                 )
-                .properties(
-                    MapMatchResult.Properties.builder()
-                        .confidence(0.0)
-                        .distance(0.0)
-                        .duration(0.0)
-                        .build()
-                )
-                .type(MapMatchResult.Type.FEATURE)
-                .addLeg(
-                    MapMatchResult.Leg.builder()
+                .addMatching(
+                    MapMatchResult.Matching.builder()
                         .putAdditionalProperty("foo", JsonValue.from("bar"))
                         .build()
                 )
+                .type(MapMatchResult.Type.FEATURE_COLLECTION)
                 .build()
 
-        assertThat(mapMatchResult.geometry())
-            .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfNumber(listOf(0.0))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
-            )
-        assertThat(mapMatchResult.properties())
-            .isEqualTo(
-                MapMatchResult.Properties.builder()
-                    .confidence(0.0)
-                    .distance(0.0)
-                    .duration(0.0)
-                    .build()
-            )
-        assertThat(mapMatchResult.type()).isEqualTo(MapMatchResult.Type.FEATURE)
-        assertThat(mapMatchResult.legs().getOrNull())
+        assertThat(mapMatchResult.features())
             .containsExactly(
-                MapMatchResult.Leg.builder()
+                MapMatchResult.Feature.builder()
+                    .geometry(
+                        GeoJsonGeometry.builder()
+                            .coordinatesOfPoint(listOf(2.3522, 48.8566))
+                            .type(GeoJsonGeometry.Type.POINT)
+                            .build()
+                    )
+                    .properties(
+                        MapMatchResult.Feature.Properties.builder()
+                            .distanceM(0.0)
+                            .edgeId(0L)
+                            .matchingsIndex(0L)
+                            .name("name")
+                            .addOriginal(0.0)
+                            .addOriginal(0.0)
+                            .waypointIndex(0L)
+                            .build()
+                    )
+                    .type(MapMatchResult.Feature.Type.FEATURE)
+                    .build()
+            )
+        assertThat(mapMatchResult.matchings())
+            .containsExactly(
+                MapMatchResult.Matching.builder()
                     .putAdditionalProperty("foo", JsonValue.from("bar"))
                     .build()
             )
+        assertThat(mapMatchResult.type()).isEqualTo(MapMatchResult.Type.FEATURE_COLLECTION)
     }
 
     @Test
@@ -66,25 +82,34 @@ internal class MapMatchResultTest {
         val jsonMapper = jsonMapper()
         val mapMatchResult =
             MapMatchResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
+                .addFeature(
+                    MapMatchResult.Feature.builder()
+                        .geometry(
+                            GeoJsonGeometry.builder()
+                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
+                                .type(GeoJsonGeometry.Type.POINT)
+                                .build()
+                        )
+                        .properties(
+                            MapMatchResult.Feature.Properties.builder()
+                                .distanceM(0.0)
+                                .edgeId(0L)
+                                .matchingsIndex(0L)
+                                .name("name")
+                                .addOriginal(0.0)
+                                .addOriginal(0.0)
+                                .waypointIndex(0L)
+                                .build()
+                        )
+                        .type(MapMatchResult.Feature.Type.FEATURE)
                         .build()
                 )
-                .properties(
-                    MapMatchResult.Properties.builder()
-                        .confidence(0.0)
-                        .distance(0.0)
-                        .duration(0.0)
-                        .build()
-                )
-                .type(MapMatchResult.Type.FEATURE)
-                .addLeg(
-                    MapMatchResult.Leg.builder()
+                .addMatching(
+                    MapMatchResult.Matching.builder()
                         .putAdditionalProperty("foo", JsonValue.from("bar"))
                         .build()
                 )
+                .type(MapMatchResult.Type.FEATURE_COLLECTION)
                 .build()
 
         val roundtrippedMapMatchResult =

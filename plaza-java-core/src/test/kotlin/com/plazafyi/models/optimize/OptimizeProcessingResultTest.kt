@@ -13,11 +13,11 @@ internal class OptimizeProcessingResultTest {
     fun create() {
         val optimizeProcessingResult =
             OptimizeProcessingResult.builder()
-                .jobId("job_id")
+                .jobId("opt_abc123")
                 .status(OptimizeProcessingResult.Status.PROCESSING)
                 .build()
 
-        assertThat(optimizeProcessingResult.jobId()).isEqualTo("job_id")
+        assertThat(optimizeProcessingResult.jobId()).isEqualTo("opt_abc123")
         assertThat(optimizeProcessingResult.status())
             .isEqualTo(OptimizeProcessingResult.Status.PROCESSING)
     }
@@ -27,7 +27,7 @@ internal class OptimizeProcessingResultTest {
         val jsonMapper = jsonMapper()
         val optimizeProcessingResult =
             OptimizeProcessingResult.builder()
-                .jobId("job_id")
+                .jobId("opt_abc123")
                 .status(OptimizeProcessingResult.Status.PROCESSING)
                 .build()
 

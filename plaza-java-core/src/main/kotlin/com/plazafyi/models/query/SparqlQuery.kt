@@ -15,6 +15,10 @@ import com.plazafyi.errors.PlazaInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/**
+ * SPARQL query request. Queries OSM data using SPARQL syntax. Results are returned as a JSON object
+ * with a `results` array.
+ */
 class SparqlQuery
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(

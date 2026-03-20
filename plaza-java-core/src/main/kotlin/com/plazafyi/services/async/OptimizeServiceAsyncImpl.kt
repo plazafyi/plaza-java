@@ -75,7 +75,6 @@ class OptimizeServiceAsyncImpl internal constructor(private val clientOptions: C
                     .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "optimize")
-                    .putHeader("Accept", "application/geo+json")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)

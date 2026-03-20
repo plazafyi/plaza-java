@@ -4,8 +4,9 @@ package com.plazafyi.services.async
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
-import com.plazafyi.models.GeoJsonGeometry
+import com.plazafyi.models.elevation.ElevationBatchParams
 import com.plazafyi.models.elevation.ElevationLookupParams
+import com.plazafyi.models.elevation.ElevationLookupPostParams
 import com.plazafyi.models.elevation.ElevationProfileRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,12 +25,12 @@ internal class ElevationServiceAsyncTest {
 
         val elevationBatchResultFuture =
             elevationServiceAsync.batch(
-                ElevationProfileRequest.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                ElevationBatchParams.builder()
+                    .addCoordinate(
+                        ElevationBatchParams.Coordinate.builder().lat(48.8566).lng(2.3522).build()
+                    )
+                    .addCoordinate(
+                        ElevationBatchParams.Coordinate.builder().lat(45.764).lng(4.8357).build()
                     )
                     .build()
             )
@@ -49,7 +50,39 @@ internal class ElevationServiceAsyncTest {
 
         val elevationLookupResultFuture =
             elevationServiceAsync.lookup(
-                ElevationLookupParams.builder().lat(0.0).lng(0.0).locations("locations").build()
+                ElevationLookupParams.builder()
+                    .lat(0.0)
+                    .lng(0.0)
+                    .locations("locations")
+                    .outputFields("output[fields]")
+                    .outputInclude("output[include]")
+                    .outputPrecision(0L)
+                    .build()
+            )
+
+        val elevationLookupResult = elevationLookupResultFuture.get()
+        elevationLookupResult.validate()
+    }
+
+    @Test
+    fun lookupPost() {
+        val client =
+            PlazaOkHttpClientAsync.builder()
+                .baseUrl(TestServerExtension.BASE_URL)
+                .apiKey("My API Key")
+                .build()
+        val elevationServiceAsync = client.elevation()
+
+        val elevationLookupResultFuture =
+            elevationServiceAsync.lookupPost(
+                ElevationLookupPostParams.builder()
+                    .lat(0.0)
+                    .lng(0.0)
+                    .locations("locations")
+                    .outputFields("output[fields]")
+                    .outputInclude("output[include]")
+                    .outputPrecision(0L)
+                    .build()
             )
 
         val elevationLookupResult = elevationLookupResultFuture.get()
@@ -68,11 +101,21 @@ internal class ElevationServiceAsyncTest {
         val elevationProfileResultFuture =
             elevationServiceAsync.profile(
                 ElevationProfileRequest.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .coordinates(
+                        listOf(
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.8566)
+                                .lng(2.3522)
+                                .build(),
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.858)
+                                .lng(2.34)
+                                .build(),
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.8584)
+                                .lng(2.2945)
+                                .build(),
+                        )
                     )
                     .build()
             )

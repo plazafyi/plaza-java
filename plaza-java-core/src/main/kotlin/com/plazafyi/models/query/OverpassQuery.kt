@@ -15,6 +15,10 @@ import com.plazafyi.errors.PlazaInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/**
+ * Overpass QL query request. The query is executed against Plaza's OSM database and results are
+ * returned as GeoJSON.
+ */
 class OverpassQuery
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(

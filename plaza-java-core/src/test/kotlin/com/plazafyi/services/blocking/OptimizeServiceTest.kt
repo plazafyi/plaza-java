@@ -4,7 +4,6 @@ package com.plazafyi.services.blocking
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
-import com.plazafyi.models.GeoJsonGeometry
 import com.plazafyi.models.optimize.OptimizeRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -25,13 +24,14 @@ internal class OptimizeServiceTest {
             optimizeService.create(
                 OptimizeRequest.builder()
                     .waypoints(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                        listOf(
+                            OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
+                            OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+                        )
                     )
                     .mode(OptimizeRequest.Mode.AUTO)
-                    .roundtrip(true)
+                    .roundtrip(false)
                     .build()
             )
 

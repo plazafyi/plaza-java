@@ -2,7 +2,6 @@
 
 package com.plazafyi.models.elevation
 
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -13,11 +12,21 @@ internal class ElevationProfileParamsTest {
         ElevationProfileParams.builder()
             .elevationProfileRequest(
                 ElevationProfileRequest.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .coordinates(
+                        listOf(
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.8566)
+                                .lng(2.3522)
+                                .build(),
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.858)
+                                .lng(2.34)
+                                .build(),
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.8584)
+                                .lng(2.2945)
+                                .build(),
+                        )
                     )
                     .build()
             )
@@ -30,11 +39,21 @@ internal class ElevationProfileParamsTest {
             ElevationProfileParams.builder()
                 .elevationProfileRequest(
                     ElevationProfileRequest.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
+                        .coordinates(
+                            listOf(
+                                ElevationProfileRequest.Coordinate.builder()
+                                    .lat(48.8566)
+                                    .lng(2.3522)
+                                    .build(),
+                                ElevationProfileRequest.Coordinate.builder()
+                                    .lat(48.858)
+                                    .lng(2.34)
+                                    .build(),
+                                ElevationProfileRequest.Coordinate.builder()
+                                    .lat(48.8584)
+                                    .lng(2.2945)
+                                    .build(),
+                            )
                         )
                         .build()
                 )
@@ -45,11 +64,21 @@ internal class ElevationProfileParamsTest {
         assertThat(body)
             .isEqualTo(
                 ElevationProfileRequest.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .coordinates(
+                        listOf(
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.8566)
+                                .lng(2.3522)
+                                .build(),
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.858)
+                                .lng(2.34)
+                                .build(),
+                            ElevationProfileRequest.Coordinate.builder()
+                                .lat(48.8584)
+                                .lng(2.2945)
+                                .build(),
+                        )
                     )
                     .build()
             )

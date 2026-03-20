@@ -4,7 +4,8 @@ package com.plazafyi.models.routing
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
+import java.time.OffsetDateTime
+import kotlin.jvm.optionals.getOrNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,36 +15,55 @@ internal class RouteRequestTest {
     fun create() {
         val routeRequest =
             RouteRequest.builder()
-                .destination(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
+                .destination(RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
+                .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                .alternatives(0L)
+                .annotations(true)
+                .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .ev(
+                    RouteRequest.Ev.builder()
+                        .batteryCapacityWh(75000.0)
+                        .addConnectorType("string")
+                        .initialChargePct(0.0)
+                        .minChargePct(0.0)
+                        .minPowerKw(0.0)
                         .build()
                 )
-                .origin(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .exclude("exclude")
+                .geometries(RouteRequest.Geometries.GEOJSON)
                 .mode(RouteRequest.Mode.AUTO)
+                .overview(RouteRequest.Overview.FULL)
+                .steps(true)
+                .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
+                .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
                 .build()
 
         assertThat(routeRequest.destination())
-            .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfNumber(listOf(0.0))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
-            )
+            .isEqualTo(RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
         assertThat(routeRequest.origin())
-            .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfNumber(listOf(0.0))
-                    .type(GeoJsonGeometry.Type.POINT)
+            .isEqualTo(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+        assertThat(routeRequest.alternatives()).contains(0L)
+        assertThat(routeRequest.annotations()).contains(true)
+        assertThat(routeRequest.departAt())
+            .contains(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+        assertThat(routeRequest.ev())
+            .contains(
+                RouteRequest.Ev.builder()
+                    .batteryCapacityWh(75000.0)
+                    .addConnectorType("string")
+                    .initialChargePct(0.0)
+                    .minChargePct(0.0)
+                    .minPowerKw(0.0)
                     .build()
             )
+        assertThat(routeRequest.exclude()).contains("exclude")
+        assertThat(routeRequest.geometries()).contains(RouteRequest.Geometries.GEOJSON)
         assertThat(routeRequest.mode()).contains(RouteRequest.Mode.AUTO)
+        assertThat(routeRequest.overview()).contains(RouteRequest.Overview.FULL)
+        assertThat(routeRequest.steps()).contains(true)
+        assertThat(routeRequest.trafficModel()).contains(RouteRequest.TrafficModel.BEST_GUESS)
+        assertThat(routeRequest.waypoints().getOrNull())
+            .containsExactly(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
     }
 
     @Test
@@ -51,19 +71,27 @@ internal class RouteRequestTest {
         val jsonMapper = jsonMapper()
         val routeRequest =
             RouteRequest.builder()
-                .destination(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
+                .destination(RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
+                .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                .alternatives(0L)
+                .annotations(true)
+                .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .ev(
+                    RouteRequest.Ev.builder()
+                        .batteryCapacityWh(75000.0)
+                        .addConnectorType("string")
+                        .initialChargePct(0.0)
+                        .minChargePct(0.0)
+                        .minPowerKw(0.0)
                         .build()
                 )
-                .origin(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .exclude("exclude")
+                .geometries(RouteRequest.Geometries.GEOJSON)
                 .mode(RouteRequest.Mode.AUTO)
+                .overview(RouteRequest.Overview.FULL)
+                .steps(true)
+                .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
+                .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
                 .build()
 
         val roundtrippedRouteRequest =

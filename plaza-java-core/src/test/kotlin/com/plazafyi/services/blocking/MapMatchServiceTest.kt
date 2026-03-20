@@ -4,7 +4,6 @@ package com.plazafyi.services.blocking
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
-import com.plazafyi.models.GeoJsonGeometry
 import com.plazafyi.models.mapmatch.MapMatchRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,11 +23,12 @@ internal class MapMatchServiceTest {
         val mapMatchResult =
             mapMatchService.match(
                 MapMatchRequest.builder()
-                    .trace(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .coordinates(
+                        listOf(
+                            MapMatchRequest.Coordinate.builder().lat(48.8566).lng(2.3522).build(),
+                            MapMatchRequest.Coordinate.builder().lat(48.857).lng(2.353).build(),
+                            MapMatchRequest.Coordinate.builder().lat(48.8575).lng(2.354).build(),
+                        )
                     )
                     .addRadius(0.0)
                     .build()

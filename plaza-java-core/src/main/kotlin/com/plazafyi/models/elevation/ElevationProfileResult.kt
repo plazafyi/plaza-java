@@ -16,10 +16,12 @@ import com.plazafyi.errors.PlazaInvalidDataException
 import com.plazafyi.models.GeoJsonGeometry
 import java.util.Collections
 import java.util.Objects
-import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
-/** GeoJSON LineString Feature with 3D coordinates representing an elevation profile */
+/**
+ * GeoJSON LineString Feature with 3D coordinates [lng, lat, elevation] representing the elevation
+ * profile along the input path. Summary statistics are in properties.
+ */
 class ElevationProfileResult
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -41,12 +43,17 @@ private constructor(
     ) : this(geometry, properties, type, mutableMapOf())
 
     /**
+     * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+     * coordinates [lng, lat, elevation] are used for elevation endpoints.
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
     fun geometry(): GeoJsonGeometry = geometry.getRequired("geometry")
 
     /**
+     * Elevation profile summary statistics
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -124,6 +131,10 @@ private constructor(
             additionalProperties = elevationProfileResult.additionalProperties.toMutableMap()
         }
 
+        /**
+         * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+         * coordinates [lng, lat, elevation] are used for elevation endpoints.
+         */
         fun geometry(geometry: GeoJsonGeometry) = geometry(JsonField.of(geometry))
 
         /**
@@ -135,6 +146,7 @@ private constructor(
          */
         fun geometry(geometry: JsonField<GeoJsonGeometry>) = apply { this.geometry = geometry }
 
+        /** Elevation profile summary statistics */
         fun properties(properties: Properties) = properties(JsonField.of(properties))
 
         /**
@@ -230,6 +242,7 @@ private constructor(
             (properties.asKnown().getOrNull()?.validity() ?: 0) +
             (type.asKnown().getOrNull()?.validity() ?: 0)
 
+    /** Elevation profile summary statistics */
     class Properties
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     private constructor(
@@ -268,44 +281,44 @@ private constructor(
         )
 
         /**
-         * Average elevation along profile
+         * Average elevation along the profile in meters
          *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-         *   server responded with an unexpected value).
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
-        fun avgElevationM(): Optional<Double> = avgElevationM.getOptional("avg_elevation_m")
+        fun avgElevationM(): Double = avgElevationM.getRequired("avg_elevation_m")
 
         /**
-         * Maximum elevation along profile
+         * Maximum elevation along the profile in meters
          *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-         *   server responded with an unexpected value).
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
-        fun maxElevationM(): Optional<Double> = maxElevationM.getOptional("max_elevation_m")
+        fun maxElevationM(): Double = maxElevationM.getRequired("max_elevation_m")
 
         /**
-         * Minimum elevation along profile
+         * Minimum elevation along the profile in meters
          *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-         *   server responded with an unexpected value).
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
-        fun minElevationM(): Optional<Double> = minElevationM.getOptional("min_elevation_m")
+        fun minElevationM(): Double = minElevationM.getRequired("min_elevation_m")
 
         /**
-         * Total elevation gain in meters
+         * Total cumulative elevation gain in meters
          *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-         *   server responded with an unexpected value).
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
-        fun totalAscentM(): Optional<Double> = totalAscentM.getOptional("total_ascent_m")
+        fun totalAscentM(): Double = totalAscentM.getRequired("total_ascent_m")
 
         /**
-         * Total elevation loss in meters
+         * Total cumulative elevation loss in meters
          *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-         *   server responded with an unexpected value).
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
          */
-        fun totalDescentM(): Optional<Double> = totalDescentM.getOptional("total_descent_m")
+        fun totalDescentM(): Double = totalDescentM.getRequired("total_descent_m")
 
         /**
          * Returns the raw JSON value of [avgElevationM].
@@ -371,18 +384,29 @@ private constructor(
 
         companion object {
 
-            /** Returns a mutable builder for constructing an instance of [Properties]. */
+            /**
+             * Returns a mutable builder for constructing an instance of [Properties].
+             *
+             * The following fields are required:
+             * ```java
+             * .avgElevationM()
+             * .maxElevationM()
+             * .minElevationM()
+             * .totalAscentM()
+             * .totalDescentM()
+             * ```
+             */
             @JvmStatic fun builder() = Builder()
         }
 
         /** A builder for [Properties]. */
         class Builder internal constructor() {
 
-            private var avgElevationM: JsonField<Double> = JsonMissing.of()
-            private var maxElevationM: JsonField<Double> = JsonMissing.of()
-            private var minElevationM: JsonField<Double> = JsonMissing.of()
-            private var totalAscentM: JsonField<Double> = JsonMissing.of()
-            private var totalDescentM: JsonField<Double> = JsonMissing.of()
+            private var avgElevationM: JsonField<Double>? = null
+            private var maxElevationM: JsonField<Double>? = null
+            private var minElevationM: JsonField<Double>? = null
+            private var totalAscentM: JsonField<Double>? = null
+            private var totalDescentM: JsonField<Double>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             @JvmSynthetic
@@ -395,7 +419,7 @@ private constructor(
                 additionalProperties = properties.additionalProperties.toMutableMap()
             }
 
-            /** Average elevation along profile */
+            /** Average elevation along the profile in meters */
             fun avgElevationM(avgElevationM: Double) = avgElevationM(JsonField.of(avgElevationM))
 
             /**
@@ -409,7 +433,7 @@ private constructor(
                 this.avgElevationM = avgElevationM
             }
 
-            /** Maximum elevation along profile */
+            /** Maximum elevation along the profile in meters */
             fun maxElevationM(maxElevationM: Double) = maxElevationM(JsonField.of(maxElevationM))
 
             /**
@@ -423,7 +447,7 @@ private constructor(
                 this.maxElevationM = maxElevationM
             }
 
-            /** Minimum elevation along profile */
+            /** Minimum elevation along the profile in meters */
             fun minElevationM(minElevationM: Double) = minElevationM(JsonField.of(minElevationM))
 
             /**
@@ -437,7 +461,7 @@ private constructor(
                 this.minElevationM = minElevationM
             }
 
-            /** Total elevation gain in meters */
+            /** Total cumulative elevation gain in meters */
             fun totalAscentM(totalAscentM: Double) = totalAscentM(JsonField.of(totalAscentM))
 
             /**
@@ -451,7 +475,7 @@ private constructor(
                 this.totalAscentM = totalAscentM
             }
 
-            /** Total elevation loss in meters */
+            /** Total cumulative elevation loss in meters */
             fun totalDescentM(totalDescentM: Double) = totalDescentM(JsonField.of(totalDescentM))
 
             /**
@@ -488,14 +512,25 @@ private constructor(
              * Returns an immutable instance of [Properties].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```java
+             * .avgElevationM()
+             * .maxElevationM()
+             * .minElevationM()
+             * .totalAscentM()
+             * .totalDescentM()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
              */
             fun build(): Properties =
                 Properties(
-                    avgElevationM,
-                    maxElevationM,
-                    minElevationM,
-                    totalAscentM,
-                    totalDescentM,
+                    checkRequired("avgElevationM", avgElevationM),
+                    checkRequired("maxElevationM", maxElevationM),
+                    checkRequired("minElevationM", minElevationM),
+                    checkRequired("totalAscentM", totalAscentM),
+                    checkRequired("totalDescentM", totalDescentM),
                     additionalProperties.toMutableMap(),
                 )
         }

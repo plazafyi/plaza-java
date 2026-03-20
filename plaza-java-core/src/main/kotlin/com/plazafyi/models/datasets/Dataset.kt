@@ -18,6 +18,10 @@ import java.util.Objects
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * Metadata for a custom dataset. Datasets contain user-uploaded geospatial features separate from
+ * the OSM data.
+ */
 class Dataset
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -66,7 +70,7 @@ private constructor(
     )
 
     /**
-     * Dataset ID
+     * Dataset UUID
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -74,7 +78,7 @@ private constructor(
     fun id(): String = id.getRequired("id")
 
     /**
-     * Creation timestamp
+     * Creation timestamp (UTC)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -82,7 +86,7 @@ private constructor(
     fun insertedAt(): OffsetDateTime = insertedAt.getRequired("inserted_at")
 
     /**
-     * Dataset name
+     * Human-readable dataset name
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -90,7 +94,7 @@ private constructor(
     fun name(): String = name.getRequired("name")
 
     /**
-     * URL-friendly slug
+     * URL-friendly identifier
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -98,7 +102,7 @@ private constructor(
     fun slug(): String = slug.getRequired("slug")
 
     /**
-     * Last update timestamp
+     * Last update timestamp (UTC)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -106,7 +110,7 @@ private constructor(
     fun updatedAt(): OffsetDateTime = updatedAt.getRequired("updated_at")
 
     /**
-     * Attribution text
+     * Required attribution text
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
      *   server responded with an unexpected value).
@@ -122,7 +126,7 @@ private constructor(
     fun description(): Optional<String> = description.getOptional("description")
 
     /**
-     * License identifier
+     * License identifier (e.g. CC-BY-4.0)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
      *   server responded with an unexpected value).
@@ -130,7 +134,7 @@ private constructor(
     fun license(): Optional<String> = license.getOptional("license")
 
     /**
-     * Source data URL
+     * URL of the original data source
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
      *   server responded with an unexpected value).
@@ -261,7 +265,7 @@ private constructor(
             additionalProperties = dataset.additionalProperties.toMutableMap()
         }
 
-        /** Dataset ID */
+        /** Dataset UUID */
         fun id(id: String) = id(JsonField.of(id))
 
         /**
@@ -272,7 +276,7 @@ private constructor(
          */
         fun id(id: JsonField<String>) = apply { this.id = id }
 
-        /** Creation timestamp */
+        /** Creation timestamp (UTC) */
         fun insertedAt(insertedAt: OffsetDateTime) = insertedAt(JsonField.of(insertedAt))
 
         /**
@@ -286,7 +290,7 @@ private constructor(
             this.insertedAt = insertedAt
         }
 
-        /** Dataset name */
+        /** Human-readable dataset name */
         fun name(name: String) = name(JsonField.of(name))
 
         /**
@@ -297,7 +301,7 @@ private constructor(
          */
         fun name(name: JsonField<String>) = apply { this.name = name }
 
-        /** URL-friendly slug */
+        /** URL-friendly identifier */
         fun slug(slug: String) = slug(JsonField.of(slug))
 
         /**
@@ -308,7 +312,7 @@ private constructor(
          */
         fun slug(slug: JsonField<String>) = apply { this.slug = slug }
 
-        /** Last update timestamp */
+        /** Last update timestamp (UTC) */
         fun updatedAt(updatedAt: OffsetDateTime) = updatedAt(JsonField.of(updatedAt))
 
         /**
@@ -320,7 +324,7 @@ private constructor(
          */
         fun updatedAt(updatedAt: JsonField<OffsetDateTime>) = apply { this.updatedAt = updatedAt }
 
-        /** Attribution text */
+        /** Required attribution text */
         fun attribution(attribution: String?) = attribution(JsonField.ofNullable(attribution))
 
         /** Alias for calling [Builder.attribution] with `attribution.orElse(null)`. */
@@ -350,7 +354,7 @@ private constructor(
          */
         fun description(description: JsonField<String>) = apply { this.description = description }
 
-        /** License identifier */
+        /** License identifier (e.g. CC-BY-4.0) */
         fun license(license: String?) = license(JsonField.ofNullable(license))
 
         /** Alias for calling [Builder.license] with `license.orElse(null)`. */
@@ -364,7 +368,7 @@ private constructor(
          */
         fun license(license: JsonField<String>) = apply { this.license = license }
 
-        /** Source data URL */
+        /** URL of the original data source */
         fun sourceUrl(sourceUrl: String?) = sourceUrl(JsonField.ofNullable(sourceUrl))
 
         /** Alias for calling [Builder.sourceUrl] with `sourceUrl.orElse(null)`. */

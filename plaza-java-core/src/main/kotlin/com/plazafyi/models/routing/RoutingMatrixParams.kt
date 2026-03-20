@@ -17,6 +17,11 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * Request body for distance matrix calculation. Computes travel durations (and optionally
+     * distances) between every origin-destination pair. Maximum 2,500 pairs (origins ×
+     * destinations), each list capped at 50 coordinates.
+     */
     fun matrixRequest(): MatrixRequest = matrixRequest
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = matrixRequest._additionalProperties()
@@ -56,6 +61,11 @@ private constructor(
             additionalQueryParams = routingMatrixParams.additionalQueryParams.toBuilder()
         }
 
+        /**
+         * Request body for distance matrix calculation. Computes travel durations (and optionally
+         * distances) between every origin-destination pair. Maximum 2,500 pairs (origins ×
+         * destinations), each list capped at 50 coordinates.
+         */
         fun matrixRequest(matrixRequest: MatrixRequest) = apply {
             this.matrixRequest = matrixRequest
         }

@@ -2,26 +2,49 @@
 
 package com.plazafyi.models.elevation
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.plazafyi.core.ExcludeMissing
+import com.plazafyi.core.JsonField
+import com.plazafyi.core.JsonMissing
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.Params
+import com.plazafyi.core.checkKnown
 import com.plazafyi.core.checkRequired
 import com.plazafyi.core.http.Headers
 import com.plazafyi.core.http.QueryParams
+import com.plazafyi.core.toImmutable
+import com.plazafyi.errors.PlazaInvalidDataException
+import java.util.Collections
 import java.util.Objects
+import kotlin.jvm.optionals.getOrNull
 
 /** Look up elevation for multiple coordinates */
 class ElevationBatchParams
 private constructor(
-    private val elevationProfileRequest: ElevationProfileRequest,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** Request body for elevation profile */
-    fun elevationProfileRequest(): ElevationProfileRequest = elevationProfileRequest
+    /**
+     * Coordinates to look up elevations for (max 50)
+     *
+     * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
+     *   missing or null (e.g. if the server responded with an unexpected value).
+     */
+    fun coordinates(): List<Coordinate> = body.coordinates()
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> =
-        elevationProfileRequest._additionalProperties()
+    /**
+     * Returns the raw JSON value of [coordinates].
+     *
+     * Unlike [coordinates], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    fun _coordinates(): JsonField<List<Coordinate>> = body._coordinates()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     /** Additional headers to send with the request. */
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -38,7 +61,7 @@ private constructor(
          *
          * The following fields are required:
          * ```java
-         * .elevationProfileRequest()
+         * .coordinates()
          * ```
          */
         @JvmStatic fun builder() = Builder()
@@ -47,20 +70,64 @@ private constructor(
     /** A builder for [ElevationBatchParams]. */
     class Builder internal constructor() {
 
-        private var elevationProfileRequest: ElevationProfileRequest? = null
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         @JvmSynthetic
         internal fun from(elevationBatchParams: ElevationBatchParams) = apply {
-            elevationProfileRequest = elevationBatchParams.elevationProfileRequest
+            body = elevationBatchParams.body.toBuilder()
             additionalHeaders = elevationBatchParams.additionalHeaders.toBuilder()
             additionalQueryParams = elevationBatchParams.additionalQueryParams.toBuilder()
         }
 
-        /** Request body for elevation profile */
-        fun elevationProfileRequest(elevationProfileRequest: ElevationProfileRequest) = apply {
-            this.elevationProfileRequest = elevationProfileRequest
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [coordinates]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
+
+        /** Coordinates to look up elevations for (max 50) */
+        fun coordinates(coordinates: List<Coordinate>) = apply { body.coordinates(coordinates) }
+
+        /**
+         * Sets [Builder.coordinates] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.coordinates] with a well-typed `List<Coordinate>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun coordinates(coordinates: JsonField<List<Coordinate>>) = apply {
+            body.coordinates(coordinates)
+        }
+
+        /**
+         * Adds a single [Coordinate] to [coordinates].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
+        fun addCoordinate(coordinate: Coordinate) = apply { body.addCoordinate(coordinate) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -168,24 +235,402 @@ private constructor(
          *
          * The following fields are required:
          * ```java
-         * .elevationProfileRequest()
+         * .coordinates()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ElevationBatchParams =
             ElevationBatchParams(
-                checkRequired("elevationProfileRequest", elevationProfileRequest),
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
 
-    fun _body(): ElevationProfileRequest = elevationProfileRequest
+    fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
+
+    /** Request body for batch elevation lookup. Maximum 50 coordinates per request. */
+    class Body
+    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
+    private constructor(
+        private val coordinates: JsonField<List<Coordinate>>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("coordinates")
+            @ExcludeMissing
+            coordinates: JsonField<List<Coordinate>> = JsonMissing.of()
+        ) : this(coordinates, mutableMapOf())
+
+        /**
+         * Coordinates to look up elevations for (max 50)
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+         */
+        fun coordinates(): List<Coordinate> = coordinates.getRequired("coordinates")
+
+        /**
+         * Returns the raw JSON value of [coordinates].
+         *
+         * Unlike [coordinates], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("coordinates")
+        @ExcludeMissing
+        fun _coordinates(): JsonField<List<Coordinate>> = coordinates
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```java
+             * .coordinates()
+             * ```
+             */
+            @JvmStatic fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var coordinates: JsonField<MutableList<Coordinate>>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            @JvmSynthetic
+            internal fun from(body: Body) = apply {
+                coordinates = body.coordinates.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            /** Coordinates to look up elevations for (max 50) */
+            fun coordinates(coordinates: List<Coordinate>) = coordinates(JsonField.of(coordinates))
+
+            /**
+             * Sets [Builder.coordinates] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.coordinates] with a well-typed `List<Coordinate>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun coordinates(coordinates: JsonField<List<Coordinate>>) = apply {
+                this.coordinates = coordinates.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Coordinate] to [coordinates].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addCoordinate(coordinate: Coordinate) = apply {
+                coordinates =
+                    (coordinates ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("coordinates", it).add(coordinate)
+                    }
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```java
+             * .coordinates()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("coordinates", coordinates).map { it.toImmutable() },
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            coordinates().forEach { it.validate() }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: PlazaInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        @JvmSynthetic
+        internal fun validity(): Int =
+            (coordinates.asKnown().getOrNull()?.sumOf { it.validity().toInt() } ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return other is Body &&
+                coordinates == other.coordinates &&
+                additionalProperties == other.additionalProperties
+        }
+
+        private val hashCode: Int by lazy { Objects.hash(coordinates, additionalProperties) }
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{coordinates=$coordinates, additionalProperties=$additionalProperties}"
+    }
+
+    /** Geographic coordinate as a JSON object with `lat` and `lng` fields. */
+    class Coordinate
+    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
+    private constructor(
+        private val lat: JsonField<Double>,
+        private val lng: JsonField<Double>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("lat") @ExcludeMissing lat: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("lng") @ExcludeMissing lng: JsonField<Double> = JsonMissing.of(),
+        ) : this(lat, lng, mutableMapOf())
+
+        /**
+         * Latitude in decimal degrees (-90 to 90)
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+         */
+        fun lat(): Double = lat.getRequired("lat")
+
+        /**
+         * Longitude in decimal degrees (-180 to 180)
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
+         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+         */
+        fun lng(): Double = lng.getRequired("lng")
+
+        /**
+         * Returns the raw JSON value of [lat].
+         *
+         * Unlike [lat], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("lat") @ExcludeMissing fun _lat(): JsonField<Double> = lat
+
+        /**
+         * Returns the raw JSON value of [lng].
+         *
+         * Unlike [lng], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("lng") @ExcludeMissing fun _lng(): JsonField<Double> = lng
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Coordinate].
+             *
+             * The following fields are required:
+             * ```java
+             * .lat()
+             * .lng()
+             * ```
+             */
+            @JvmStatic fun builder() = Builder()
+        }
+
+        /** A builder for [Coordinate]. */
+        class Builder internal constructor() {
+
+            private var lat: JsonField<Double>? = null
+            private var lng: JsonField<Double>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            @JvmSynthetic
+            internal fun from(coordinate: Coordinate) = apply {
+                lat = coordinate.lat
+                lng = coordinate.lng
+                additionalProperties = coordinate.additionalProperties.toMutableMap()
+            }
+
+            /** Latitude in decimal degrees (-90 to 90) */
+            fun lat(lat: Double) = lat(JsonField.of(lat))
+
+            /**
+             * Sets [Builder.lat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.lat] with a well-typed [Double] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
+            fun lat(lat: JsonField<Double>) = apply { this.lat = lat }
+
+            /** Longitude in decimal degrees (-180 to 180) */
+            fun lng(lng: Double) = lng(JsonField.of(lng))
+
+            /**
+             * Sets [Builder.lng] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.lng] with a well-typed [Double] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
+            fun lng(lng: JsonField<Double>) = apply { this.lng = lng }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Coordinate].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```java
+             * .lat()
+             * .lng()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Coordinate =
+                Coordinate(
+                    checkRequired("lat", lat),
+                    checkRequired("lng", lng),
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Coordinate = apply {
+            if (validated) {
+                return@apply
+            }
+
+            lat()
+            lng()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: PlazaInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        @JvmSynthetic
+        internal fun validity(): Int =
+            (if (lat.asKnown().isPresent) 1 else 0) + (if (lng.asKnown().isPresent) 1 else 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return other is Coordinate &&
+                lat == other.lat &&
+                lng == other.lng &&
+                additionalProperties == other.additionalProperties
+        }
+
+        private val hashCode: Int by lazy { Objects.hash(lat, lng, additionalProperties) }
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Coordinate{lat=$lat, lng=$lng, additionalProperties=$additionalProperties}"
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -193,14 +638,13 @@ private constructor(
         }
 
         return other is ElevationBatchParams &&
-            elevationProfileRequest == other.elevationProfileRequest &&
+            body == other.body &&
             additionalHeaders == other.additionalHeaders &&
             additionalQueryParams == other.additionalQueryParams
     }
 
-    override fun hashCode(): Int =
-        Objects.hash(elevationProfileRequest, additionalHeaders, additionalQueryParams)
+    override fun hashCode(): Int = Objects.hash(body, additionalHeaders, additionalQueryParams)
 
     override fun toString() =
-        "ElevationBatchParams{elevationProfileRequest=$elevationProfileRequest, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ElevationBatchParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

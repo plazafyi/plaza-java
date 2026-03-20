@@ -30,6 +30,10 @@ import java.util.Objects
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D coordinates
+ * [lng, lat, elevation] are used for elevation endpoints.
+ */
 class GeoJsonGeometry
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -47,7 +51,8 @@ private constructor(
     ) : this(coordinates, type, mutableMapOf())
 
     /**
-     * GeoJSON coordinates array (nesting depth varies by geometry type)
+     * Coordinates array. Nesting depth varies by geometry type: Point = [lng, lat], LineString =
+     * [[lng, lat], ...], Polygon = [[[lng, lat], ...], ...], etc.
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -55,6 +60,8 @@ private constructor(
     fun coordinates(): Coordinates = coordinates.getRequired("coordinates")
 
     /**
+     * Geometry type
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -116,7 +123,10 @@ private constructor(
             additionalProperties = geoJsonGeometry.additionalProperties.toMutableMap()
         }
 
-        /** GeoJSON coordinates array (nesting depth varies by geometry type) */
+        /**
+         * Coordinates array. Nesting depth varies by geometry type: Point = [lng, lat], LineString
+         * = [[lng, lat], ...], Polygon = [[[lng, lat], ...], ...], etc.
+         */
         fun coordinates(coordinates: Coordinates) = coordinates(JsonField.of(coordinates))
 
         /**
@@ -130,20 +140,29 @@ private constructor(
             this.coordinates = coordinates
         }
 
-        /** Alias for calling [coordinates] with `Coordinates.ofNumber(number)`. */
-        fun coordinatesOfNumber(number: List<Double>) = coordinates(Coordinates.ofNumber(number))
+        /** Alias for calling [coordinates] with `Coordinates.ofPoint(point)`. */
+        fun coordinatesOfPoint(point: List<Double>) = coordinates(Coordinates.ofPoint(point))
 
-        /** Alias for calling [coordinates] with `Coordinates.ofLists(lists)`. */
-        fun coordinatesOfLists(lists: List<List<Double>>) = coordinates(Coordinates.ofLists(lists))
+        /**
+         * Alias for calling [coordinates] with
+         * `Coordinates.ofLineStringOrMultiPoint(lineStringOrMultiPoint)`.
+         */
+        fun coordinatesOfLineStringOrMultiPoint(lineStringOrMultiPoint: List<List<Double>>) =
+            coordinates(Coordinates.ofLineStringOrMultiPoint(lineStringOrMultiPoint))
 
-        /** Alias for calling [coordinates] with `Coordinates.ofLists(lists)`. */
-        fun coordinatesOfLists(lists: List<List<List<Double>>>) =
-            coordinates(Coordinates.ofLists(lists))
+        /**
+         * Alias for calling [coordinates] with
+         * `Coordinates.ofPolygonOrMultiLineString(polygonOrMultiLineString)`.
+         */
+        fun coordinatesOfPolygonOrMultiLineString(
+            polygonOrMultiLineString: List<List<List<Double>>>
+        ) = coordinates(Coordinates.ofPolygonOrMultiLineString(polygonOrMultiLineString))
 
-        /** Alias for calling [coordinates] with `Coordinates.ofLists(lists)`. */
-        fun coordinatesOfLists(lists: List<List<List<List<Double>>>>) =
-            coordinates(Coordinates.ofLists(lists))
+        /** Alias for calling [coordinates] with `Coordinates.ofMultiPolygon(multiPolygon)`. */
+        fun coordinatesOfMultiPolygon(multiPolygon: List<List<List<List<Double>>>>) =
+            coordinates(Coordinates.ofMultiPolygon(multiPolygon))
 
+        /** Geometry type */
         fun type(type: Type) = type(JsonField.of(type))
 
         /**
@@ -224,50 +243,69 @@ private constructor(
         (coordinates.asKnown().getOrNull()?.validity() ?: 0) +
             (type.asKnown().getOrNull()?.validity() ?: 0)
 
-    /** GeoJSON coordinates array (nesting depth varies by geometry type) */
+    /**
+     * Coordinates array. Nesting depth varies by geometry type: Point = [lng, lat], LineString =
+     * [[lng, lat], ...], Polygon = [[[lng, lat], ...], ...], etc.
+     */
     @JsonDeserialize(using = Coordinates.Deserializer::class)
     @JsonSerialize(using = Coordinates.Serializer::class)
     class Coordinates
     private constructor(
-        private val number: List<Double>? = null,
-        private val lists: List<List<Double>>? = null,
-        private val lists: List<List<List<Double>>>? = null,
-        private val lists: List<List<List<List<Double>>>>? = null,
+        private val point: List<Double>? = null,
+        private val lineStringOrMultiPoint: List<List<Double>>? = null,
+        private val polygonOrMultiLineString: List<List<List<Double>>>? = null,
+        private val multiPolygon: List<List<List<List<Double>>>>? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun number(): Optional<List<Double>> = Optional.ofNullable(number)
+        /** [longitude, latitude] or [longitude, latitude, elevation] */
+        fun point(): Optional<List<Double>> = Optional.ofNullable(point)
 
-        fun lists(): Optional<List<List<Double>>> = Optional.ofNullable(lists)
+        /** Array of [lng, lat] positions */
+        fun lineStringOrMultiPoint(): Optional<List<List<Double>>> =
+            Optional.ofNullable(lineStringOrMultiPoint)
 
-        fun lists(): Optional<List<List<List<Double>>>> = Optional.ofNullable(lists)
+        /** Array of linear rings / line strings */
+        fun polygonOrMultiLineString(): Optional<List<List<List<Double>>>> =
+            Optional.ofNullable(polygonOrMultiLineString)
 
-        fun lists(): Optional<List<List<List<List<Double>>>>> = Optional.ofNullable(lists)
+        /** Array of polygons */
+        fun multiPolygon(): Optional<List<List<List<List<Double>>>>> =
+            Optional.ofNullable(multiPolygon)
 
-        fun isNumber(): Boolean = number != null
+        fun isPoint(): Boolean = point != null
 
-        fun isLists(): Boolean = lists != null
+        fun isLineStringOrMultiPoint(): Boolean = lineStringOrMultiPoint != null
 
-        fun isLists(): Boolean = lists != null
+        fun isPolygonOrMultiLineString(): Boolean = polygonOrMultiLineString != null
 
-        fun isLists(): Boolean = lists != null
+        fun isMultiPolygon(): Boolean = multiPolygon != null
 
-        fun asNumber(): List<Double> = number.getOrThrow("number")
+        /** [longitude, latitude] or [longitude, latitude, elevation] */
+        fun asPoint(): List<Double> = point.getOrThrow("point")
 
-        fun asLists(): List<List<Double>> = lists.getOrThrow("lists")
+        /** Array of [lng, lat] positions */
+        fun asLineStringOrMultiPoint(): List<List<Double>> =
+            lineStringOrMultiPoint.getOrThrow("lineStringOrMultiPoint")
 
-        fun asLists(): List<List<List<Double>>> = lists.getOrThrow("lists")
+        /** Array of linear rings / line strings */
+        fun asPolygonOrMultiLineString(): List<List<List<Double>>> =
+            polygonOrMultiLineString.getOrThrow("polygonOrMultiLineString")
 
-        fun asLists(): List<List<List<List<Double>>>> = lists.getOrThrow("lists")
+        /** Array of polygons */
+        fun asMultiPolygon(): List<List<List<List<Double>>>> =
+            multiPolygon.getOrThrow("multiPolygon")
 
         fun _json(): Optional<JsonValue> = Optional.ofNullable(_json)
 
         fun <T> accept(visitor: Visitor<T>): T =
             when {
-                number != null -> visitor.visitNumber(number)
-                lists != null -> visitor.visitLists(lists)
-                lists != null -> visitor.visitLists(lists)
-                lists != null -> visitor.visitLists(lists)
+                point != null -> visitor.visitPoint(point)
+                lineStringOrMultiPoint != null ->
+                    visitor.visitLineStringOrMultiPoint(lineStringOrMultiPoint)
+                polygonOrMultiLineString != null ->
+                    visitor.visitPolygonOrMultiLineString(polygonOrMultiLineString)
+                multiPolygon != null -> visitor.visitMultiPolygon(multiPolygon)
                 else -> visitor.unknown(_json)
             }
 
@@ -280,13 +318,17 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitNumber(number: List<Double>) {}
+                    override fun visitPoint(point: List<Double>) {}
 
-                    override fun visitLists(lists: List<List<Double>>) {}
+                    override fun visitLineStringOrMultiPoint(
+                        lineStringOrMultiPoint: List<List<Double>>
+                    ) {}
 
-                    override fun visitLists(lists: List<List<List<Double>>>) {}
+                    override fun visitPolygonOrMultiLineString(
+                        polygonOrMultiLineString: List<List<List<Double>>>
+                    ) {}
 
-                    override fun visitLists(lists: List<List<List<List<Double>>>>) {}
+                    override fun visitMultiPolygon(multiPolygon: List<List<List<List<Double>>>>) {}
                 }
             )
             validated = true
@@ -310,16 +352,20 @@ private constructor(
         internal fun validity(): Int =
             accept(
                 object : Visitor<Int> {
-                    override fun visitNumber(number: List<Double>) = number.size
+                    override fun visitPoint(point: List<Double>) = point.size
 
-                    override fun visitLists(lists: List<List<Double>>) =
-                        lists.sumOf { it.size.toInt() }
+                    override fun visitLineStringOrMultiPoint(
+                        lineStringOrMultiPoint: List<List<Double>>
+                    ) = lineStringOrMultiPoint.sumOf { it.size.toInt() }
 
-                    override fun visitLists(lists: List<List<List<Double>>>) =
-                        lists.sumOf { it.sumOf { it.size.toInt() }.toInt() }
+                    override fun visitPolygonOrMultiLineString(
+                        polygonOrMultiLineString: List<List<List<Double>>>
+                    ) = polygonOrMultiLineString.sumOf { it.sumOf { it.size.toInt() }.toInt() }
 
-                    override fun visitLists(lists: List<List<List<List<Double>>>>) =
-                        lists.sumOf { it.sumOf { it.sumOf { it.size.toInt() }.toInt() }.toInt() }
+                    override fun visitMultiPolygon(multiPolygon: List<List<List<List<Double>>>>) =
+                        multiPolygon.sumOf {
+                            it.sumOf { it.sumOf { it.size.toInt() }.toInt() }.toInt()
+                        }
 
                     override fun unknown(json: JsonValue?) = 0
                 }
@@ -331,38 +377,46 @@ private constructor(
             }
 
             return other is Coordinates &&
-                number == other.number &&
-                lists == other.lists &&
-                lists == other.lists &&
-                lists == other.lists
+                point == other.point &&
+                lineStringOrMultiPoint == other.lineStringOrMultiPoint &&
+                polygonOrMultiLineString == other.polygonOrMultiLineString &&
+                multiPolygon == other.multiPolygon
         }
 
-        override fun hashCode(): Int = Objects.hash(number, lists, lists, lists)
+        override fun hashCode(): Int =
+            Objects.hash(point, lineStringOrMultiPoint, polygonOrMultiLineString, multiPolygon)
 
         override fun toString(): String =
             when {
-                number != null -> "Coordinates{number=$number}"
-                lists != null -> "Coordinates{lists=$lists}"
-                lists != null -> "Coordinates{lists=$lists}"
-                lists != null -> "Coordinates{lists=$lists}"
+                point != null -> "Coordinates{point=$point}"
+                lineStringOrMultiPoint != null ->
+                    "Coordinates{lineStringOrMultiPoint=$lineStringOrMultiPoint}"
+                polygonOrMultiLineString != null ->
+                    "Coordinates{polygonOrMultiLineString=$polygonOrMultiLineString}"
+                multiPolygon != null -> "Coordinates{multiPolygon=$multiPolygon}"
                 _json != null -> "Coordinates{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Coordinates")
             }
 
         companion object {
 
-            @JvmStatic
-            fun ofNumber(number: List<Double>) = Coordinates(number = number.toImmutable())
+            /** [longitude, latitude] or [longitude, latitude, elevation] */
+            @JvmStatic fun ofPoint(point: List<Double>) = Coordinates(point = point.toImmutable())
 
+            /** Array of [lng, lat] positions */
             @JvmStatic
-            fun ofLists(lists: List<List<Double>>) = Coordinates(lists = lists.toImmutable())
+            fun ofLineStringOrMultiPoint(lineStringOrMultiPoint: List<List<Double>>) =
+                Coordinates(lineStringOrMultiPoint = lineStringOrMultiPoint.toImmutable())
 
+            /** Array of linear rings / line strings */
             @JvmStatic
-            fun ofLists(lists: List<List<List<Double>>>) = Coordinates(lists = lists.toImmutable())
+            fun ofPolygonOrMultiLineString(polygonOrMultiLineString: List<List<List<Double>>>) =
+                Coordinates(polygonOrMultiLineString = polygonOrMultiLineString.toImmutable())
 
+            /** Array of polygons */
             @JvmStatic
-            fun ofLists(lists: List<List<List<List<Double>>>>) =
-                Coordinates(lists = lists.toImmutable())
+            fun ofMultiPolygon(multiPolygon: List<List<List<List<Double>>>>) =
+                Coordinates(multiPolygon = multiPolygon.toImmutable())
         }
 
         /**
@@ -371,13 +425,17 @@ private constructor(
          */
         interface Visitor<out T> {
 
-            fun visitNumber(number: List<Double>): T
+            /** [longitude, latitude] or [longitude, latitude, elevation] */
+            fun visitPoint(point: List<Double>): T
 
-            fun visitLists(lists: List<List<Double>>): T
+            /** Array of [lng, lat] positions */
+            fun visitLineStringOrMultiPoint(lineStringOrMultiPoint: List<List<Double>>): T
 
-            fun visitLists(lists: List<List<List<Double>>>): T
+            /** Array of linear rings / line strings */
+            fun visitPolygonOrMultiLineString(polygonOrMultiLineString: List<List<List<Double>>>): T
 
-            fun visitLists(lists: List<List<List<List<Double>>>>): T
+            /** Array of polygons */
+            fun visitMultiPolygon(multiPolygon: List<List<List<List<Double>>>>): T
 
             /**
              * Maps an unknown variant of [Coordinates] to a value of type [T].
@@ -402,16 +460,16 @@ private constructor(
                 val bestMatches =
                     sequenceOf(
                             tryDeserialize(node, jacksonTypeRef<List<Double>>())?.let {
-                                Coordinates(number = it, _json = json)
+                                Coordinates(point = it, _json = json)
                             },
                             tryDeserialize(node, jacksonTypeRef<List<List<Double>>>())?.let {
-                                Coordinates(lists = it, _json = json)
+                                Coordinates(lineStringOrMultiPoint = it, _json = json)
                             },
                             tryDeserialize(node, jacksonTypeRef<List<List<List<Double>>>>())?.let {
-                                Coordinates(lists = it, _json = json)
+                                Coordinates(polygonOrMultiLineString = it, _json = json)
                             },
                             tryDeserialize(node, jacksonTypeRef<List<List<List<List<Double>>>>>())
-                                ?.let { Coordinates(lists = it, _json = json) },
+                                ?.let { Coordinates(multiPolygon = it, _json = json) },
                         )
                         .filterNotNull()
                         .allMaxBy { it.validity() }
@@ -437,10 +495,12 @@ private constructor(
                 provider: SerializerProvider,
             ) {
                 when {
-                    value.number != null -> generator.writeObject(value.number)
-                    value.lists != null -> generator.writeObject(value.lists)
-                    value.lists != null -> generator.writeObject(value.lists)
-                    value.lists != null -> generator.writeObject(value.lists)
+                    value.point != null -> generator.writeObject(value.point)
+                    value.lineStringOrMultiPoint != null ->
+                        generator.writeObject(value.lineStringOrMultiPoint)
+                    value.polygonOrMultiLineString != null ->
+                        generator.writeObject(value.polygonOrMultiLineString)
+                    value.multiPolygon != null -> generator.writeObject(value.multiPolygon)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Coordinates")
                 }
@@ -448,6 +508,7 @@ private constructor(
         }
     }
 
+    /** Geometry type */
     class Type @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
         /**

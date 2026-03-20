@@ -17,11 +17,12 @@ import com.plazafyi.errors.BadRequestException
 import com.plazafyi.errors.InternalServerException
 import com.plazafyi.errors.NotFoundException
 import com.plazafyi.errors.PermissionDeniedException
+import com.plazafyi.errors.PlazaException
 import com.plazafyi.errors.RateLimitException
 import com.plazafyi.errors.UnauthorizedException
 import com.plazafyi.errors.UnexpectedStatusCodeException
 import com.plazafyi.errors.UnprocessableEntityException
-import com.plazafyi.models.elements.ElementNearbyParams
+import com.plazafyi.models.elements.ElementQueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.BeforeEach
@@ -58,7 +59,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby400() {
+    fun elementsQuery400() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -69,8 +70,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<BadRequestException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -80,7 +102,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby400WithRawResponse() {
+    fun elementsQuery400WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -91,8 +113,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<BadRequestException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -102,7 +145,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby401() {
+    fun elementsQuery401() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -113,8 +156,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnauthorizedException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -124,7 +188,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby401WithRawResponse() {
+    fun elementsQuery401WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -135,8 +199,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnauthorizedException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -146,7 +231,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby403() {
+    fun elementsQuery403() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -157,8 +242,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<PermissionDeniedException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -168,7 +274,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby403WithRawResponse() {
+    fun elementsQuery403WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -179,8 +285,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<PermissionDeniedException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -190,7 +317,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby404() {
+    fun elementsQuery404() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -201,8 +328,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<NotFoundException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -212,7 +360,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby404WithRawResponse() {
+    fun elementsQuery404WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -223,8 +371,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<NotFoundException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -234,7 +403,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby422() {
+    fun elementsQuery422() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -245,8 +414,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnprocessableEntityException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -256,7 +446,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby422WithRawResponse() {
+    fun elementsQuery422WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -267,8 +457,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnprocessableEntityException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -278,7 +489,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby429() {
+    fun elementsQuery429() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -289,8 +500,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<RateLimitException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -300,7 +532,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby429WithRawResponse() {
+    fun elementsQuery429WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -311,8 +543,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<RateLimitException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -322,7 +575,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby500() {
+    fun elementsQuery500() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -333,8 +586,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<InternalServerException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -344,7 +618,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby500WithRawResponse() {
+    fun elementsQuery500WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -355,8 +629,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<InternalServerException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -366,7 +661,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby999() {
+    fun elementsQuery999() {
         val elementService = client.elements()
         stubFor(
             get(anyUrl())
@@ -377,8 +672,29 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnexpectedStatusCodeException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
@@ -388,7 +704,7 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsNearby999WithRawResponse() {
+    fun elementsQuery999WithRawResponse() {
         val elementService = client.elements().withRawResponse()
         stubFor(
             get(anyUrl())
@@ -399,14 +715,74 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnexpectedStatusCodeException> {
-                elementService.nearby(
-                    ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
                 )
             }
 
         assertThat(e.statusCode()).isEqualTo(999)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
         assertThat(e.body()).isEqualTo(ERROR_JSON)
+    }
+
+    @Test
+    fun elementsQueryInvalidJsonBody() {
+        val elementService = client.elements()
+        stubFor(
+            get(anyUrl())
+                .willReturn(status(200).withHeader(HEADER_NAME, HEADER_VALUE).withBody(NOT_JSON))
+        )
+
+        val e =
+            assertThrows<PlazaException> {
+                elementService.query(
+                    ElementQueryParams.builder()
+                        .bbox("bbox")
+                        .contains("contains")
+                        .crosses("crosses")
+                        .cursor("cursor")
+                        .h3("h3")
+                        .intersects("intersects")
+                        .limit(0L)
+                        .near("near")
+                        .outputBuffer(0.0)
+                        .outputCentroid(true)
+                        .outputFields("output[fields]")
+                        .outputGeometry(true)
+                        .outputInclude("output[include]")
+                        .outputPrecision(0L)
+                        .outputSimplify(0.0)
+                        .outputSort("output[sort]")
+                        .radius(0.0)
+                        .touches("touches")
+                        .type("type")
+                        .within("within")
+                        .build()
+                )
+            }
+
+        assertThat(e).hasMessage("Error reading response")
     }
 
     private fun Headers.toMap(): Map<String, List<String>> =

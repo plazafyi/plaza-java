@@ -10,18 +10,40 @@ internal class RoutingNearestParamsTest {
 
     @Test
     fun create() {
-        RoutingNearestParams.builder().lat(0.0).lng(0.0).radius(0L).build()
+        RoutingNearestParams.builder()
+            .lat(0.0)
+            .lng(0.0)
+            .outputFields("output[fields]")
+            .outputInclude("output[include]")
+            .outputPrecision(0L)
+            .radius(0L)
+            .build()
     }
 
     @Test
     fun queryParams() {
-        val params = RoutingNearestParams.builder().lat(0.0).lng(0.0).radius(0L).build()
+        val params =
+            RoutingNearestParams.builder()
+                .lat(0.0)
+                .lng(0.0)
+                .outputFields("output[fields]")
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .radius(0L)
+                .build()
 
         val queryParams = params._queryParams()
 
         assertThat(queryParams)
             .isEqualTo(
-                QueryParams.builder().put("lat", "0.0").put("lng", "0.0").put("radius", "0").build()
+                QueryParams.builder()
+                    .put("lat", "0.0")
+                    .put("lng", "0.0")
+                    .put("output[fields]", "output[fields]")
+                    .put("output[include]", "output[include]")
+                    .put("output[precision]", "0")
+                    .put("radius", "0")
+                    .build()
             )
     }
 

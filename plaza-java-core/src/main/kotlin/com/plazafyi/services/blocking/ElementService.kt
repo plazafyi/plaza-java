@@ -10,8 +10,11 @@ import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.GeoJsonFeature
 import com.plazafyi.models.elements.BatchRequest
 import com.plazafyi.models.elements.ElementBatchParams
+import com.plazafyi.models.elements.ElementLookupParams
 import com.plazafyi.models.elements.ElementNearbyParams
+import com.plazafyi.models.elements.ElementNearbyPostParams
 import com.plazafyi.models.elements.ElementQueryParams
+import com.plazafyi.models.elements.ElementQueryPostParams
 import com.plazafyi.models.elements.ElementRetrieveParams
 import java.util.function.Consumer
 
@@ -70,17 +73,59 @@ interface ElementService {
     fun batch(batchRequest: BatchRequest): FeatureCollection =
         batch(batchRequest, RequestOptions.none())
 
+    /** Get feature by type and ID */
+    fun lookup(): GeoJsonFeature = lookup(ElementLookupParams.none())
+
+    /** @see lookup */
+    fun lookup(
+        params: ElementLookupParams = ElementLookupParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): GeoJsonFeature
+
+    /** @see lookup */
+    fun lookup(params: ElementLookupParams = ElementLookupParams.none()): GeoJsonFeature =
+        lookup(params, RequestOptions.none())
+
+    /** @see lookup */
+    fun lookup(requestOptions: RequestOptions): GeoJsonFeature =
+        lookup(ElementLookupParams.none(), requestOptions)
+
     /** Find features near a geographic point */
-    fun nearby(params: ElementNearbyParams): FeatureCollection =
-        nearby(params, RequestOptions.none())
+    fun nearby(): FeatureCollection = nearby(ElementNearbyParams.none())
 
     /** @see nearby */
     fun nearby(
-        params: ElementNearbyParams,
+        params: ElementNearbyParams = ElementNearbyParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
     ): FeatureCollection
 
-    /** Query features by bounding box or H3 cell */
+    /** @see nearby */
+    fun nearby(params: ElementNearbyParams = ElementNearbyParams.none()): FeatureCollection =
+        nearby(params, RequestOptions.none())
+
+    /** @see nearby */
+    fun nearby(requestOptions: RequestOptions): FeatureCollection =
+        nearby(ElementNearbyParams.none(), requestOptions)
+
+    /** Find features near a geographic point */
+    fun nearbyPost(): FeatureCollection = nearbyPost(ElementNearbyPostParams.none())
+
+    /** @see nearbyPost */
+    fun nearbyPost(
+        params: ElementNearbyPostParams = ElementNearbyPostParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): FeatureCollection
+
+    /** @see nearbyPost */
+    fun nearbyPost(
+        params: ElementNearbyPostParams = ElementNearbyPostParams.none()
+    ): FeatureCollection = nearbyPost(params, RequestOptions.none())
+
+    /** @see nearbyPost */
+    fun nearbyPost(requestOptions: RequestOptions): FeatureCollection =
+        nearbyPost(ElementNearbyPostParams.none(), requestOptions)
+
+    /** Query features by spatial predicate, bounding box, or H3 cell */
     fun query(): FeatureCollection = query(ElementQueryParams.none())
 
     /** @see query */
@@ -96,6 +141,24 @@ interface ElementService {
     /** @see query */
     fun query(requestOptions: RequestOptions): FeatureCollection =
         query(ElementQueryParams.none(), requestOptions)
+
+    /** Query features by spatial predicate, bounding box, or H3 cell */
+    fun queryPost(): FeatureCollection = queryPost(ElementQueryPostParams.none())
+
+    /** @see queryPost */
+    fun queryPost(
+        params: ElementQueryPostParams = ElementQueryPostParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): FeatureCollection
+
+    /** @see queryPost */
+    fun queryPost(
+        params: ElementQueryPostParams = ElementQueryPostParams.none()
+    ): FeatureCollection = queryPost(params, RequestOptions.none())
+
+    /** @see queryPost */
+    fun queryPost(requestOptions: RequestOptions): FeatureCollection =
+        queryPost(ElementQueryPostParams.none(), requestOptions)
 
     /** A view of [ElementService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
@@ -165,19 +228,80 @@ interface ElementService {
             batch(batchRequest, RequestOptions.none())
 
         /**
+         * Returns a raw HTTP response for `post /api/v1/features/lookup`, but is otherwise the same
+         * as [ElementService.lookup].
+         */
+        @MustBeClosed
+        fun lookup(): HttpResponseFor<GeoJsonFeature> = lookup(ElementLookupParams.none())
+
+        /** @see lookup */
+        @MustBeClosed
+        fun lookup(
+            params: ElementLookupParams = ElementLookupParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<GeoJsonFeature>
+
+        /** @see lookup */
+        @MustBeClosed
+        fun lookup(
+            params: ElementLookupParams = ElementLookupParams.none()
+        ): HttpResponseFor<GeoJsonFeature> = lookup(params, RequestOptions.none())
+
+        /** @see lookup */
+        @MustBeClosed
+        fun lookup(requestOptions: RequestOptions): HttpResponseFor<GeoJsonFeature> =
+            lookup(ElementLookupParams.none(), requestOptions)
+
+        /**
          * Returns a raw HTTP response for `get /api/v1/features/nearby`, but is otherwise the same
          * as [ElementService.nearby].
          */
         @MustBeClosed
-        fun nearby(params: ElementNearbyParams): HttpResponseFor<FeatureCollection> =
-            nearby(params, RequestOptions.none())
+        fun nearby(): HttpResponseFor<FeatureCollection> = nearby(ElementNearbyParams.none())
 
         /** @see nearby */
         @MustBeClosed
         fun nearby(
-            params: ElementNearbyParams,
+            params: ElementNearbyParams = ElementNearbyParams.none(),
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<FeatureCollection>
+
+        /** @see nearby */
+        @MustBeClosed
+        fun nearby(
+            params: ElementNearbyParams = ElementNearbyParams.none()
+        ): HttpResponseFor<FeatureCollection> = nearby(params, RequestOptions.none())
+
+        /** @see nearby */
+        @MustBeClosed
+        fun nearby(requestOptions: RequestOptions): HttpResponseFor<FeatureCollection> =
+            nearby(ElementNearbyParams.none(), requestOptions)
+
+        /**
+         * Returns a raw HTTP response for `post /api/v1/features/nearby`, but is otherwise the same
+         * as [ElementService.nearbyPost].
+         */
+        @MustBeClosed
+        fun nearbyPost(): HttpResponseFor<FeatureCollection> =
+            nearbyPost(ElementNearbyPostParams.none())
+
+        /** @see nearbyPost */
+        @MustBeClosed
+        fun nearbyPost(
+            params: ElementNearbyPostParams = ElementNearbyPostParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<FeatureCollection>
+
+        /** @see nearbyPost */
+        @MustBeClosed
+        fun nearbyPost(
+            params: ElementNearbyPostParams = ElementNearbyPostParams.none()
+        ): HttpResponseFor<FeatureCollection> = nearbyPost(params, RequestOptions.none())
+
+        /** @see nearbyPost */
+        @MustBeClosed
+        fun nearbyPost(requestOptions: RequestOptions): HttpResponseFor<FeatureCollection> =
+            nearbyPost(ElementNearbyPostParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `get /api/v1/features`, but is otherwise the same as
@@ -203,5 +327,31 @@ interface ElementService {
         @MustBeClosed
         fun query(requestOptions: RequestOptions): HttpResponseFor<FeatureCollection> =
             query(ElementQueryParams.none(), requestOptions)
+
+        /**
+         * Returns a raw HTTP response for `post /api/v1/features`, but is otherwise the same as
+         * [ElementService.queryPost].
+         */
+        @MustBeClosed
+        fun queryPost(): HttpResponseFor<FeatureCollection> =
+            queryPost(ElementQueryPostParams.none())
+
+        /** @see queryPost */
+        @MustBeClosed
+        fun queryPost(
+            params: ElementQueryPostParams = ElementQueryPostParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<FeatureCollection>
+
+        /** @see queryPost */
+        @MustBeClosed
+        fun queryPost(
+            params: ElementQueryPostParams = ElementQueryPostParams.none()
+        ): HttpResponseFor<FeatureCollection> = queryPost(params, RequestOptions.none())
+
+        /** @see queryPost */
+        @MustBeClosed
+        fun queryPost(requestOptions: RequestOptions): HttpResponseFor<FeatureCollection> =
+            queryPost(ElementQueryPostParams.none(), requestOptions)
     }
 }

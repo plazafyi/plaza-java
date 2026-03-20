@@ -9,8 +9,11 @@ import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.GeoJsonFeature
 import com.plazafyi.models.elements.BatchRequest
 import com.plazafyi.models.elements.ElementBatchParams
+import com.plazafyi.models.elements.ElementLookupParams
 import com.plazafyi.models.elements.ElementNearbyParams
+import com.plazafyi.models.elements.ElementNearbyPostParams
 import com.plazafyi.models.elements.ElementQueryParams
+import com.plazafyi.models.elements.ElementQueryPostParams
 import com.plazafyi.models.elements.ElementRetrieveParams
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
@@ -72,17 +75,62 @@ interface ElementServiceAsync {
     fun batch(batchRequest: BatchRequest): CompletableFuture<FeatureCollection> =
         batch(batchRequest, RequestOptions.none())
 
+    /** Get feature by type and ID */
+    fun lookup(): CompletableFuture<GeoJsonFeature> = lookup(ElementLookupParams.none())
+
+    /** @see lookup */
+    fun lookup(
+        params: ElementLookupParams = ElementLookupParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): CompletableFuture<GeoJsonFeature>
+
+    /** @see lookup */
+    fun lookup(
+        params: ElementLookupParams = ElementLookupParams.none()
+    ): CompletableFuture<GeoJsonFeature> = lookup(params, RequestOptions.none())
+
+    /** @see lookup */
+    fun lookup(requestOptions: RequestOptions): CompletableFuture<GeoJsonFeature> =
+        lookup(ElementLookupParams.none(), requestOptions)
+
     /** Find features near a geographic point */
-    fun nearby(params: ElementNearbyParams): CompletableFuture<FeatureCollection> =
-        nearby(params, RequestOptions.none())
+    fun nearby(): CompletableFuture<FeatureCollection> = nearby(ElementNearbyParams.none())
 
     /** @see nearby */
     fun nearby(
-        params: ElementNearbyParams,
+        params: ElementNearbyParams = ElementNearbyParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletableFuture<FeatureCollection>
 
-    /** Query features by bounding box or H3 cell */
+    /** @see nearby */
+    fun nearby(
+        params: ElementNearbyParams = ElementNearbyParams.none()
+    ): CompletableFuture<FeatureCollection> = nearby(params, RequestOptions.none())
+
+    /** @see nearby */
+    fun nearby(requestOptions: RequestOptions): CompletableFuture<FeatureCollection> =
+        nearby(ElementNearbyParams.none(), requestOptions)
+
+    /** Find features near a geographic point */
+    fun nearbyPost(): CompletableFuture<FeatureCollection> =
+        nearbyPost(ElementNearbyPostParams.none())
+
+    /** @see nearbyPost */
+    fun nearbyPost(
+        params: ElementNearbyPostParams = ElementNearbyPostParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): CompletableFuture<FeatureCollection>
+
+    /** @see nearbyPost */
+    fun nearbyPost(
+        params: ElementNearbyPostParams = ElementNearbyPostParams.none()
+    ): CompletableFuture<FeatureCollection> = nearbyPost(params, RequestOptions.none())
+
+    /** @see nearbyPost */
+    fun nearbyPost(requestOptions: RequestOptions): CompletableFuture<FeatureCollection> =
+        nearbyPost(ElementNearbyPostParams.none(), requestOptions)
+
+    /** Query features by spatial predicate, bounding box, or H3 cell */
     fun query(): CompletableFuture<FeatureCollection> = query(ElementQueryParams.none())
 
     /** @see query */
@@ -99,6 +147,24 @@ interface ElementServiceAsync {
     /** @see query */
     fun query(requestOptions: RequestOptions): CompletableFuture<FeatureCollection> =
         query(ElementQueryParams.none(), requestOptions)
+
+    /** Query features by spatial predicate, bounding box, or H3 cell */
+    fun queryPost(): CompletableFuture<FeatureCollection> = queryPost(ElementQueryPostParams.none())
+
+    /** @see queryPost */
+    fun queryPost(
+        params: ElementQueryPostParams = ElementQueryPostParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): CompletableFuture<FeatureCollection>
+
+    /** @see queryPost */
+    fun queryPost(
+        params: ElementQueryPostParams = ElementQueryPostParams.none()
+    ): CompletableFuture<FeatureCollection> = queryPost(params, RequestOptions.none())
+
+    /** @see queryPost */
+    fun queryPost(requestOptions: RequestOptions): CompletableFuture<FeatureCollection> =
+        queryPost(ElementQueryPostParams.none(), requestOptions)
 
     /**
      * A view of [ElementServiceAsync] that provides access to raw HTTP responses for each method.
@@ -173,19 +239,79 @@ interface ElementServiceAsync {
             batch(batchRequest, RequestOptions.none())
 
         /**
+         * Returns a raw HTTP response for `post /api/v1/features/lookup`, but is otherwise the same
+         * as [ElementServiceAsync.lookup].
+         */
+        fun lookup(): CompletableFuture<HttpResponseFor<GeoJsonFeature>> =
+            lookup(ElementLookupParams.none())
+
+        /** @see lookup */
+        fun lookup(
+            params: ElementLookupParams = ElementLookupParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): CompletableFuture<HttpResponseFor<GeoJsonFeature>>
+
+        /** @see lookup */
+        fun lookup(
+            params: ElementLookupParams = ElementLookupParams.none()
+        ): CompletableFuture<HttpResponseFor<GeoJsonFeature>> =
+            lookup(params, RequestOptions.none())
+
+        /** @see lookup */
+        fun lookup(
+            requestOptions: RequestOptions
+        ): CompletableFuture<HttpResponseFor<GeoJsonFeature>> =
+            lookup(ElementLookupParams.none(), requestOptions)
+
+        /**
          * Returns a raw HTTP response for `get /api/v1/features/nearby`, but is otherwise the same
          * as [ElementServiceAsync.nearby].
          */
+        fun nearby(): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            nearby(ElementNearbyParams.none())
+
+        /** @see nearby */
         fun nearby(
-            params: ElementNearbyParams
+            params: ElementNearbyParams = ElementNearbyParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>>
+
+        /** @see nearby */
+        fun nearby(
+            params: ElementNearbyParams = ElementNearbyParams.none()
         ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
             nearby(params, RequestOptions.none())
 
         /** @see nearby */
         fun nearby(
-            params: ElementNearbyParams,
+            requestOptions: RequestOptions
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            nearby(ElementNearbyParams.none(), requestOptions)
+
+        /**
+         * Returns a raw HTTP response for `post /api/v1/features/nearby`, but is otherwise the same
+         * as [ElementServiceAsync.nearbyPost].
+         */
+        fun nearbyPost(): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            nearbyPost(ElementNearbyPostParams.none())
+
+        /** @see nearbyPost */
+        fun nearbyPost(
+            params: ElementNearbyPostParams = ElementNearbyPostParams.none(),
             requestOptions: RequestOptions = RequestOptions.none(),
         ): CompletableFuture<HttpResponseFor<FeatureCollection>>
+
+        /** @see nearbyPost */
+        fun nearbyPost(
+            params: ElementNearbyPostParams = ElementNearbyPostParams.none()
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            nearbyPost(params, RequestOptions.none())
+
+        /** @see nearbyPost */
+        fun nearbyPost(
+            requestOptions: RequestOptions
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            nearbyPost(ElementNearbyPostParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `get /api/v1/features`, but is otherwise the same as
@@ -211,5 +337,30 @@ interface ElementServiceAsync {
             requestOptions: RequestOptions
         ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
             query(ElementQueryParams.none(), requestOptions)
+
+        /**
+         * Returns a raw HTTP response for `post /api/v1/features`, but is otherwise the same as
+         * [ElementServiceAsync.queryPost].
+         */
+        fun queryPost(): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            queryPost(ElementQueryPostParams.none())
+
+        /** @see queryPost */
+        fun queryPost(
+            params: ElementQueryPostParams = ElementQueryPostParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>>
+
+        /** @see queryPost */
+        fun queryPost(
+            params: ElementQueryPostParams = ElementQueryPostParams.none()
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            queryPost(params, RequestOptions.none())
+
+        /** @see queryPost */
+        fun queryPost(
+            requestOptions: RequestOptions
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
+            queryPost(ElementQueryPostParams.none(), requestOptions)
     }
 }

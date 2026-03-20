@@ -19,8 +19,11 @@ import com.plazafyi.core.prepareAsync
 import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.GeoJsonFeature
 import com.plazafyi.models.elements.ElementBatchParams
+import com.plazafyi.models.elements.ElementLookupParams
 import com.plazafyi.models.elements.ElementNearbyParams
+import com.plazafyi.models.elements.ElementNearbyPostParams
 import com.plazafyi.models.elements.ElementQueryParams
+import com.plazafyi.models.elements.ElementQueryPostParams
 import com.plazafyi.models.elements.ElementRetrieveParams
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
@@ -52,6 +55,13 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
         // post /api/v1/features/batch
         withRawResponse().batch(params, requestOptions).thenApply { it.parse() }
 
+    override fun lookup(
+        params: ElementLookupParams,
+        requestOptions: RequestOptions,
+    ): CompletableFuture<GeoJsonFeature> =
+        // post /api/v1/features/lookup
+        withRawResponse().lookup(params, requestOptions).thenApply { it.parse() }
+
     override fun nearby(
         params: ElementNearbyParams,
         requestOptions: RequestOptions,
@@ -59,12 +69,26 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
         // get /api/v1/features/nearby
         withRawResponse().nearby(params, requestOptions).thenApply { it.parse() }
 
+    override fun nearbyPost(
+        params: ElementNearbyPostParams,
+        requestOptions: RequestOptions,
+    ): CompletableFuture<FeatureCollection> =
+        // post /api/v1/features/nearby
+        withRawResponse().nearbyPost(params, requestOptions).thenApply { it.parse() }
+
     override fun query(
         params: ElementQueryParams,
         requestOptions: RequestOptions,
     ): CompletableFuture<FeatureCollection> =
         // get /api/v1/features
         withRawResponse().query(params, requestOptions).thenApply { it.parse() }
+
+    override fun queryPost(
+        params: ElementQueryPostParams,
+        requestOptions: RequestOptions,
+    ): CompletableFuture<FeatureCollection> =
+        // post /api/v1/features
+        withRawResponse().queryPost(params, requestOptions).thenApply { it.parse() }
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ElementServiceAsync.WithRawResponse {
@@ -100,7 +124,6 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                         params._pathParam(0),
                         params._pathParam(1),
                     )
-                    .putHeader("Accept", "application/geo+json")
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -131,7 +154,6 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "features", "batch")
-                    .putHeader("Accept", "application/geo+json")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -142,6 +164,37 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     errorHandler.handle(response).parseable {
                         response
                             .use { batchHandler.handle(it) }
+                            .also {
+                                if (requestOptions.responseValidation!!) {
+                                    it.validate()
+                                }
+                            }
+                    }
+                }
+        }
+
+        private val lookupHandler: Handler<GeoJsonFeature> =
+            jsonHandler<GeoJsonFeature>(clientOptions.jsonMapper)
+
+        override fun lookup(
+            params: ElementLookupParams,
+            requestOptions: RequestOptions,
+        ): CompletableFuture<HttpResponseFor<GeoJsonFeature>> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
+                    .addPathSegments("api", "v1", "features", "lookup")
+                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
+                    .build()
+                    .prepareAsync(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            return request
+                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
+                .thenApply { response ->
+                    errorHandler.handle(response).parseable {
+                        response
+                            .use { lookupHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()
@@ -163,7 +216,6 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     .method(HttpMethod.GET)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "features", "nearby")
-                    .putHeader("Accept", "application/geo+json")
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -173,6 +225,37 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     errorHandler.handle(response).parseable {
                         response
                             .use { nearbyHandler.handle(it) }
+                            .also {
+                                if (requestOptions.responseValidation!!) {
+                                    it.validate()
+                                }
+                            }
+                    }
+                }
+        }
+
+        private val nearbyPostHandler: Handler<FeatureCollection> =
+            jsonHandler<FeatureCollection>(clientOptions.jsonMapper)
+
+        override fun nearbyPost(
+            params: ElementNearbyPostParams,
+            requestOptions: RequestOptions,
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
+                    .addPathSegments("api", "v1", "features", "nearby")
+                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
+                    .build()
+                    .prepareAsync(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            return request
+                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
+                .thenApply { response ->
+                    errorHandler.handle(response).parseable {
+                        response
+                            .use { nearbyPostHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()
@@ -194,7 +277,6 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     .method(HttpMethod.GET)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "features")
-                    .putHeader("Accept", "application/geo+json")
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -204,6 +286,37 @@ class ElementServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     errorHandler.handle(response).parseable {
                         response
                             .use { queryHandler.handle(it) }
+                            .also {
+                                if (requestOptions.responseValidation!!) {
+                                    it.validate()
+                                }
+                            }
+                    }
+                }
+        }
+
+        private val queryPostHandler: Handler<FeatureCollection> =
+            jsonHandler<FeatureCollection>(clientOptions.jsonMapper)
+
+        override fun queryPost(
+            params: ElementQueryPostParams,
+            requestOptions: RequestOptions,
+        ): CompletableFuture<HttpResponseFor<FeatureCollection>> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
+                    .addPathSegments("api", "v1", "features")
+                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
+                    .build()
+                    .prepareAsync(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            return request
+                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
+                .thenApply { response ->
+                    errorHandler.handle(response).parseable {
+                        response
+                            .use { queryPostHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()

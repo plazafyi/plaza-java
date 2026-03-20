@@ -13,7 +13,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.plazafyi.client.PlazaClient
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
-import com.plazafyi.models.elements.ElementNearbyParams
+import com.plazafyi.models.elements.ElementQueryParams
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.parallel.ResourceLock
@@ -34,16 +34,32 @@ internal class ServiceParamsTest {
     }
 
     @Test
-    fun nearby() {
+    fun query() {
         val elementService = client.elements()
         stubFor(get(anyUrl()).willReturn(ok("{}")))
 
-        elementService.nearby(
-            ElementNearbyParams.builder()
-                .lat(0.0)
-                .lng(0.0)
+        elementService.query(
+            ElementQueryParams.builder()
+                .bbox("bbox")
+                .contains("contains")
+                .crosses("crosses")
+                .cursor("cursor")
+                .h3("h3")
+                .intersects("intersects")
                 .limit(0L)
-                .radius(0L)
+                .near("near")
+                .outputBuffer(0.0)
+                .outputCentroid(true)
+                .outputFields("output[fields]")
+                .outputGeometry(true)
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .outputSimplify(0.0)
+                .outputSort("output[sort]")
+                .radius(0.0)
+                .touches("touches")
+                .type("type")
+                .within("within")
                 .putAdditionalHeader("Secret-Header", "42")
                 .putAdditionalQueryParam("secret_query_param", "42")
                 .build()

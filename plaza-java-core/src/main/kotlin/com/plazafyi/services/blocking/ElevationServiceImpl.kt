@@ -18,6 +18,7 @@ import com.plazafyi.core.prepare
 import com.plazafyi.models.elevation.ElevationBatchParams
 import com.plazafyi.models.elevation.ElevationBatchResult
 import com.plazafyi.models.elevation.ElevationLookupParams
+import com.plazafyi.models.elevation.ElevationLookupPostParams
 import com.plazafyi.models.elevation.ElevationLookupResult
 import com.plazafyi.models.elevation.ElevationProfileParams
 import com.plazafyi.models.elevation.ElevationProfileResult
@@ -48,6 +49,13 @@ class ElevationServiceImpl internal constructor(private val clientOptions: Clien
     ): ElevationLookupResult =
         // get /api/v1/elevation
         withRawResponse().lookup(params, requestOptions).parse()
+
+    override fun lookupPost(
+        params: ElevationLookupPostParams,
+        requestOptions: RequestOptions,
+    ): ElevationLookupResult =
+        // post /api/v1/elevation
+        withRawResponse().lookupPost(params, requestOptions).parse()
 
     override fun profile(
         params: ElevationProfileParams,
@@ -81,7 +89,6 @@ class ElevationServiceImpl internal constructor(private val clientOptions: Clien
                     .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "elevation", "batch")
-                    .putHeader("Accept", "application/geo+json")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepare(clientOptions, params)
@@ -110,7 +117,6 @@ class ElevationServiceImpl internal constructor(private val clientOptions: Clien
                     .method(HttpMethod.GET)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "elevation")
-                    .putHeader("Accept", "application/geo+json")
                     .build()
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -118,6 +124,34 @@ class ElevationServiceImpl internal constructor(private val clientOptions: Clien
             return errorHandler.handle(response).parseable {
                 response
                     .use { lookupHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+            }
+        }
+
+        private val lookupPostHandler: Handler<ElevationLookupResult> =
+            jsonHandler<ElevationLookupResult>(clientOptions.jsonMapper)
+
+        override fun lookupPost(
+            params: ElevationLookupPostParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<ElevationLookupResult> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
+                    .addPathSegments("api", "v1", "elevation")
+                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return errorHandler.handle(response).parseable {
+                response
+                    .use { lookupPostHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
                             it.validate()
@@ -138,7 +172,6 @@ class ElevationServiceImpl internal constructor(private val clientOptions: Clien
                     .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "elevation", "profile")
-                    .putHeader("Accept", "application/geo+json")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepare(clientOptions, params)

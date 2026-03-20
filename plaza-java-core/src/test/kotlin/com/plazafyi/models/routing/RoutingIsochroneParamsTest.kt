@@ -10,13 +10,33 @@ internal class RoutingIsochroneParamsTest {
 
     @Test
     fun create() {
-        RoutingIsochroneParams.builder().lat(0.0).lng(0.0).time(0.0).mode("mode").build()
+        RoutingIsochroneParams.builder()
+            .lat(0.0)
+            .lng(0.0)
+            .time(0.0)
+            .mode("mode")
+            .outputFields("output[fields]")
+            .outputGeometry(true)
+            .outputInclude("output[include]")
+            .outputPrecision(0L)
+            .outputSimplify(0.0)
+            .build()
     }
 
     @Test
     fun queryParams() {
         val params =
-            RoutingIsochroneParams.builder().lat(0.0).lng(0.0).time(0.0).mode("mode").build()
+            RoutingIsochroneParams.builder()
+                .lat(0.0)
+                .lng(0.0)
+                .time(0.0)
+                .mode("mode")
+                .outputFields("output[fields]")
+                .outputGeometry(true)
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .outputSimplify(0.0)
+                .build()
 
         val queryParams = params._queryParams()
 
@@ -27,6 +47,11 @@ internal class RoutingIsochroneParamsTest {
                     .put("lng", "0.0")
                     .put("time", "0.0")
                     .put("mode", "mode")
+                    .put("output[fields]", "output[fields]")
+                    .put("output[geometry]", "true")
+                    .put("output[include]", "output[include]")
+                    .put("output[precision]", "0")
+                    .put("output[simplify]", "0.0")
                     .build()
             )
     }

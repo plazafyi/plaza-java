@@ -10,12 +10,29 @@ internal class SearchQueryParamsTest {
 
     @Test
     fun create() {
-        SearchQueryParams.builder().q("q").cursor("cursor").limit(0L).build()
+        SearchQueryParams.builder()
+            .q("q")
+            .cursor("cursor")
+            .limit(0L)
+            .outputFields("output[fields]")
+            .outputInclude("output[include]")
+            .outputPrecision(0L)
+            .outputSort("output[sort]")
+            .build()
     }
 
     @Test
     fun queryParams() {
-        val params = SearchQueryParams.builder().q("q").cursor("cursor").limit(0L).build()
+        val params =
+            SearchQueryParams.builder()
+                .q("q")
+                .cursor("cursor")
+                .limit(0L)
+                .outputFields("output[fields]")
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .outputSort("output[sort]")
+                .build()
 
         val queryParams = params._queryParams()
 
@@ -25,6 +42,10 @@ internal class SearchQueryParamsTest {
                     .put("q", "q")
                     .put("cursor", "cursor")
                     .put("limit", "0")
+                    .put("output[fields]", "output[fields]")
+                    .put("output[include]", "output[include]")
+                    .put("output[precision]", "0")
+                    .put("output[sort]", "output[sort]")
                     .build()
             )
     }

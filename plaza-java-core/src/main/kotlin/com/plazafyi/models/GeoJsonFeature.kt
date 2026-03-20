@@ -19,6 +19,11 @@ import java.util.Objects
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
+/**
+ * GeoJSON Feature representing an OSM element. Tags from the original OSM element are flattened
+ * directly into `properties` (not nested under a `tags` key). Metadata fields `@type` and `@id`
+ * identify the OSM element type and ID within properties.
+ */
 class GeoJsonFeature
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -26,7 +31,6 @@ private constructor(
     private val properties: JsonField<Properties>,
     private val type: JsonField<Type>,
     private val id: JsonField<String>,
-    private val osmId: JsonField<Long>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -40,42 +44,41 @@ private constructor(
         properties: JsonField<Properties> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing type: JsonField<Type> = JsonMissing.of(),
         @JsonProperty("id") @ExcludeMissing id: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("osm_id") @ExcludeMissing osmId: JsonField<Long> = JsonMissing.of(),
-    ) : this(geometry, properties, type, id, osmId, mutableMapOf())
+    ) : this(geometry, properties, type, id, mutableMapOf())
 
     /**
+     * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+     * coordinates [lng, lat, elevation] are used for elevation endpoints.
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
     fun geometry(): GeoJsonGeometry = geometry.getRequired("geometry")
 
     /**
+     * OSM tags flattened as key-value pairs, plus `@type` (node/way/relation) and `@id` (OSM ID)
+     * metadata fields. May include `distance_m` for proximity queries.
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
     fun properties(): Properties = properties.getRequired("properties")
 
     /**
+     * Always `Feature`
+     *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
     fun type(): Type = type.getRequired("type")
 
     /**
-     * Feature identifier (type/osm_id)
+     * Compound identifier in `type/osm_id` format
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
      *   server responded with an unexpected value).
      */
     fun id(): Optional<String> = id.getOptional("id")
-
-    /**
-     * OpenStreetMap ID
-     *
-     * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
-     *   server responded with an unexpected value).
-     */
-    fun osmId(): Optional<Long> = osmId.getOptional("osm_id")
 
     /**
      * Returns the raw JSON value of [geometry].
@@ -106,13 +109,6 @@ private constructor(
      * Unlike [id], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("id") @ExcludeMissing fun _id(): JsonField<String> = id
-
-    /**
-     * Returns the raw JSON value of [osmId].
-     *
-     * Unlike [osmId], this method doesn't throw if the JSON field has an unexpected type.
-     */
-    @JsonProperty("osm_id") @ExcludeMissing fun _osmId(): JsonField<Long> = osmId
 
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -148,7 +144,6 @@ private constructor(
         private var properties: JsonField<Properties>? = null
         private var type: JsonField<Type>? = null
         private var id: JsonField<String> = JsonMissing.of()
-        private var osmId: JsonField<Long> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         @JvmSynthetic
@@ -157,10 +152,13 @@ private constructor(
             properties = geoJsonFeature.properties
             type = geoJsonFeature.type
             id = geoJsonFeature.id
-            osmId = geoJsonFeature.osmId
             additionalProperties = geoJsonFeature.additionalProperties.toMutableMap()
         }
 
+        /**
+         * GeoJSON Geometry object per RFC 7946. Coordinates use [longitude, latitude] order. 3D
+         * coordinates [lng, lat, elevation] are used for elevation endpoints.
+         */
         fun geometry(geometry: GeoJsonGeometry) = geometry(JsonField.of(geometry))
 
         /**
@@ -172,6 +170,10 @@ private constructor(
          */
         fun geometry(geometry: JsonField<GeoJsonGeometry>) = apply { this.geometry = geometry }
 
+        /**
+         * OSM tags flattened as key-value pairs, plus `@type` (node/way/relation) and `@id` (OSM
+         * ID) metadata fields. May include `distance_m` for proximity queries.
+         */
         fun properties(properties: Properties) = properties(JsonField.of(properties))
 
         /**
@@ -183,6 +185,7 @@ private constructor(
          */
         fun properties(properties: JsonField<Properties>) = apply { this.properties = properties }
 
+        /** Always `Feature` */
         fun type(type: Type) = type(JsonField.of(type))
 
         /**
@@ -193,7 +196,7 @@ private constructor(
          */
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
-        /** Feature identifier (type/osm_id) */
+        /** Compound identifier in `type/osm_id` format */
         fun id(id: String) = id(JsonField.of(id))
 
         /**
@@ -203,17 +206,6 @@ private constructor(
          * method is primarily for setting the field to an undocumented or not yet supported value.
          */
         fun id(id: JsonField<String>) = apply { this.id = id }
-
-        /** OpenStreetMap ID */
-        fun osmId(osmId: Long) = osmId(JsonField.of(osmId))
-
-        /**
-         * Sets [Builder.osmId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.osmId] with a well-typed [Long] value instead. This
-         * method is primarily for setting the field to an undocumented or not yet supported value.
-         */
-        fun osmId(osmId: JsonField<Long>) = apply { this.osmId = osmId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -254,7 +246,6 @@ private constructor(
                 checkRequired("properties", properties),
                 checkRequired("type", type),
                 id,
-                osmId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -270,7 +261,6 @@ private constructor(
         properties().validate()
         type().validate()
         id()
-        osmId()
         validated = true
     }
 
@@ -292,9 +282,12 @@ private constructor(
         (geometry.asKnown().getOrNull()?.validity() ?: 0) +
             (properties.asKnown().getOrNull()?.validity() ?: 0) +
             (type.asKnown().getOrNull()?.validity() ?: 0) +
-            (if (id.asKnown().isPresent) 1 else 0) +
-            (if (osmId.asKnown().isPresent) 1 else 0)
+            (if (id.asKnown().isPresent) 1 else 0)
 
+    /**
+     * OSM tags flattened as key-value pairs, plus `@type` (node/way/relation) and `@id` (OSM ID)
+     * metadata fields. May include `distance_m` for proximity queries.
+     */
     class Properties
     @JsonCreator
     private constructor(
@@ -394,6 +387,7 @@ private constructor(
         override fun toString() = "Properties{additionalProperties=$additionalProperties}"
     }
 
+    /** Always `Feature` */
     class Type @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
         /**
@@ -522,16 +516,15 @@ private constructor(
             properties == other.properties &&
             type == other.type &&
             id == other.id &&
-            osmId == other.osmId &&
             additionalProperties == other.additionalProperties
     }
 
     private val hashCode: Int by lazy {
-        Objects.hash(geometry, properties, type, id, osmId, additionalProperties)
+        Objects.hash(geometry, properties, type, id, additionalProperties)
     }
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "GeoJsonFeature{geometry=$geometry, properties=$properties, type=$type, id=$id, osmId=$osmId, additionalProperties=$additionalProperties}"
+        "GeoJsonFeature{geometry=$geometry, properties=$properties, type=$type, id=$id, additionalProperties=$additionalProperties}"
 }

@@ -5,9 +5,12 @@ package com.plazafyi.services.async
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
 import com.plazafyi.models.geocode.GeocodeAutocompleteParams
+import com.plazafyi.models.geocode.GeocodeAutocompletePostParams
 import com.plazafyi.models.geocode.GeocodeBatchParams
 import com.plazafyi.models.geocode.GeocodeForwardParams
+import com.plazafyi.models.geocode.GeocodeForwardPostParams
 import com.plazafyi.models.geocode.GeocodeReverseParams
+import com.plazafyi.models.geocode.GeocodeReversePostParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -26,6 +29,32 @@ internal class GeocodeServiceAsyncTest {
         val autocompleteResultFuture =
             geocodeServiceAsync.autocomplete(
                 GeocodeAutocompleteParams.builder()
+                    .q("q")
+                    .countryCode("country_code")
+                    .lang("lang")
+                    .lat(0.0)
+                    .layer("layer")
+                    .limit(0L)
+                    .lng(0.0)
+                    .build()
+            )
+
+        val autocompleteResult = autocompleteResultFuture.get()
+        autocompleteResult.validate()
+    }
+
+    @Test
+    fun autocompletePost() {
+        val client =
+            PlazaOkHttpClientAsync.builder()
+                .baseUrl(TestServerExtension.BASE_URL)
+                .apiKey("My API Key")
+                .build()
+        val geocodeServiceAsync = client.geocode()
+
+        val autocompleteResultFuture =
+            geocodeServiceAsync.autocompletePost(
+                GeocodeAutocompletePostParams.builder()
                     .q("q")
                     .countryCode("country_code")
                     .lang("lang")
@@ -84,6 +113,33 @@ internal class GeocodeServiceAsyncTest {
     }
 
     @Test
+    fun forwardPost() {
+        val client =
+            PlazaOkHttpClientAsync.builder()
+                .baseUrl(TestServerExtension.BASE_URL)
+                .apiKey("My API Key")
+                .build()
+        val geocodeServiceAsync = client.geocode()
+
+        val geocodeResultFuture =
+            geocodeServiceAsync.forwardPost(
+                GeocodeForwardPostParams.builder()
+                    .q("q")
+                    .bbox("bbox")
+                    .countryCode("country_code")
+                    .lang("lang")
+                    .lat(0.0)
+                    .layer("layer")
+                    .limit(0L)
+                    .lng(0.0)
+                    .build()
+            )
+
+        val geocodeResult = geocodeResultFuture.get()
+        geocodeResult.validate()
+    }
+
+    @Test
     fun reverse() {
         val client =
             PlazaOkHttpClientAsync.builder()
@@ -95,11 +151,38 @@ internal class GeocodeServiceAsyncTest {
         val reverseGeocodeResultFuture =
             geocodeServiceAsync.reverse(
                 GeocodeReverseParams.builder()
-                    .lat(0.0)
-                    .lng(0.0)
                     .lang("lang")
+                    .lat(0.0)
                     .layer("layer")
                     .limit(0L)
+                    .lng(0.0)
+                    .near("near")
+                    .radius(0L)
+                    .build()
+            )
+
+        val reverseGeocodeResult = reverseGeocodeResultFuture.get()
+        reverseGeocodeResult.validate()
+    }
+
+    @Test
+    fun reversePost() {
+        val client =
+            PlazaOkHttpClientAsync.builder()
+                .baseUrl(TestServerExtension.BASE_URL)
+                .apiKey("My API Key")
+                .build()
+        val geocodeServiceAsync = client.geocode()
+
+        val reverseGeocodeResultFuture =
+            geocodeServiceAsync.reversePost(
+                GeocodeReversePostParams.builder()
+                    .lang("lang")
+                    .lat(0.0)
+                    .layer("layer")
+                    .limit(0L)
+                    .lng(0.0)
+                    .near("near")
                     .radius(0L)
                     .build()
             )

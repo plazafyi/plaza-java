@@ -200,7 +200,6 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
                     .method(HttpMethod.GET)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "datasets", params._pathParam(0), "features")
-                    .putHeader("Accept", "application/geo+json")
                     .build()
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))

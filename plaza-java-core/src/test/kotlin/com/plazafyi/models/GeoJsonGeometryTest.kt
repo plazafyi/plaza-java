@@ -13,12 +13,12 @@ internal class GeoJsonGeometryTest {
     fun create() {
         val geoJsonGeometry =
             GeoJsonGeometry.builder()
-                .coordinatesOfNumber(listOf(0.0))
+                .coordinatesOfPoint(listOf(2.3522, 48.8566))
                 .type(GeoJsonGeometry.Type.POINT)
                 .build()
 
         assertThat(geoJsonGeometry.coordinates())
-            .isEqualTo(GeoJsonGeometry.Coordinates.ofNumber(listOf(0.0)))
+            .isEqualTo(GeoJsonGeometry.Coordinates.ofPoint(listOf(2.3522, 48.8566)))
         assertThat(geoJsonGeometry.type()).isEqualTo(GeoJsonGeometry.Type.POINT)
     }
 
@@ -27,7 +27,7 @@ internal class GeoJsonGeometryTest {
         val jsonMapper = jsonMapper()
         val geoJsonGeometry =
             GeoJsonGeometry.builder()
-                .coordinatesOfNumber(listOf(0.0))
+                .coordinatesOfPoint(listOf(2.3522, 48.8566))
                 .type(GeoJsonGeometry.Type.POINT)
                 .build()
 

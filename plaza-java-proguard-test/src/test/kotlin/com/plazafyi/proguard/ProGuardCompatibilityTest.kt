@@ -69,8 +69,14 @@ internal class ProGuardCompatibilityTest {
             BatchRequest.builder()
                 .addElement(
                     BatchRequest.Element.builder()
-                        .id(0L)
+                        .id(21154906L)
                         .type(BatchRequest.Element.Type.NODE)
+                        .build()
+                )
+                .addElement(
+                    BatchRequest.Element.builder()
+                        .id(4589123L)
+                        .type(BatchRequest.Element.Type.WAY)
                         .build()
                 )
                 .build()
@@ -90,21 +96,28 @@ internal class ProGuardCompatibilityTest {
         val optimizeResult =
             OptimizeResult.ofCompleted(
                 OptimizeCompletedResult.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
+                    .addFeature(
+                        OptimizeCompletedResult.Feature.builder()
+                            .geometry(
+                                GeoJsonGeometry.builder()
+                                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
+                                    .type(GeoJsonGeometry.Type.POINT)
+                                    .build()
+                            )
+                            .properties(
+                                OptimizeCompletedResult.Feature.Properties.builder()
+                                    .costS(0.0)
+                                    .cumulativeCostS(0.0)
+                                    .waypointIndex(0L)
+                                    .build()
+                            )
+                            .type(OptimizeCompletedResult.Feature.Type.FEATURE)
                             .build()
                     )
-                    .properties(
-                        OptimizeCompletedResult.Properties.builder()
-                            .distance(0.0)
-                            .duration(0.0)
-                            .addWaypointOrder(0L)
-                            .build()
-                    )
-                    .status(OptimizeCompletedResult.Status.COMPLETED)
-                    .type(OptimizeCompletedResult.Type.FEATURE)
+                    .optimization("optimization")
+                    .roundtrip(true)
+                    .totalCostS(0.0)
+                    .type(OptimizeCompletedResult.Type.FEATURE_COLLECTION)
                     .build()
             )
 

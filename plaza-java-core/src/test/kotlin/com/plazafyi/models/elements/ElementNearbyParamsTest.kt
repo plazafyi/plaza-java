@@ -10,12 +10,41 @@ internal class ElementNearbyParamsTest {
 
     @Test
     fun create() {
-        ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+        ElementNearbyParams.builder()
+            .lat(0.0)
+            .limit(0L)
+            .lng(0.0)
+            .near("near")
+            .outputBuffer(0.0)
+            .outputCentroid(true)
+            .outputFields("output[fields]")
+            .outputGeometry(true)
+            .outputInclude("output[include]")
+            .outputPrecision(0L)
+            .outputSimplify(0.0)
+            .outputSort("output[sort]")
+            .radius(0L)
+            .build()
     }
 
     @Test
     fun queryParams() {
-        val params = ElementNearbyParams.builder().lat(0.0).lng(0.0).limit(0L).radius(0L).build()
+        val params =
+            ElementNearbyParams.builder()
+                .lat(0.0)
+                .limit(0L)
+                .lng(0.0)
+                .near("near")
+                .outputBuffer(0.0)
+                .outputCentroid(true)
+                .outputFields("output[fields]")
+                .outputGeometry(true)
+                .outputInclude("output[include]")
+                .outputPrecision(0L)
+                .outputSimplify(0.0)
+                .outputSort("output[sort]")
+                .radius(0L)
+                .build()
 
         val queryParams = params._queryParams()
 
@@ -23,8 +52,17 @@ internal class ElementNearbyParamsTest {
             .isEqualTo(
                 QueryParams.builder()
                     .put("lat", "0.0")
-                    .put("lng", "0.0")
                     .put("limit", "0")
+                    .put("lng", "0.0")
+                    .put("near", "near")
+                    .put("output[buffer]", "0.0")
+                    .put("output[centroid]", "true")
+                    .put("output[fields]", "output[fields]")
+                    .put("output[geometry]", "true")
+                    .put("output[include]", "output[include]")
+                    .put("output[precision]", "0")
+                    .put("output[simplify]", "0.0")
+                    .put("output[sort]", "output[sort]")
                     .put("radius", "0")
                     .build()
             )
@@ -32,11 +70,10 @@ internal class ElementNearbyParamsTest {
 
     @Test
     fun queryParamsWithoutOptionalFields() {
-        val params = ElementNearbyParams.builder().lat(0.0).lng(0.0).build()
+        val params = ElementNearbyParams.builder().build()
 
         val queryParams = params._queryParams()
 
-        assertThat(queryParams)
-            .isEqualTo(QueryParams.builder().put("lat", "0.0").put("lng", "0.0").build())
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
     }
 }

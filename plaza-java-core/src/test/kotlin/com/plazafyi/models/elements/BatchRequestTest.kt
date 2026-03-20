@@ -15,15 +15,28 @@ internal class BatchRequestTest {
             BatchRequest.builder()
                 .addElement(
                     BatchRequest.Element.builder()
-                        .id(0L)
+                        .id(21154906L)
                         .type(BatchRequest.Element.Type.NODE)
+                        .build()
+                )
+                .addElement(
+                    BatchRequest.Element.builder()
+                        .id(4589123L)
+                        .type(BatchRequest.Element.Type.WAY)
                         .build()
                 )
                 .build()
 
         assertThat(batchRequest.elements())
             .containsExactly(
-                BatchRequest.Element.builder().id(0L).type(BatchRequest.Element.Type.NODE).build()
+                BatchRequest.Element.builder()
+                    .id(21154906L)
+                    .type(BatchRequest.Element.Type.NODE)
+                    .build(),
+                BatchRequest.Element.builder()
+                    .id(4589123L)
+                    .type(BatchRequest.Element.Type.WAY)
+                    .build(),
             )
     }
 
@@ -34,8 +47,14 @@ internal class BatchRequestTest {
             BatchRequest.builder()
                 .addElement(
                     BatchRequest.Element.builder()
-                        .id(0L)
+                        .id(21154906L)
                         .type(BatchRequest.Element.Type.NODE)
+                        .build()
+                )
+                .addElement(
+                    BatchRequest.Element.builder()
+                        .id(4589123L)
+                        .type(BatchRequest.Element.Type.WAY)
                         .build()
                 )
                 .build()

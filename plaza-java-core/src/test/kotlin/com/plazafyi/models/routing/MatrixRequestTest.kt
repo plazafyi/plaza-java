@@ -4,7 +4,6 @@ package com.plazafyi.models.routing
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,35 +13,25 @@ internal class MatrixRequestTest {
     fun create() {
         val matrixRequest =
             MatrixRequest.builder()
-                .destinations(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
+                .addDestination(
+                    MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                 )
-                .origins(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
+                .annotations("annotations")
+                .fallbackSpeed(1.0)
                 .mode(MatrixRequest.Mode.AUTO)
                 .build()
 
         assertThat(matrixRequest.destinations())
-            .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfNumber(listOf(0.0))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
-            )
+            .containsExactly(MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
         assertThat(matrixRequest.origins())
-            .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfNumber(listOf(0.0))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
+            .containsExactly(
+                MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build(),
+                MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build(),
             )
+        assertThat(matrixRequest.annotations()).contains("annotations")
+        assertThat(matrixRequest.fallbackSpeed()).contains(1.0)
         assertThat(matrixRequest.mode()).contains(MatrixRequest.Mode.AUTO)
     }
 
@@ -51,18 +40,13 @@ internal class MatrixRequestTest {
         val jsonMapper = jsonMapper()
         val matrixRequest =
             MatrixRequest.builder()
-                .destinations(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
+                .addDestination(
+                    MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                 )
-                .origins(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfNumber(listOf(0.0))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
+                .annotations("annotations")
+                .fallbackSpeed(1.0)
                 .mode(MatrixRequest.Mode.AUTO)
                 .build()
 

@@ -24,12 +24,12 @@ internal class DatasetServiceAsyncTest {
         val datasetFuture =
             datasetServiceAsync.create(
                 DatasetCreateParams.builder()
-                    .name("name")
-                    .slug("slug")
+                    .name("NYC Bike Lanes")
+                    .slug("nyc-bike-lanes")
                     .attribution("attribution")
                     .description("description")
                     .license("license")
-                    .sourceUrl("source_url")
+                    .sourceUrl("https://example.com")
                     .build()
             )
 
@@ -92,7 +92,19 @@ internal class DatasetServiceAsyncTest {
 
         val featureCollectionFuture =
             datasetServiceAsync.features(
-                DatasetFeaturesParams.builder().id("id").cursor("cursor").limit(0L).build()
+                DatasetFeaturesParams.builder()
+                    .id("id")
+                    .cursor("cursor")
+                    .limit(0L)
+                    .outputBuffer(0.0)
+                    .outputCentroid(true)
+                    .outputFields("output[fields]")
+                    .outputGeometry(true)
+                    .outputInclude("output[include]")
+                    .outputPrecision(0L)
+                    .outputSimplify(0.0)
+                    .outputSort("output[sort]")
+                    .build()
             )
 
         val featureCollection = featureCollectionFuture.get()

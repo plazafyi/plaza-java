@@ -29,7 +29,7 @@ private constructor(
 ) : Params {
 
     /**
-     * Dataset name
+     * Human-readable dataset name
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -37,7 +37,7 @@ private constructor(
     fun name(): String = body.name()
 
     /**
-     * URL-friendly slug
+     * URL-friendly identifier (lowercase, hyphens, no spaces)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
@@ -45,7 +45,7 @@ private constructor(
     fun slug(): String = body.slug()
 
     /**
-     * Attribution text
+     * Required attribution text
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
      *   server responded with an unexpected value).
@@ -61,7 +61,7 @@ private constructor(
     fun description(): Optional<String> = body.description()
 
     /**
-     * License identifier
+     * License identifier (e.g. CC-BY-4.0)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
      *   server responded with an unexpected value).
@@ -170,7 +170,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
-        /** Dataset name */
+        /** Human-readable dataset name */
         fun name(name: String) = apply { body.name(name) }
 
         /**
@@ -181,7 +181,7 @@ private constructor(
          */
         fun name(name: JsonField<String>) = apply { body.name(name) }
 
-        /** URL-friendly slug */
+        /** URL-friendly identifier (lowercase, hyphens, no spaces) */
         fun slug(slug: String) = apply { body.slug(slug) }
 
         /**
@@ -192,7 +192,7 @@ private constructor(
          */
         fun slug(slug: JsonField<String>) = apply { body.slug(slug) }
 
-        /** Attribution text */
+        /** Required attribution text */
         fun attribution(attribution: String?) = apply { body.attribution(attribution) }
 
         /** Alias for calling [Builder.attribution] with `attribution.orElse(null)`. */
@@ -222,7 +222,7 @@ private constructor(
          */
         fun description(description: JsonField<String>) = apply { body.description(description) }
 
-        /** License identifier */
+        /** License identifier (e.g. CC-BY-4.0) */
         fun license(license: String?) = apply { body.license(license) }
 
         /** Alias for calling [Builder.license] with `license.orElse(null)`. */
@@ -395,6 +395,7 @@ private constructor(
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
+    /** Request body to create a new dataset. Admin access required. */
     class Body
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     private constructor(
@@ -424,7 +425,7 @@ private constructor(
         ) : this(name, slug, attribution, description, license, sourceUrl, mutableMapOf())
 
         /**
-         * Dataset name
+         * Human-readable dataset name
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
          *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
@@ -432,7 +433,7 @@ private constructor(
         fun name(): String = name.getRequired("name")
 
         /**
-         * URL-friendly slug
+         * URL-friendly identifier (lowercase, hyphens, no spaces)
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
          *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
@@ -440,7 +441,7 @@ private constructor(
         fun slug(): String = slug.getRequired("slug")
 
         /**
-         * Attribution text
+         * Required attribution text
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
@@ -456,7 +457,7 @@ private constructor(
         fun description(): Optional<String> = description.getOptional("description")
 
         /**
-         * License identifier
+         * License identifier (e.g. CC-BY-4.0)
          *
          * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
          *   server responded with an unexpected value).
@@ -565,7 +566,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            /** Dataset name */
+            /** Human-readable dataset name */
             fun name(name: String) = name(JsonField.of(name))
 
             /**
@@ -577,7 +578,7 @@ private constructor(
              */
             fun name(name: JsonField<String>) = apply { this.name = name }
 
-            /** URL-friendly slug */
+            /** URL-friendly identifier (lowercase, hyphens, no spaces) */
             fun slug(slug: String) = slug(JsonField.of(slug))
 
             /**
@@ -589,7 +590,7 @@ private constructor(
              */
             fun slug(slug: JsonField<String>) = apply { this.slug = slug }
 
-            /** Attribution text */
+            /** Required attribution text */
             fun attribution(attribution: String?) = attribution(JsonField.ofNullable(attribution))
 
             /** Alias for calling [Builder.attribution] with `attribution.orElse(null)`. */
@@ -623,7 +624,7 @@ private constructor(
                 this.description = description
             }
 
-            /** License identifier */
+            /** License identifier (e.g. CC-BY-4.0) */
             fun license(license: String?) = license(JsonField.ofNullable(license))
 
             /** Alias for calling [Builder.license] with `license.orElse(null)`. */

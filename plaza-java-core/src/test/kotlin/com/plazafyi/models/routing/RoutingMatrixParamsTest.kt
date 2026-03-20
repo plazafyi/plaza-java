@@ -2,7 +2,6 @@
 
 package com.plazafyi.models.routing
 
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -13,18 +12,13 @@ internal class RoutingMatrixParamsTest {
         RoutingMatrixParams.builder()
             .matrixRequest(
                 MatrixRequest.builder()
-                    .destinations(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .addDestination(
+                        MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                     )
-                    .origins(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                    .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
+                    .annotations("annotations")
+                    .fallbackSpeed(1.0)
                     .mode(MatrixRequest.Mode.AUTO)
                     .build()
             )
@@ -37,18 +31,13 @@ internal class RoutingMatrixParamsTest {
             RoutingMatrixParams.builder()
                 .matrixRequest(
                     MatrixRequest.builder()
-                        .destinations(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
+                        .addDestination(
+                            MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                         )
-                        .origins(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                        .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
+                        .annotations("annotations")
+                        .fallbackSpeed(1.0)
                         .mode(MatrixRequest.Mode.AUTO)
                         .build()
                 )
@@ -59,18 +48,13 @@ internal class RoutingMatrixParamsTest {
         assertThat(body)
             .isEqualTo(
                 MatrixRequest.builder()
-                    .destinations(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .addDestination(
+                        MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                     )
-                    .origins(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                    .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
+                    .annotations("annotations")
+                    .fallbackSpeed(1.0)
                     .mode(MatrixRequest.Mode.AUTO)
                     .build()
             )
@@ -82,18 +66,11 @@ internal class RoutingMatrixParamsTest {
             RoutingMatrixParams.builder()
                 .matrixRequest(
                     MatrixRequest.builder()
-                        .destinations(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
+                        .addDestination(
+                            MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                         )
-                        .origins(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfNumber(listOf(0.0))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                        .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
                         .build()
                 )
                 .build()
@@ -103,18 +80,11 @@ internal class RoutingMatrixParamsTest {
         assertThat(body)
             .isEqualTo(
                 MatrixRequest.builder()
-                    .destinations(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
+                    .addDestination(
+                        MatrixRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
                     )
-                    .origins(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfNumber(listOf(0.0))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .addOrigin(MatrixRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                    .addOrigin(MatrixRequest.Origin.builder().lat(48.8606).lng(2.3376).build())
                     .build()
             )
     }
