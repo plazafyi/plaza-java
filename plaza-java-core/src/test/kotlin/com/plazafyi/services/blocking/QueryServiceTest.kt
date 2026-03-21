@@ -7,7 +7,6 @@ import com.plazafyi.client.okhttp.PlazaOkHttpClient
 import com.plazafyi.models.query.OverpassQuery
 import com.plazafyi.models.query.QueryExecuteParams
 import com.plazafyi.models.query.QueryOverpassParams
-import com.plazafyi.models.query.SparqlQuery
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -62,26 +61,5 @@ internal class QueryServiceTest {
             )
 
         featureCollection.validate()
-    }
-
-    @Test
-    fun sparql() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val queryService = client.query()
-
-        val sparqlResult =
-            queryService.sparql(
-                SparqlQuery.builder()
-                    .query(
-                        "SELECT ?s ?name WHERE { ?s osm:name ?name . ?s osm:amenity \"cafe\" } LIMIT 10"
-                    )
-                    .build()
-            )
-
-        sparqlResult.validate()
     }
 }

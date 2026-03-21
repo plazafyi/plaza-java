@@ -10,9 +10,6 @@ import com.plazafyi.models.query.OverpassQuery
 import com.plazafyi.models.query.QueryExecuteParams
 import com.plazafyi.models.query.QueryExecuteResponse
 import com.plazafyi.models.query.QueryOverpassParams
-import com.plazafyi.models.query.QuerySparqlParams
-import com.plazafyi.models.query.SparqlQuery
-import com.plazafyi.models.query.SparqlResult
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
@@ -60,27 +57,6 @@ interface QueryServiceAsync {
     /** @see overpass */
     fun overpass(overpassQuery: OverpassQuery): CompletableFuture<FeatureCollection> =
         overpass(overpassQuery, RequestOptions.none())
-
-    /** Execute a SPARQL query */
-    fun sparql(params: QuerySparqlParams): CompletableFuture<SparqlResult> =
-        sparql(params, RequestOptions.none())
-
-    /** @see sparql */
-    fun sparql(
-        params: QuerySparqlParams,
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<SparqlResult>
-
-    /** @see sparql */
-    fun sparql(
-        sparqlQuery: SparqlQuery,
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<SparqlResult> =
-        sparql(QuerySparqlParams.builder().sparqlQuery(sparqlQuery).build(), requestOptions)
-
-    /** @see sparql */
-    fun sparql(sparqlQuery: SparqlQuery): CompletableFuture<SparqlResult> =
-        sparql(sparqlQuery, RequestOptions.none())
 
     /** A view of [QueryServiceAsync] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
@@ -139,29 +115,5 @@ interface QueryServiceAsync {
             overpassQuery: OverpassQuery
         ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
             overpass(overpassQuery, RequestOptions.none())
-
-        /**
-         * Returns a raw HTTP response for `post /api/v1/sparql`, but is otherwise the same as
-         * [QueryServiceAsync.sparql].
-         */
-        fun sparql(params: QuerySparqlParams): CompletableFuture<HttpResponseFor<SparqlResult>> =
-            sparql(params, RequestOptions.none())
-
-        /** @see sparql */
-        fun sparql(
-            params: QuerySparqlParams,
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<SparqlResult>>
-
-        /** @see sparql */
-        fun sparql(
-            sparqlQuery: SparqlQuery,
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<SparqlResult>> =
-            sparql(QuerySparqlParams.builder().sparqlQuery(sparqlQuery).build(), requestOptions)
-
-        /** @see sparql */
-        fun sparql(sparqlQuery: SparqlQuery): CompletableFuture<HttpResponseFor<SparqlResult>> =
-            sparql(sparqlQuery, RequestOptions.none())
     }
 }
