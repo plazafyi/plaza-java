@@ -19,8 +19,6 @@ import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.query.QueryExecuteParams
 import com.plazafyi.models.query.QueryExecuteResponse
 import com.plazafyi.models.query.QueryOverpassParams
-import com.plazafyi.models.query.QuerySparqlParams
-import com.plazafyi.models.query.SparqlResult
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
@@ -49,13 +47,6 @@ class QueryServiceAsyncImpl internal constructor(private val clientOptions: Clie
     ): CompletableFuture<FeatureCollection> =
         // post /api/v1/overpass
         withRawResponse().overpass(params, requestOptions).thenApply { it.parse() }
-
-    override fun sparql(
-        params: QuerySparqlParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<SparqlResult> =
-        // post /api/v1/sparql
-        withRawResponse().sparql(params, requestOptions).thenApply { it.parse() }
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         QueryServiceAsync.WithRawResponse {
@@ -123,37 +114,6 @@ class QueryServiceAsyncImpl internal constructor(private val clientOptions: Clie
                     errorHandler.handle(response).parseable {
                         response
                             .use { overpassHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
-        private val sparqlHandler: Handler<SparqlResult> =
-            jsonHandler<SparqlResult>(clientOptions.jsonMapper)
-
-        override fun sparql(
-            params: QuerySparqlParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<SparqlResult>> {
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.POST)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "sparql")
-                    .body(json(clientOptions.jsonMapper, params._body()))
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { sparqlHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()
