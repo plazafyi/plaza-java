@@ -4,9 +4,8 @@ package com.plazafyi.services.blocking
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
-import com.plazafyi.models.query.OverpassQuery
+import com.plazafyi.models.query.PlazaqlQuery
 import com.plazafyi.models.query.QueryExecuteParams
-import com.plazafyi.models.query.QueryOverpassParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -22,38 +21,14 @@ internal class QueryServiceTest {
                 .build()
         val queryService = client.query()
 
-        val response =
+        val featureCollection =
             queryService.execute(
                 QueryExecuteParams.builder()
-                    .addStep(
-                        QueryExecuteParams.Step.builder()
-                            .type(QueryExecuteParams.Step.Type.OVERPASS)
-                            .query("query")
-                            .build()
-                    )
-                    .build()
-            )
-
-        response.validate()
-    }
-
-    @Test
-    fun overpass() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val queryService = client.query()
-
-        val featureCollection =
-            queryService.overpass(
-                QueryOverpassParams.builder()
                     .format("format")
-                    .overpassQuery(
-                        OverpassQuery.builder()
+                    .plazaqlQuery(
+                        PlazaqlQuery.builder()
                             .data(
-                                "[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;"
+                                "\$\$ = search(node, amenity: \"cafe\").around(distance: 500, geometry: point(48.8566, 2.3522));"
                             )
                             .build()
                     )
