@@ -4,9 +4,8 @@ package com.plazafyi.services.async
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
-import com.plazafyi.models.query.OverpassQuery
+import com.plazafyi.models.query.PlazaqlQuery
 import com.plazafyi.models.query.QueryExecuteParams
-import com.plazafyi.models.query.QueryOverpassParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -22,39 +21,14 @@ internal class QueryServiceAsyncTest {
                 .build()
         val queryServiceAsync = client.query()
 
-        val responseFuture =
+        val featureCollectionFuture =
             queryServiceAsync.execute(
                 QueryExecuteParams.builder()
-                    .addStep(
-                        QueryExecuteParams.Step.builder()
-                            .type(QueryExecuteParams.Step.Type.OVERPASS)
-                            .query("query")
-                            .build()
-                    )
-                    .build()
-            )
-
-        val response = responseFuture.get()
-        response.validate()
-    }
-
-    @Test
-    fun overpass() {
-        val client =
-            PlazaOkHttpClientAsync.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val queryServiceAsync = client.query()
-
-        val featureCollectionFuture =
-            queryServiceAsync.overpass(
-                QueryOverpassParams.builder()
                     .format("format")
-                    .overpassQuery(
-                        OverpassQuery.builder()
+                    .plazaqlQuery(
+                        PlazaqlQuery.builder()
                             .data(
-                                "[out:json];node[amenity=cafe](around:500,48.8566,2.3522);out body;"
+                                "\$\$ = search(node, amenity: \"cafe\").around(distance: 500, geometry: point(48.8566, 2.3522));"
                             )
                             .build()
                     )
