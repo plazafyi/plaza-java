@@ -4,7 +4,8 @@ package com.plazafyi.models.elevation
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
+import com.plazafyi.models.Geometry
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,12 +15,7 @@ internal class ElevationProfileResultTest {
     fun create() {
         val elevationProfileResult =
             ElevationProfileResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     ElevationProfileResult.Properties.builder()
                         .avgElevationM(67.8)
@@ -34,10 +30,13 @@ internal class ElevationProfileResultTest {
 
         assertThat(elevationProfileResult.geometry())
             .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
+                Geometry.ofPoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
             )
         assertThat(elevationProfileResult.properties())
             .isEqualTo(
@@ -57,12 +56,7 @@ internal class ElevationProfileResultTest {
         val jsonMapper = jsonMapper()
         val elevationProfileResult =
             ElevationProfileResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     ElevationProfileResult.Properties.builder()
                         .avgElevationM(67.8)

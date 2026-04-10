@@ -5,7 +5,8 @@ package com.plazafyi.models.routing
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
+import com.plazafyi.models.Geometry
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,12 +16,7 @@ internal class RouteResultTest {
     fun create() {
         val routeResult =
             RouteResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     RouteResult.Properties.builder()
                         .distanceM(4523.7)
@@ -49,10 +45,13 @@ internal class RouteResultTest {
 
         assertThat(routeResult.geometry())
             .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
+                Geometry.ofPoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
             )
         assertThat(routeResult.properties())
             .isEqualTo(
@@ -86,12 +85,7 @@ internal class RouteResultTest {
         val jsonMapper = jsonMapper()
         val routeResult =
             RouteResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     RouteResult.Properties.builder()
                         .distanceM(4523.7)

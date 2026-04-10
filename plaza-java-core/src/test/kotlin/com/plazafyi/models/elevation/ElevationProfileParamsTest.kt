@@ -2,6 +2,7 @@
 
 package com.plazafyi.models.elevation
 
+import com.plazafyi.models.LineStringGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,21 +13,17 @@ internal class ElevationProfileParamsTest {
         ElevationProfileParams.builder()
             .elevationProfileRequest(
                 ElevationProfileRequest.builder()
-                    .coordinates(
-                        listOf(
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.8566)
-                                .lng(2.3522)
-                                .build(),
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.858)
-                                .lng(2.34)
-                                .build(),
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.8584)
-                                .lng(2.2945)
-                                .build(),
-                        )
+                    .geometry(
+                        LineStringGeometry.builder()
+                            .coordinates(
+                                listOf(
+                                    listOf(2.3522, 48.8566),
+                                    listOf(2.34, 48.858),
+                                    listOf(2.2945, 48.8584),
+                                )
+                            )
+                            .type(LineStringGeometry.Type.LINE_STRING)
+                            .build()
                     )
                     .build()
             )
@@ -39,21 +36,17 @@ internal class ElevationProfileParamsTest {
             ElevationProfileParams.builder()
                 .elevationProfileRequest(
                     ElevationProfileRequest.builder()
-                        .coordinates(
-                            listOf(
-                                ElevationProfileRequest.Coordinate.builder()
-                                    .lat(48.8566)
-                                    .lng(2.3522)
-                                    .build(),
-                                ElevationProfileRequest.Coordinate.builder()
-                                    .lat(48.858)
-                                    .lng(2.34)
-                                    .build(),
-                                ElevationProfileRequest.Coordinate.builder()
-                                    .lat(48.8584)
-                                    .lng(2.2945)
-                                    .build(),
-                            )
+                        .geometry(
+                            LineStringGeometry.builder()
+                                .coordinates(
+                                    listOf(
+                                        listOf(2.3522, 48.8566),
+                                        listOf(2.34, 48.858),
+                                        listOf(2.2945, 48.8584),
+                                    )
+                                )
+                                .type(LineStringGeometry.Type.LINE_STRING)
+                                .build()
                         )
                         .build()
                 )
@@ -64,21 +57,17 @@ internal class ElevationProfileParamsTest {
         assertThat(body)
             .isEqualTo(
                 ElevationProfileRequest.builder()
-                    .coordinates(
-                        listOf(
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.8566)
-                                .lng(2.3522)
-                                .build(),
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.858)
-                                .lng(2.34)
-                                .build(),
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.8584)
-                                .lng(2.2945)
-                                .build(),
-                        )
+                    .geometry(
+                        LineStringGeometry.builder()
+                            .coordinates(
+                                listOf(
+                                    listOf(2.3522, 48.8566),
+                                    listOf(2.34, 48.858),
+                                    listOf(2.2945, 48.8584),
+                                )
+                            )
+                            .type(LineStringGeometry.Type.LINE_STRING)
+                            .build()
                     )
                     .build()
             )

@@ -3,6 +3,7 @@
 package com.plazafyi.models.geocode
 
 import com.plazafyi.core.http.QueryParams
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,13 +13,20 @@ internal class GeocodeReverseParamsTest {
     fun create() {
         GeocodeReverseParams.builder()
             .format("format")
-            .lang("lang")
-            .lat(0.0)
-            .layer("layer")
-            .limit(0L)
-            .lng(0.0)
-            .near("near")
-            .radius(0L)
+            .geocodeReverseRequest(
+                GeocodeReverseRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .lang("lang")
+                    .limit(1L)
+                    .radius(1.0)
+                    .build()
+            )
             .build()
     }
 
@@ -27,38 +35,119 @@ internal class GeocodeReverseParamsTest {
         val params =
             GeocodeReverseParams.builder()
                 .format("format")
-                .lang("lang")
-                .lat(0.0)
-                .layer("layer")
-                .limit(0L)
-                .lng(0.0)
-                .near("near")
-                .radius(0L)
+                .geocodeReverseRequest(
+                    GeocodeReverseRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .lang("lang")
+                        .limit(1L)
+                        .radius(1.0)
+                        .build()
+                )
                 .build()
 
         val queryParams = params._queryParams()
 
-        assertThat(queryParams)
+        assertThat(queryParams).isEqualTo(QueryParams.builder().put("format", "format").build())
+    }
+
+    @Test
+    fun queryParamsWithoutOptionalFields() {
+        val params =
+            GeocodeReverseParams.builder()
+                .geocodeReverseRequest(
+                    GeocodeReverseRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
+    }
+
+    @Test
+    fun body() {
+        val params =
+            GeocodeReverseParams.builder()
+                .format("format")
+                .geocodeReverseRequest(
+                    GeocodeReverseRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .lang("lang")
+                        .limit(1L)
+                        .radius(1.0)
+                        .build()
+                )
+                .build()
+
+        val body = params._body()
+
+        assertThat(body)
             .isEqualTo(
-                QueryParams.builder()
-                    .put("format", "format")
-                    .put("lang", "lang")
-                    .put("lat", "0.0")
-                    .put("layer", "layer")
-                    .put("limit", "0")
-                    .put("lng", "0.0")
-                    .put("near", "near")
-                    .put("radius", "0")
+                GeocodeReverseRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .lang("lang")
+                    .limit(1L)
+                    .radius(1.0)
                     .build()
             )
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
-        val params = GeocodeReverseParams.builder().build()
+    fun bodyWithoutOptionalFields() {
+        val params =
+            GeocodeReverseParams.builder()
+                .geocodeReverseRequest(
+                    GeocodeReverseRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
 
-        val queryParams = params._queryParams()
+        val body = params._body()
 
-        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
+        assertThat(body)
+            .isEqualTo(
+                GeocodeReverseRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .build()
+            )
     }
 }

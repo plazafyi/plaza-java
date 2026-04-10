@@ -5,7 +5,6 @@ package com.plazafyi.models.geocode
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -20,12 +19,7 @@ internal class GeocodeBatchResponseTest {
                     GeocodeResult.builder()
                         .addFeature(
                             GeocodingFeature.builder()
-                                .geometry(
-                                    GeoJsonGeometry.builder()
-                                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                        .type(GeoJsonGeometry.Type.POINT)
-                                        .build()
-                                )
+                                .pointGeometry(listOf(2.3522, 48.8566))
                                 .properties(
                                     GeocodingFeature.Properties.builder()
                                         .displayName(
@@ -76,12 +70,7 @@ internal class GeocodeBatchResponseTest {
                 GeocodeResult.builder()
                     .addFeature(
                         GeocodingFeature.builder()
-                            .geometry(
-                                GeoJsonGeometry.builder()
-                                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                    .type(GeoJsonGeometry.Type.POINT)
-                                    .build()
-                            )
+                            .pointGeometry(listOf(2.3522, 48.8566))
                             .properties(
                                 GeocodingFeature.Properties.builder()
                                     .displayName(
@@ -133,12 +122,7 @@ internal class GeocodeBatchResponseTest {
                     GeocodeResult.builder()
                         .addFeature(
                             GeocodingFeature.builder()
-                                .geometry(
-                                    GeoJsonGeometry.builder()
-                                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                        .type(GeoJsonGeometry.Type.POINT)
-                                        .build()
-                                )
+                                .pointGeometry(listOf(2.3522, 48.8566))
                                 .properties(
                                     GeocodingFeature.Properties.builder()
                                         .displayName(

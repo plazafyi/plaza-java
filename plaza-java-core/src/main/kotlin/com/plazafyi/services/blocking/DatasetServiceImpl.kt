@@ -17,11 +17,9 @@ import com.plazafyi.core.http.HttpResponseFor
 import com.plazafyi.core.http.json
 import com.plazafyi.core.http.parseable
 import com.plazafyi.core.prepare
-import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.datasets.Dataset
 import com.plazafyi.models.datasets.DatasetCreateParams
 import com.plazafyi.models.datasets.DatasetDeleteParams
-import com.plazafyi.models.datasets.DatasetFeaturesParams
 import com.plazafyi.models.datasets.DatasetList
 import com.plazafyi.models.datasets.DatasetListParams
 import com.plazafyi.models.datasets.DatasetRetrieveParams
@@ -56,13 +54,6 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
         // delete /api/v1/datasets/{id}
         withRawResponse().delete(params, requestOptions)
     }
-
-    override fun features(
-        params: DatasetFeaturesParams,
-        requestOptions: RequestOptions,
-    ): FeatureCollection =
-        // get /api/v1/datasets/{id}/features
-        withRawResponse().features(params, requestOptions).parse()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         DatasetService.WithRawResponse {
@@ -182,36 +173,6 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
             val response = clientOptions.httpClient.execute(request, requestOptions)
             return errorHandler.handle(response).parseable {
                 response.use { deleteHandler.handle(it) }
-            }
-        }
-
-        private val featuresHandler: Handler<FeatureCollection> =
-            jsonHandler<FeatureCollection>(clientOptions.jsonMapper)
-
-        override fun features(
-            params: DatasetFeaturesParams,
-            requestOptions: RequestOptions,
-        ): HttpResponseFor<FeatureCollection> {
-            // We check here instead of in the params builder because this can be specified
-            // positionally or in the params class.
-            checkRequired("id", params.id().getOrNull())
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.GET)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "datasets", params._pathParam(0), "features")
-                    .build()
-                    .prepare(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            val response = clientOptions.httpClient.execute(request, requestOptions)
-            return errorHandler.handle(response).parseable {
-                response
-                    .use { featuresHandler.handle(it) }
-                    .also {
-                        if (requestOptions.responseValidation!!) {
-                            it.validate()
-                        }
-                    }
             }
         }
     }

@@ -15,10 +15,7 @@ import com.plazafyi.core.http.HttpResponseFor
 import com.plazafyi.core.http.json
 import com.plazafyi.core.http.parseable
 import com.plazafyi.core.prepareAsync
-import com.plazafyi.models.elevation.ElevationBatchParams
-import com.plazafyi.models.elevation.ElevationBatchResult
 import com.plazafyi.models.elevation.ElevationLookupParams
-import com.plazafyi.models.elevation.ElevationLookupPostParams
 import com.plazafyi.models.elevation.ElevationLookupResult
 import com.plazafyi.models.elevation.ElevationProfileParams
 import com.plazafyi.models.elevation.ElevationProfileResult
@@ -37,26 +34,12 @@ class ElevationServiceAsyncImpl internal constructor(private val clientOptions: 
     override fun withOptions(modifier: Consumer<ClientOptions.Builder>): ElevationServiceAsync =
         ElevationServiceAsyncImpl(clientOptions.toBuilder().apply(modifier::accept).build())
 
-    override fun batch(
-        params: ElevationBatchParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<ElevationBatchResult> =
-        // post /api/v1/elevation/batch
-        withRawResponse().batch(params, requestOptions).thenApply { it.parse() }
-
     override fun lookup(
         params: ElevationLookupParams,
         requestOptions: RequestOptions,
     ): CompletableFuture<ElevationLookupResult> =
-        // get /api/v1/elevation
-        withRawResponse().lookup(params, requestOptions).thenApply { it.parse() }
-
-    override fun lookupPost(
-        params: ElevationLookupPostParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<ElevationLookupResult> =
         // post /api/v1/elevation
-        withRawResponse().lookupPost(params, requestOptions).thenApply { it.parse() }
+        withRawResponse().lookup(params, requestOptions).thenApply { it.parse() }
 
     override fun profile(
         params: ElevationProfileParams,
@@ -78,37 +61,6 @@ class ElevationServiceAsyncImpl internal constructor(private val clientOptions: 
                 clientOptions.toBuilder().apply(modifier::accept).build()
             )
 
-        private val batchHandler: Handler<ElevationBatchResult> =
-            jsonHandler<ElevationBatchResult>(clientOptions.jsonMapper)
-
-        override fun batch(
-            params: ElevationBatchParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<ElevationBatchResult>> {
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.POST)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "elevation", "batch")
-                    .body(json(clientOptions.jsonMapper, params._body()))
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { batchHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
         private val lookupHandler: Handler<ElevationLookupResult> =
             jsonHandler<ElevationLookupResult>(clientOptions.jsonMapper)
 
@@ -118,9 +70,10 @@ class ElevationServiceAsyncImpl internal constructor(private val clientOptions: 
         ): CompletableFuture<HttpResponseFor<ElevationLookupResult>> {
             val request =
                 HttpRequest.builder()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "elevation")
+                    .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -130,37 +83,6 @@ class ElevationServiceAsyncImpl internal constructor(private val clientOptions: 
                     errorHandler.handle(response).parseable {
                         response
                             .use { lookupHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
-        private val lookupPostHandler: Handler<ElevationLookupResult> =
-            jsonHandler<ElevationLookupResult>(clientOptions.jsonMapper)
-
-        override fun lookupPost(
-            params: ElevationLookupPostParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<ElevationLookupResult>> {
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.POST)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "elevation")
-                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { lookupPostHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()

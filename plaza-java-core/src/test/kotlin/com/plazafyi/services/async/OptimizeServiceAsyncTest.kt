@@ -4,6 +4,7 @@ package com.plazafyi.services.async
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
+import com.plazafyi.models.MultiPointGeometry
 import com.plazafyi.models.optimize.OptimizeCreateParams
 import com.plazafyi.models.optimize.OptimizeRequest
 import org.junit.jupiter.api.Test
@@ -28,20 +29,16 @@ internal class OptimizeServiceAsyncTest {
                     .optimizeRequest(
                         OptimizeRequest.builder()
                             .waypoints(
-                                listOf(
-                                    OptimizeRequest.Waypoint.builder()
-                                        .lat(48.8566)
-                                        .lng(2.3522)
-                                        .build(),
-                                    OptimizeRequest.Waypoint.builder()
-                                        .lat(48.8606)
-                                        .lng(2.3376)
-                                        .build(),
-                                    OptimizeRequest.Waypoint.builder()
-                                        .lat(48.8584)
-                                        .lng(2.2945)
-                                        .build(),
-                                )
+                                MultiPointGeometry.builder()
+                                    .coordinates(
+                                        listOf(
+                                            listOf(2.3522, 48.8566),
+                                            listOf(2.3376, 48.8606),
+                                            listOf(2.2945, 48.8584),
+                                        )
+                                    )
+                                    .type(MultiPointGeometry.Type.MULTI_POINT)
+                                    .build()
                             )
                             .mode(OptimizeRequest.Mode.AUTO)
                             .roundtrip(false)

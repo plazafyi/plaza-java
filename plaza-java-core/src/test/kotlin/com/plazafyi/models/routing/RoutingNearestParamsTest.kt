@@ -2,7 +2,7 @@
 
 package com.plazafyi.models.routing
 
-import com.plazafyi.core.http.QueryParams
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,49 +11,86 @@ internal class RoutingNearestParamsTest {
     @Test
     fun create() {
         RoutingNearestParams.builder()
-            .lat(0.0)
-            .lng(0.0)
-            .outputFields("output[fields]")
-            .outputInclude("output[include]")
-            .outputPrecision(0L)
-            .radius(0L)
+            .nearestRequest(
+                NearestRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .radius(1.0)
+                    .build()
+            )
             .build()
     }
 
     @Test
-    fun queryParams() {
+    fun body() {
         val params =
             RoutingNearestParams.builder()
-                .lat(0.0)
-                .lng(0.0)
-                .outputFields("output[fields]")
-                .outputInclude("output[include]")
-                .outputPrecision(0L)
-                .radius(0L)
+                .nearestRequest(
+                    NearestRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .radius(1.0)
+                        .build()
+                )
                 .build()
 
-        val queryParams = params._queryParams()
+        val body = params._body()
 
-        assertThat(queryParams)
+        assertThat(body)
             .isEqualTo(
-                QueryParams.builder()
-                    .put("lat", "0.0")
-                    .put("lng", "0.0")
-                    .put("output[fields]", "output[fields]")
-                    .put("output[include]", "output[include]")
-                    .put("output[precision]", "0")
-                    .put("radius", "0")
+                NearestRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .radius(1.0)
                     .build()
             )
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
-        val params = RoutingNearestParams.builder().lat(0.0).lng(0.0).build()
+    fun bodyWithoutOptionalFields() {
+        val params =
+            RoutingNearestParams.builder()
+                .nearestRequest(
+                    NearestRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
 
-        val queryParams = params._queryParams()
+        val body = params._body()
 
-        assertThat(queryParams)
-            .isEqualTo(QueryParams.builder().put("lat", "0.0").put("lng", "0.0").build())
+        assertThat(body)
+            .isEqualTo(
+                NearestRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .build()
+            )
     }
 }

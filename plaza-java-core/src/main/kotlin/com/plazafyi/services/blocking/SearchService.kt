@@ -8,7 +8,6 @@ import com.plazafyi.core.RequestOptions
 import com.plazafyi.core.http.HttpResponseFor
 import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.search.SearchQueryParams
-import com.plazafyi.models.search.SearchQueryPostParams
 import java.util.function.Consumer
 
 interface SearchService {
@@ -34,16 +33,6 @@ interface SearchService {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): FeatureCollection
 
-    /** Search OSM features by name */
-    fun queryPost(params: SearchQueryPostParams): FeatureCollection =
-        queryPost(params, RequestOptions.none())
-
-    /** @see queryPost */
-    fun queryPost(
-        params: SearchQueryPostParams,
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): FeatureCollection
-
     /** A view of [SearchService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
 
@@ -55,7 +44,7 @@ interface SearchService {
         fun withOptions(modifier: Consumer<ClientOptions.Builder>): SearchService.WithRawResponse
 
         /**
-         * Returns a raw HTTP response for `get /api/v1/search`, but is otherwise the same as
+         * Returns a raw HTTP response for `post /api/v1/search`, but is otherwise the same as
          * [SearchService.query].
          */
         @MustBeClosed
@@ -66,21 +55,6 @@ interface SearchService {
         @MustBeClosed
         fun query(
             params: SearchQueryParams,
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<FeatureCollection>
-
-        /**
-         * Returns a raw HTTP response for `post /api/v1/search`, but is otherwise the same as
-         * [SearchService.queryPost].
-         */
-        @MustBeClosed
-        fun queryPost(params: SearchQueryPostParams): HttpResponseFor<FeatureCollection> =
-            queryPost(params, RequestOptions.none())
-
-        /** @see queryPost */
-        @MustBeClosed
-        fun queryPost(
-            params: SearchQueryPostParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<FeatureCollection>
     }

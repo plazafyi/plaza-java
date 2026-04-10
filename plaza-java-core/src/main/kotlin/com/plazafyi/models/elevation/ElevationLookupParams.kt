@@ -2,7 +2,9 @@
 
 package com.plazafyi.models.elevation
 
+import com.plazafyi.core.JsonValue
 import com.plazafyi.core.Params
+import com.plazafyi.core.checkRequired
 import com.plazafyi.core.http.Headers
 import com.plazafyi.core.http.QueryParams
 import java.util.Objects
@@ -13,12 +15,7 @@ import kotlin.jvm.optionals.getOrNull
 class ElevationLookupParams
 private constructor(
     private val format: String?,
-    private val lat: Double?,
-    private val lng: Double?,
-    private val locations: String?,
-    private val outputFields: String?,
-    private val outputInclude: String?,
-    private val outputPrecision: Long?,
+    private val elevationLookupRequest: ElevationLookupRequest,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -26,23 +23,11 @@ private constructor(
     /** Response format: json (default), geojson, csv, ndjson */
     fun format(): Optional<String> = Optional.ofNullable(format)
 
-    /** Latitude (single point) */
-    fun lat(): Optional<Double> = Optional.ofNullable(lat)
+    /** Request body for elevation lookup. Accepts a single Point or a MultiPoint geometry. */
+    fun elevationLookupRequest(): ElevationLookupRequest = elevationLookupRequest
 
-    /** Longitude (single point) */
-    fun lng(): Optional<Double> = Optional.ofNullable(lng)
-
-    /** Pipe-separated lng,lat pairs (batch) */
-    fun locations(): Optional<String> = Optional.ofNullable(locations)
-
-    /** Comma-separated property fields to include */
-    fun outputFields(): Optional<String> = Optional.ofNullable(outputFields)
-
-    /** Extra computed fields: bbox, center */
-    fun outputInclude(): Optional<String> = Optional.ofNullable(outputInclude)
-
-    /** Coordinate decimal precision (1-15, default 7) */
-    fun outputPrecision(): Optional<Long> = Optional.ofNullable(outputPrecision)
+    fun _additionalBodyProperties(): Map<String, JsonValue> =
+        elevationLookupRequest._additionalProperties()
 
     /** Additional headers to send with the request. */
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -54,9 +39,14 @@ private constructor(
 
     companion object {
 
-        @JvmStatic fun none(): ElevationLookupParams = builder().build()
-
-        /** Returns a mutable builder for constructing an instance of [ElevationLookupParams]. */
+        /**
+         * Returns a mutable builder for constructing an instance of [ElevationLookupParams].
+         *
+         * The following fields are required:
+         * ```java
+         * .elevationLookupRequest()
+         * ```
+         */
         @JvmStatic fun builder() = Builder()
     }
 
@@ -64,24 +54,14 @@ private constructor(
     class Builder internal constructor() {
 
         private var format: String? = null
-        private var lat: Double? = null
-        private var lng: Double? = null
-        private var locations: String? = null
-        private var outputFields: String? = null
-        private var outputInclude: String? = null
-        private var outputPrecision: Long? = null
+        private var elevationLookupRequest: ElevationLookupRequest? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         @JvmSynthetic
         internal fun from(elevationLookupParams: ElevationLookupParams) = apply {
             format = elevationLookupParams.format
-            lat = elevationLookupParams.lat
-            lng = elevationLookupParams.lng
-            locations = elevationLookupParams.locations
-            outputFields = elevationLookupParams.outputFields
-            outputInclude = elevationLookupParams.outputInclude
-            outputPrecision = elevationLookupParams.outputPrecision
+            elevationLookupRequest = elevationLookupParams.elevationLookupRequest
             additionalHeaders = elevationLookupParams.additionalHeaders.toBuilder()
             additionalQueryParams = elevationLookupParams.additionalQueryParams.toBuilder()
         }
@@ -92,66 +72,10 @@ private constructor(
         /** Alias for calling [Builder.format] with `format.orElse(null)`. */
         fun format(format: Optional<String>) = format(format.getOrNull())
 
-        /** Latitude (single point) */
-        fun lat(lat: Double?) = apply { this.lat = lat }
-
-        /**
-         * Alias for [Builder.lat].
-         *
-         * This unboxed primitive overload exists for backwards compatibility.
-         */
-        fun lat(lat: Double) = lat(lat as Double?)
-
-        /** Alias for calling [Builder.lat] with `lat.orElse(null)`. */
-        fun lat(lat: Optional<Double>) = lat(lat.getOrNull())
-
-        /** Longitude (single point) */
-        fun lng(lng: Double?) = apply { this.lng = lng }
-
-        /**
-         * Alias for [Builder.lng].
-         *
-         * This unboxed primitive overload exists for backwards compatibility.
-         */
-        fun lng(lng: Double) = lng(lng as Double?)
-
-        /** Alias for calling [Builder.lng] with `lng.orElse(null)`. */
-        fun lng(lng: Optional<Double>) = lng(lng.getOrNull())
-
-        /** Pipe-separated lng,lat pairs (batch) */
-        fun locations(locations: String?) = apply { this.locations = locations }
-
-        /** Alias for calling [Builder.locations] with `locations.orElse(null)`. */
-        fun locations(locations: Optional<String>) = locations(locations.getOrNull())
-
-        /** Comma-separated property fields to include */
-        fun outputFields(outputFields: String?) = apply { this.outputFields = outputFields }
-
-        /** Alias for calling [Builder.outputFields] with `outputFields.orElse(null)`. */
-        fun outputFields(outputFields: Optional<String>) = outputFields(outputFields.getOrNull())
-
-        /** Extra computed fields: bbox, center */
-        fun outputInclude(outputInclude: String?) = apply { this.outputInclude = outputInclude }
-
-        /** Alias for calling [Builder.outputInclude] with `outputInclude.orElse(null)`. */
-        fun outputInclude(outputInclude: Optional<String>) =
-            outputInclude(outputInclude.getOrNull())
-
-        /** Coordinate decimal precision (1-15, default 7) */
-        fun outputPrecision(outputPrecision: Long?) = apply {
-            this.outputPrecision = outputPrecision
+        /** Request body for elevation lookup. Accepts a single Point or a MultiPoint geometry. */
+        fun elevationLookupRequest(elevationLookupRequest: ElevationLookupRequest) = apply {
+            this.elevationLookupRequest = elevationLookupRequest
         }
-
-        /**
-         * Alias for [Builder.outputPrecision].
-         *
-         * This unboxed primitive overload exists for backwards compatibility.
-         */
-        fun outputPrecision(outputPrecision: Long) = outputPrecision(outputPrecision as Long?)
-
-        /** Alias for calling [Builder.outputPrecision] with `outputPrecision.orElse(null)`. */
-        fun outputPrecision(outputPrecision: Optional<Long>) =
-            outputPrecision(outputPrecision.getOrNull())
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -255,20 +179,24 @@ private constructor(
          * Returns an immutable instance of [ElevationLookupParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```java
+         * .elevationLookupRequest()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ElevationLookupParams =
             ElevationLookupParams(
                 format,
-                lat,
-                lng,
-                locations,
-                outputFields,
-                outputInclude,
-                outputPrecision,
+                checkRequired("elevationLookupRequest", elevationLookupRequest),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
+
+    fun _body(): ElevationLookupRequest = elevationLookupRequest
 
     override fun _headers(): Headers = additionalHeaders
 
@@ -276,12 +204,6 @@ private constructor(
         QueryParams.builder()
             .apply {
                 format?.let { put("format", it) }
-                lat?.let { put("lat", it.toString()) }
-                lng?.let { put("lng", it.toString()) }
-                locations?.let { put("locations", it) }
-                outputFields?.let { put("output[fields]", it) }
-                outputInclude?.let { put("output[include]", it) }
-                outputPrecision?.let { put("output[precision]", it.toString()) }
                 putAll(additionalQueryParams)
             }
             .build()
@@ -293,29 +215,14 @@ private constructor(
 
         return other is ElevationLookupParams &&
             format == other.format &&
-            lat == other.lat &&
-            lng == other.lng &&
-            locations == other.locations &&
-            outputFields == other.outputFields &&
-            outputInclude == other.outputInclude &&
-            outputPrecision == other.outputPrecision &&
+            elevationLookupRequest == other.elevationLookupRequest &&
             additionalHeaders == other.additionalHeaders &&
             additionalQueryParams == other.additionalQueryParams
     }
 
     override fun hashCode(): Int =
-        Objects.hash(
-            format,
-            lat,
-            lng,
-            locations,
-            outputFields,
-            outputInclude,
-            outputPrecision,
-            additionalHeaders,
-            additionalQueryParams,
-        )
+        Objects.hash(format, elevationLookupRequest, additionalHeaders, additionalQueryParams)
 
     override fun toString() =
-        "ElevationLookupParams{format=$format, lat=$lat, lng=$lng, locations=$locations, outputFields=$outputFields, outputInclude=$outputInclude, outputPrecision=$outputPrecision, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ElevationLookupParams{format=$format, elevationLookupRequest=$elevationLookupRequest, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

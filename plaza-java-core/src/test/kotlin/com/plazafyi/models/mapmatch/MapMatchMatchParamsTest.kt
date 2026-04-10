@@ -2,6 +2,7 @@
 
 package com.plazafyi.models.mapmatch
 
+import com.plazafyi.models.LineStringGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,12 +13,17 @@ internal class MapMatchMatchParamsTest {
         MapMatchMatchParams.builder()
             .mapMatchRequest(
                 MapMatchRequest.builder()
-                    .coordinates(
-                        listOf(
-                            MapMatchRequest.Coordinate.builder().lat(48.8566).lng(2.3522).build(),
-                            MapMatchRequest.Coordinate.builder().lat(48.857).lng(2.353).build(),
-                            MapMatchRequest.Coordinate.builder().lat(48.8575).lng(2.354).build(),
-                        )
+                    .geometry(
+                        LineStringGeometry.builder()
+                            .coordinates(
+                                listOf(
+                                    listOf(2.3522, 48.8566),
+                                    listOf(2.353, 48.857),
+                                    listOf(2.354, 48.8575),
+                                )
+                            )
+                            .type(LineStringGeometry.Type.LINE_STRING)
+                            .build()
                     )
                     .addRadius(0.0)
                     .build()
@@ -31,15 +37,17 @@ internal class MapMatchMatchParamsTest {
             MapMatchMatchParams.builder()
                 .mapMatchRequest(
                     MapMatchRequest.builder()
-                        .coordinates(
-                            listOf(
-                                MapMatchRequest.Coordinate.builder()
-                                    .lat(48.8566)
-                                    .lng(2.3522)
-                                    .build(),
-                                MapMatchRequest.Coordinate.builder().lat(48.857).lng(2.353).build(),
-                                MapMatchRequest.Coordinate.builder().lat(48.8575).lng(2.354).build(),
-                            )
+                        .geometry(
+                            LineStringGeometry.builder()
+                                .coordinates(
+                                    listOf(
+                                        listOf(2.3522, 48.8566),
+                                        listOf(2.353, 48.857),
+                                        listOf(2.354, 48.8575),
+                                    )
+                                )
+                                .type(LineStringGeometry.Type.LINE_STRING)
+                                .build()
                         )
                         .addRadius(0.0)
                         .build()
@@ -51,12 +59,17 @@ internal class MapMatchMatchParamsTest {
         assertThat(body)
             .isEqualTo(
                 MapMatchRequest.builder()
-                    .coordinates(
-                        listOf(
-                            MapMatchRequest.Coordinate.builder().lat(48.8566).lng(2.3522).build(),
-                            MapMatchRequest.Coordinate.builder().lat(48.857).lng(2.353).build(),
-                            MapMatchRequest.Coordinate.builder().lat(48.8575).lng(2.354).build(),
-                        )
+                    .geometry(
+                        LineStringGeometry.builder()
+                            .coordinates(
+                                listOf(
+                                    listOf(2.3522, 48.8566),
+                                    listOf(2.353, 48.857),
+                                    listOf(2.354, 48.8575),
+                                )
+                            )
+                            .type(LineStringGeometry.Type.LINE_STRING)
+                            .build()
                     )
                     .addRadius(0.0)
                     .build()
@@ -69,15 +82,17 @@ internal class MapMatchMatchParamsTest {
             MapMatchMatchParams.builder()
                 .mapMatchRequest(
                     MapMatchRequest.builder()
-                        .coordinates(
-                            listOf(
-                                MapMatchRequest.Coordinate.builder()
-                                    .lat(48.8566)
-                                    .lng(2.3522)
-                                    .build(),
-                                MapMatchRequest.Coordinate.builder().lat(48.857).lng(2.353).build(),
-                                MapMatchRequest.Coordinate.builder().lat(48.8575).lng(2.354).build(),
-                            )
+                        .geometry(
+                            LineStringGeometry.builder()
+                                .coordinates(
+                                    listOf(
+                                        listOf(2.3522, 48.8566),
+                                        listOf(2.353, 48.857),
+                                        listOf(2.354, 48.8575),
+                                    )
+                                )
+                                .type(LineStringGeometry.Type.LINE_STRING)
+                                .build()
                         )
                         .build()
                 )
@@ -88,12 +103,17 @@ internal class MapMatchMatchParamsTest {
         assertThat(body)
             .isEqualTo(
                 MapMatchRequest.builder()
-                    .coordinates(
-                        listOf(
-                            MapMatchRequest.Coordinate.builder().lat(48.8566).lng(2.3522).build(),
-                            MapMatchRequest.Coordinate.builder().lat(48.857).lng(2.353).build(),
-                            MapMatchRequest.Coordinate.builder().lat(48.8575).lng(2.354).build(),
-                        )
+                    .geometry(
+                        LineStringGeometry.builder()
+                            .coordinates(
+                                listOf(
+                                    listOf(2.3522, 48.8566),
+                                    listOf(2.353, 48.857),
+                                    listOf(2.354, 48.8575),
+                                )
+                            )
+                            .type(LineStringGeometry.Type.LINE_STRING)
+                            .build()
                     )
                     .build()
             )

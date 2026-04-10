@@ -6,16 +6,16 @@ import com.google.errorprone.annotations.MustBeClosed
 import com.plazafyi.core.ClientOptions
 import com.plazafyi.core.RequestOptions
 import com.plazafyi.core.http.HttpResponseFor
+import com.plazafyi.models.geocode.AutocompleteRequest
 import com.plazafyi.models.geocode.AutocompleteResult
 import com.plazafyi.models.geocode.GeocodeAutocompleteParams
-import com.plazafyi.models.geocode.GeocodeAutocompletePostParams
 import com.plazafyi.models.geocode.GeocodeBatchParams
 import com.plazafyi.models.geocode.GeocodeBatchResponse
 import com.plazafyi.models.geocode.GeocodeForwardParams
-import com.plazafyi.models.geocode.GeocodeForwardPostParams
+import com.plazafyi.models.geocode.GeocodeForwardRequest
 import com.plazafyi.models.geocode.GeocodeResult
 import com.plazafyi.models.geocode.GeocodeReverseParams
-import com.plazafyi.models.geocode.GeocodeReversePostParams
+import com.plazafyi.models.geocode.GeocodeReverseRequest
 import com.plazafyi.models.geocode.ReverseGeocodeResult
 import java.util.function.Consumer
 
@@ -43,15 +43,19 @@ interface GeocodeService {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): AutocompleteResult
 
-    /** Autocomplete a partial address */
-    fun autocompletePost(params: GeocodeAutocompletePostParams): AutocompleteResult =
-        autocompletePost(params, RequestOptions.none())
-
-    /** @see autocompletePost */
-    fun autocompletePost(
-        params: GeocodeAutocompletePostParams,
+    /** @see autocomplete */
+    fun autocomplete(
+        autocompleteRequest: AutocompleteRequest,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): AutocompleteResult
+    ): AutocompleteResult =
+        autocomplete(
+            GeocodeAutocompleteParams.builder().autocompleteRequest(autocompleteRequest).build(),
+            requestOptions,
+        )
+
+    /** @see autocomplete */
+    fun autocomplete(autocompleteRequest: AutocompleteRequest): AutocompleteResult =
+        autocomplete(autocompleteRequest, RequestOptions.none())
 
     /** Batch geocode multiple addresses */
     fun batch(params: GeocodeBatchParams): GeocodeBatchResponse =
@@ -73,50 +77,43 @@ interface GeocodeService {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): GeocodeResult
 
-    /** Forward geocode an address */
-    fun forwardPost(params: GeocodeForwardPostParams): GeocodeResult =
-        forwardPost(params, RequestOptions.none())
-
-    /** @see forwardPost */
-    fun forwardPost(
-        params: GeocodeForwardPostParams,
+    /** @see forward */
+    fun forward(
+        geocodeForwardRequest: GeocodeForwardRequest,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): GeocodeResult
+    ): GeocodeResult =
+        forward(
+            GeocodeForwardParams.builder().geocodeForwardRequest(geocodeForwardRequest).build(),
+            requestOptions,
+        )
+
+    /** @see forward */
+    fun forward(geocodeForwardRequest: GeocodeForwardRequest): GeocodeResult =
+        forward(geocodeForwardRequest, RequestOptions.none())
 
     /** Reverse geocode a coordinate */
-    fun reverse(): ReverseGeocodeResult = reverse(GeocodeReverseParams.none())
-
-    /** @see reverse */
-    fun reverse(
-        params: GeocodeReverseParams = GeocodeReverseParams.none(),
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): ReverseGeocodeResult
-
-    /** @see reverse */
-    fun reverse(params: GeocodeReverseParams = GeocodeReverseParams.none()): ReverseGeocodeResult =
+    fun reverse(params: GeocodeReverseParams): ReverseGeocodeResult =
         reverse(params, RequestOptions.none())
 
     /** @see reverse */
-    fun reverse(requestOptions: RequestOptions): ReverseGeocodeResult =
-        reverse(GeocodeReverseParams.none(), requestOptions)
-
-    /** Reverse geocode a coordinate */
-    fun reversePost(): ReverseGeocodeResult = reversePost(GeocodeReversePostParams.none())
-
-    /** @see reversePost */
-    fun reversePost(
-        params: GeocodeReversePostParams = GeocodeReversePostParams.none(),
+    fun reverse(
+        params: GeocodeReverseParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): ReverseGeocodeResult
 
-    /** @see reversePost */
-    fun reversePost(
-        params: GeocodeReversePostParams = GeocodeReversePostParams.none()
-    ): ReverseGeocodeResult = reversePost(params, RequestOptions.none())
+    /** @see reverse */
+    fun reverse(
+        geocodeReverseRequest: GeocodeReverseRequest,
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): ReverseGeocodeResult =
+        reverse(
+            GeocodeReverseParams.builder().geocodeReverseRequest(geocodeReverseRequest).build(),
+            requestOptions,
+        )
 
-    /** @see reversePost */
-    fun reversePost(requestOptions: RequestOptions): ReverseGeocodeResult =
-        reversePost(GeocodeReversePostParams.none(), requestOptions)
+    /** @see reverse */
+    fun reverse(geocodeReverseRequest: GeocodeReverseRequest): ReverseGeocodeResult =
+        reverse(geocodeReverseRequest, RequestOptions.none())
 
     /** A view of [GeocodeService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
@@ -129,7 +126,7 @@ interface GeocodeService {
         fun withOptions(modifier: Consumer<ClientOptions.Builder>): GeocodeService.WithRawResponse
 
         /**
-         * Returns a raw HTTP response for `get /api/v1/geocode/autocomplete`, but is otherwise the
+         * Returns a raw HTTP response for `post /api/v1/geocode/autocomplete`, but is otherwise the
          * same as [GeocodeService.autocomplete].
          */
         @MustBeClosed
@@ -143,21 +140,25 @@ interface GeocodeService {
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<AutocompleteResult>
 
-        /**
-         * Returns a raw HTTP response for `post /api/v1/geocode/autocomplete`, but is otherwise the
-         * same as [GeocodeService.autocompletePost].
-         */
+        /** @see autocomplete */
         @MustBeClosed
-        fun autocompletePost(
-            params: GeocodeAutocompletePostParams
-        ): HttpResponseFor<AutocompleteResult> = autocompletePost(params, RequestOptions.none())
-
-        /** @see autocompletePost */
-        @MustBeClosed
-        fun autocompletePost(
-            params: GeocodeAutocompletePostParams,
+        fun autocomplete(
+            autocompleteRequest: AutocompleteRequest,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<AutocompleteResult>
+        ): HttpResponseFor<AutocompleteResult> =
+            autocomplete(
+                GeocodeAutocompleteParams.builder()
+                    .autocompleteRequest(autocompleteRequest)
+                    .build(),
+                requestOptions,
+            )
+
+        /** @see autocomplete */
+        @MustBeClosed
+        fun autocomplete(
+            autocompleteRequest: AutocompleteRequest
+        ): HttpResponseFor<AutocompleteResult> =
+            autocomplete(autocompleteRequest, RequestOptions.none())
 
         /**
          * Returns a raw HTTP response for `post /api/v1/geocode/batch`, but is otherwise the same
@@ -175,7 +176,7 @@ interface GeocodeService {
         ): HttpResponseFor<GeocodeBatchResponse>
 
         /**
-         * Returns a raw HTTP response for `get /api/v1/geocode`, but is otherwise the same as
+         * Returns a raw HTTP response for `post /api/v1/geocode`, but is otherwise the same as
          * [GeocodeService.forward].
          */
         @MustBeClosed
@@ -189,70 +190,53 @@ interface GeocodeService {
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<GeocodeResult>
 
-        /**
-         * Returns a raw HTTP response for `post /api/v1/geocode`, but is otherwise the same as
-         * [GeocodeService.forwardPost].
-         */
+        /** @see forward */
         @MustBeClosed
-        fun forwardPost(params: GeocodeForwardPostParams): HttpResponseFor<GeocodeResult> =
-            forwardPost(params, RequestOptions.none())
-
-        /** @see forwardPost */
-        @MustBeClosed
-        fun forwardPost(
-            params: GeocodeForwardPostParams,
+        fun forward(
+            geocodeForwardRequest: GeocodeForwardRequest,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<GeocodeResult>
+        ): HttpResponseFor<GeocodeResult> =
+            forward(
+                GeocodeForwardParams.builder().geocodeForwardRequest(geocodeForwardRequest).build(),
+                requestOptions,
+            )
 
-        /**
-         * Returns a raw HTTP response for `get /api/v1/geocode/reverse`, but is otherwise the same
-         * as [GeocodeService.reverse].
-         */
+        /** @see forward */
         @MustBeClosed
-        fun reverse(): HttpResponseFor<ReverseGeocodeResult> = reverse(GeocodeReverseParams.none())
-
-        /** @see reverse */
-        @MustBeClosed
-        fun reverse(
-            params: GeocodeReverseParams = GeocodeReverseParams.none(),
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<ReverseGeocodeResult>
-
-        /** @see reverse */
-        @MustBeClosed
-        fun reverse(
-            params: GeocodeReverseParams = GeocodeReverseParams.none()
-        ): HttpResponseFor<ReverseGeocodeResult> = reverse(params, RequestOptions.none())
-
-        /** @see reverse */
-        @MustBeClosed
-        fun reverse(requestOptions: RequestOptions): HttpResponseFor<ReverseGeocodeResult> =
-            reverse(GeocodeReverseParams.none(), requestOptions)
+        fun forward(geocodeForwardRequest: GeocodeForwardRequest): HttpResponseFor<GeocodeResult> =
+            forward(geocodeForwardRequest, RequestOptions.none())
 
         /**
          * Returns a raw HTTP response for `post /api/v1/geocode/reverse`, but is otherwise the same
-         * as [GeocodeService.reversePost].
+         * as [GeocodeService.reverse].
          */
         @MustBeClosed
-        fun reversePost(): HttpResponseFor<ReverseGeocodeResult> =
-            reversePost(GeocodeReversePostParams.none())
+        fun reverse(params: GeocodeReverseParams): HttpResponseFor<ReverseGeocodeResult> =
+            reverse(params, RequestOptions.none())
 
-        /** @see reversePost */
+        /** @see reverse */
         @MustBeClosed
-        fun reversePost(
-            params: GeocodeReversePostParams = GeocodeReversePostParams.none(),
+        fun reverse(
+            params: GeocodeReverseParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<ReverseGeocodeResult>
 
-        /** @see reversePost */
+        /** @see reverse */
         @MustBeClosed
-        fun reversePost(
-            params: GeocodeReversePostParams = GeocodeReversePostParams.none()
-        ): HttpResponseFor<ReverseGeocodeResult> = reversePost(params, RequestOptions.none())
+        fun reverse(
+            geocodeReverseRequest: GeocodeReverseRequest,
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<ReverseGeocodeResult> =
+            reverse(
+                GeocodeReverseParams.builder().geocodeReverseRequest(geocodeReverseRequest).build(),
+                requestOptions,
+            )
 
-        /** @see reversePost */
+        /** @see reverse */
         @MustBeClosed
-        fun reversePost(requestOptions: RequestOptions): HttpResponseFor<ReverseGeocodeResult> =
-            reversePost(GeocodeReversePostParams.none(), requestOptions)
+        fun reverse(
+            geocodeReverseRequest: GeocodeReverseRequest
+        ): HttpResponseFor<ReverseGeocodeResult> =
+            reverse(geocodeReverseRequest, RequestOptions.none())
     }
 }

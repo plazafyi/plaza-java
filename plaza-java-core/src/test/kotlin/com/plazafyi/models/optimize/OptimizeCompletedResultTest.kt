@@ -4,7 +4,6 @@ package com.plazafyi.models.optimize
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -16,12 +15,7 @@ internal class OptimizeCompletedResultTest {
             OptimizeCompletedResult.builder()
                 .addFeature(
                     OptimizeCompletedResult.Feature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             OptimizeCompletedResult.Feature.Properties.builder()
                                 .costS(0.0)
@@ -41,12 +35,7 @@ internal class OptimizeCompletedResultTest {
         assertThat(optimizeCompletedResult.features())
             .containsExactly(
                 OptimizeCompletedResult.Feature.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .pointGeometry(listOf(2.3522, 48.8566))
                     .properties(
                         OptimizeCompletedResult.Feature.Properties.builder()
                             .costS(0.0)
@@ -71,12 +60,7 @@ internal class OptimizeCompletedResultTest {
             OptimizeCompletedResult.builder()
                 .addFeature(
                     OptimizeCompletedResult.Feature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             OptimizeCompletedResult.Feature.Properties.builder()
                                 .costS(0.0)

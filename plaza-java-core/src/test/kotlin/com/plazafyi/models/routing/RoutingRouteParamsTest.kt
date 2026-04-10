@@ -3,6 +3,7 @@
 package com.plazafyi.models.routing
 
 import com.plazafyi.core.http.QueryParams
+import com.plazafyi.models.PointGeometry
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,9 +17,19 @@ internal class RoutingRouteParamsTest {
             .routeRequest(
                 RouteRequest.builder()
                     .destination(
-                        RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                        PointGeometry.builder()
+                            .addCoordinate(2.2945)
+                            .addCoordinate(48.8584)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
                     )
-                    .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                    .origin(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
                     .alternatives(0L)
                     .annotations(true)
                     .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -37,7 +48,13 @@ internal class RoutingRouteParamsTest {
                     .overview(RouteRequest.Overview.FULL)
                     .steps(true)
                     .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
-                    .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
+                    .addWaypoint(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
                     .build()
             )
             .build()
@@ -51,9 +68,19 @@ internal class RoutingRouteParamsTest {
                 .routeRequest(
                     RouteRequest.builder()
                         .destination(
-                            RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                            PointGeometry.builder()
+                                .addCoordinate(2.2945)
+                                .addCoordinate(48.8584)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
                         )
-                        .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                        .origin(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
                         .alternatives(0L)
                         .annotations(true)
                         .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -73,7 +100,11 @@ internal class RoutingRouteParamsTest {
                         .steps(true)
                         .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
                         .addWaypoint(
-                            RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build()
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
                         )
                         .build()
                 )
@@ -91,9 +122,19 @@ internal class RoutingRouteParamsTest {
                 .routeRequest(
                     RouteRequest.builder()
                         .destination(
-                            RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                            PointGeometry.builder()
+                                .addCoordinate(2.2945)
+                                .addCoordinate(48.8584)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
                         )
-                        .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                        .origin(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
                         .build()
                 )
                 .build()
@@ -111,9 +152,19 @@ internal class RoutingRouteParamsTest {
                 .routeRequest(
                     RouteRequest.builder()
                         .destination(
-                            RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                            PointGeometry.builder()
+                                .addCoordinate(2.2945)
+                                .addCoordinate(48.8584)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
                         )
-                        .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                        .origin(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
                         .alternatives(0L)
                         .annotations(true)
                         .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -133,7 +184,11 @@ internal class RoutingRouteParamsTest {
                         .steps(true)
                         .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
                         .addWaypoint(
-                            RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build()
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
                         )
                         .build()
                 )
@@ -145,9 +200,19 @@ internal class RoutingRouteParamsTest {
             .isEqualTo(
                 RouteRequest.builder()
                     .destination(
-                        RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                        PointGeometry.builder()
+                            .addCoordinate(2.2945)
+                            .addCoordinate(48.8584)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
                     )
-                    .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                    .origin(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
                     .alternatives(0L)
                     .annotations(true)
                     .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -166,7 +231,13 @@ internal class RoutingRouteParamsTest {
                     .overview(RouteRequest.Overview.FULL)
                     .steps(true)
                     .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
-                    .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
+                    .addWaypoint(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
                     .build()
             )
     }
@@ -178,9 +249,19 @@ internal class RoutingRouteParamsTest {
                 .routeRequest(
                     RouteRequest.builder()
                         .destination(
-                            RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                            PointGeometry.builder()
+                                .addCoordinate(2.2945)
+                                .addCoordinate(48.8584)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
                         )
-                        .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                        .origin(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
                         .build()
                 )
                 .build()
@@ -191,9 +272,19 @@ internal class RoutingRouteParamsTest {
             .isEqualTo(
                 RouteRequest.builder()
                     .destination(
-                        RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build()
+                        PointGeometry.builder()
+                            .addCoordinate(2.2945)
+                            .addCoordinate(48.8584)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
                     )
-                    .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                    .origin(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
                     .build()
             )
     }

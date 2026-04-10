@@ -16,6 +16,7 @@ internal class DatasetCreateParamsTest {
             .description("description")
             .license("license")
             .sourceUrl("https://example.com")
+            .strictMode(true)
             .build()
     }
 
@@ -29,6 +30,7 @@ internal class DatasetCreateParamsTest {
                 .description("description")
                 .license("license")
                 .sourceUrl("https://example.com")
+                .strictMode(true)
                 .build()
 
         val body = params._body()
@@ -39,6 +41,7 @@ internal class DatasetCreateParamsTest {
         assertThat(body.description()).contains("description")
         assertThat(body.license()).contains("license")
         assertThat(body.sourceUrl()).contains("https://example.com")
+        assertThat(body.strictMode()).contains(true)
     }
 
     @Test

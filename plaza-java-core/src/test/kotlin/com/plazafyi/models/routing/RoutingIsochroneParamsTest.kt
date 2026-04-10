@@ -3,6 +3,7 @@
 package com.plazafyi.models.routing
 
 import com.plazafyi.core.http.QueryParams
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,16 +12,20 @@ internal class RoutingIsochroneParamsTest {
     @Test
     fun create() {
         RoutingIsochroneParams.builder()
-            .lat(0.0)
-            .lng(0.0)
-            .time(0.0)
             .format("format")
-            .mode("mode")
-            .outputFields("output[fields]")
-            .outputGeometry(true)
-            .outputInclude("output[include]")
-            .outputPrecision(0L)
-            .outputSimplify(0.0)
+            .isochroneRequest(
+                IsochroneRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .addTime(1L)
+                    .mode(IsochroneRequest.Mode.AUTO)
+                    .build()
+            )
             .build()
     }
 
@@ -28,46 +33,120 @@ internal class RoutingIsochroneParamsTest {
     fun queryParams() {
         val params =
             RoutingIsochroneParams.builder()
-                .lat(0.0)
-                .lng(0.0)
-                .time(0.0)
                 .format("format")
-                .mode("mode")
-                .outputFields("output[fields]")
-                .outputGeometry(true)
-                .outputInclude("output[include]")
-                .outputPrecision(0L)
-                .outputSimplify(0.0)
+                .isochroneRequest(
+                    IsochroneRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .addTime(1L)
+                        .mode(IsochroneRequest.Mode.AUTO)
+                        .build()
+                )
                 .build()
 
         val queryParams = params._queryParams()
 
-        assertThat(queryParams)
+        assertThat(queryParams).isEqualTo(QueryParams.builder().put("format", "format").build())
+    }
+
+    @Test
+    fun queryParamsWithoutOptionalFields() {
+        val params =
+            RoutingIsochroneParams.builder()
+                .isochroneRequest(
+                    IsochroneRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .addTime(1L)
+                        .build()
+                )
+                .build()
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
+    }
+
+    @Test
+    fun body() {
+        val params =
+            RoutingIsochroneParams.builder()
+                .format("format")
+                .isochroneRequest(
+                    IsochroneRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .addTime(1L)
+                        .mode(IsochroneRequest.Mode.AUTO)
+                        .build()
+                )
+                .build()
+
+        val body = params._body()
+
+        assertThat(body)
             .isEqualTo(
-                QueryParams.builder()
-                    .put("lat", "0.0")
-                    .put("lng", "0.0")
-                    .put("time", "0.0")
-                    .put("format", "format")
-                    .put("mode", "mode")
-                    .put("output[fields]", "output[fields]")
-                    .put("output[geometry]", "true")
-                    .put("output[include]", "output[include]")
-                    .put("output[precision]", "0")
-                    .put("output[simplify]", "0.0")
+                IsochroneRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .addTime(1L)
+                    .mode(IsochroneRequest.Mode.AUTO)
                     .build()
             )
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
-        val params = RoutingIsochroneParams.builder().lat(0.0).lng(0.0).time(0.0).build()
+    fun bodyWithoutOptionalFields() {
+        val params =
+            RoutingIsochroneParams.builder()
+                .isochroneRequest(
+                    IsochroneRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .addTime(1L)
+                        .build()
+                )
+                .build()
 
-        val queryParams = params._queryParams()
+        val body = params._body()
 
-        assertThat(queryParams)
+        assertThat(body)
             .isEqualTo(
-                QueryParams.builder().put("lat", "0.0").put("lng", "0.0").put("time", "0.0").build()
+                IsochroneRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .addTime(1L)
+                    .build()
             )
     }
 }
