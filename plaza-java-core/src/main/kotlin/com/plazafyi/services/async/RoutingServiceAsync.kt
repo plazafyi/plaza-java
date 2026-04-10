@@ -5,18 +5,17 @@ package com.plazafyi.services.async
 import com.plazafyi.core.ClientOptions
 import com.plazafyi.core.RequestOptions
 import com.plazafyi.core.http.HttpResponseFor
+import com.plazafyi.models.routing.IsochroneRequest
 import com.plazafyi.models.routing.MatrixRequest
 import com.plazafyi.models.routing.MatrixResult
+import com.plazafyi.models.routing.NearestRequest
 import com.plazafyi.models.routing.NearestResult
 import com.plazafyi.models.routing.RouteRequest
 import com.plazafyi.models.routing.RouteResult
 import com.plazafyi.models.routing.RoutingIsochroneParams
-import com.plazafyi.models.routing.RoutingIsochronePostParams
-import com.plazafyi.models.routing.RoutingIsochronePostResponse
 import com.plazafyi.models.routing.RoutingIsochroneResponse
 import com.plazafyi.models.routing.RoutingMatrixParams
 import com.plazafyi.models.routing.RoutingNearestParams
-import com.plazafyi.models.routing.RoutingNearestPostParams
 import com.plazafyi.models.routing.RoutingRouteParams
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
@@ -45,17 +44,19 @@ interface RoutingServiceAsync {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletableFuture<RoutingIsochroneResponse>
 
-    /** Calculate an isochrone from a point */
-    fun isochronePost(
-        params: RoutingIsochronePostParams
-    ): CompletableFuture<RoutingIsochronePostResponse> =
-        isochronePost(params, RequestOptions.none())
-
-    /** @see isochronePost */
-    fun isochronePost(
-        params: RoutingIsochronePostParams,
+    /** @see isochrone */
+    fun isochrone(
+        isochroneRequest: IsochroneRequest,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<RoutingIsochronePostResponse>
+    ): CompletableFuture<RoutingIsochroneResponse> =
+        isochrone(
+            RoutingIsochroneParams.builder().isochroneRequest(isochroneRequest).build(),
+            requestOptions,
+        )
+
+    /** @see isochrone */
+    fun isochrone(isochroneRequest: IsochroneRequest): CompletableFuture<RoutingIsochroneResponse> =
+        isochrone(isochroneRequest, RequestOptions.none())
 
     /** Calculate a distance matrix between points */
     fun matrix(params: RoutingMatrixParams): CompletableFuture<MatrixResult> =
@@ -88,15 +89,19 @@ interface RoutingServiceAsync {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletableFuture<NearestResult>
 
-    /** Snap a coordinate to the nearest road */
-    fun nearestPost(params: RoutingNearestPostParams): CompletableFuture<NearestResult> =
-        nearestPost(params, RequestOptions.none())
-
-    /** @see nearestPost */
-    fun nearestPost(
-        params: RoutingNearestPostParams,
+    /** @see nearest */
+    fun nearest(
+        nearestRequest: NearestRequest,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<NearestResult>
+    ): CompletableFuture<NearestResult> =
+        nearest(
+            RoutingNearestParams.builder().nearestRequest(nearestRequest).build(),
+            requestOptions,
+        )
+
+    /** @see nearest */
+    fun nearest(nearestRequest: NearestRequest): CompletableFuture<NearestResult> =
+        nearest(nearestRequest, RequestOptions.none())
 
     /** Calculate a route between two points */
     fun route(params: RoutingRouteParams): CompletableFuture<RouteResult> =
@@ -134,7 +139,7 @@ interface RoutingServiceAsync {
         ): RoutingServiceAsync.WithRawResponse
 
         /**
-         * Returns a raw HTTP response for `get /api/v1/isochrone`, but is otherwise the same as
+         * Returns a raw HTTP response for `post /api/v1/isochrone`, but is otherwise the same as
          * [RoutingServiceAsync.isochrone].
          */
         fun isochrone(
@@ -148,20 +153,21 @@ interface RoutingServiceAsync {
             requestOptions: RequestOptions = RequestOptions.none(),
         ): CompletableFuture<HttpResponseFor<RoutingIsochroneResponse>>
 
-        /**
-         * Returns a raw HTTP response for `post /api/v1/isochrone`, but is otherwise the same as
-         * [RoutingServiceAsync.isochronePost].
-         */
-        fun isochronePost(
-            params: RoutingIsochronePostParams
-        ): CompletableFuture<HttpResponseFor<RoutingIsochronePostResponse>> =
-            isochronePost(params, RequestOptions.none())
-
-        /** @see isochronePost */
-        fun isochronePost(
-            params: RoutingIsochronePostParams,
+        /** @see isochrone */
+        fun isochrone(
+            isochroneRequest: IsochroneRequest,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<RoutingIsochronePostResponse>>
+        ): CompletableFuture<HttpResponseFor<RoutingIsochroneResponse>> =
+            isochrone(
+                RoutingIsochroneParams.builder().isochroneRequest(isochroneRequest).build(),
+                requestOptions,
+            )
+
+        /** @see isochrone */
+        fun isochrone(
+            isochroneRequest: IsochroneRequest
+        ): CompletableFuture<HttpResponseFor<RoutingIsochroneResponse>> =
+            isochrone(isochroneRequest, RequestOptions.none())
 
         /**
          * Returns a raw HTTP response for `post /api/v1/matrix`, but is otherwise the same as
@@ -191,7 +197,7 @@ interface RoutingServiceAsync {
             matrix(matrixRequest, RequestOptions.none())
 
         /**
-         * Returns a raw HTTP response for `get /api/v1/nearest`, but is otherwise the same as
+         * Returns a raw HTTP response for `post /api/v1/nearest`, but is otherwise the same as
          * [RoutingServiceAsync.nearest].
          */
         fun nearest(
@@ -205,20 +211,21 @@ interface RoutingServiceAsync {
             requestOptions: RequestOptions = RequestOptions.none(),
         ): CompletableFuture<HttpResponseFor<NearestResult>>
 
-        /**
-         * Returns a raw HTTP response for `post /api/v1/nearest`, but is otherwise the same as
-         * [RoutingServiceAsync.nearestPost].
-         */
-        fun nearestPost(
-            params: RoutingNearestPostParams
-        ): CompletableFuture<HttpResponseFor<NearestResult>> =
-            nearestPost(params, RequestOptions.none())
-
-        /** @see nearestPost */
-        fun nearestPost(
-            params: RoutingNearestPostParams,
+        /** @see nearest */
+        fun nearest(
+            nearestRequest: NearestRequest,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<NearestResult>>
+        ): CompletableFuture<HttpResponseFor<NearestResult>> =
+            nearest(
+                RoutingNearestParams.builder().nearestRequest(nearestRequest).build(),
+                requestOptions,
+            )
+
+        /** @see nearest */
+        fun nearest(
+            nearestRequest: NearestRequest
+        ): CompletableFuture<HttpResponseFor<NearestResult>> =
+            nearest(nearestRequest, RequestOptions.none())
 
         /**
          * Returns a raw HTTP response for `post /api/v1/route`, but is otherwise the same as

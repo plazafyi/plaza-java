@@ -18,7 +18,7 @@ import java.util.Collections
 import java.util.Objects
 import kotlin.jvm.optionals.getOrNull
 
-/** List of all available datasets. */
+/** List of datasets visible to the authenticated user. */
 class DatasetList
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(

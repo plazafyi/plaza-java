@@ -5,10 +5,9 @@ package com.plazafyi.proguard
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
-import com.plazafyi.models.elements.BatchRequest
-import com.plazafyi.models.optimize.OptimizeCompletedResult
-import com.plazafyi.models.optimize.OptimizeResult
+import com.plazafyi.models.Geometry
+import com.plazafyi.models.PointGeometry
+import com.plazafyi.models.features.BatchRequest
 import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.javaMethod
 import org.assertj.core.api.Assertions.assertThat
@@ -50,7 +49,7 @@ internal class ProGuardCompatibilityTest {
         val client = PlazaOkHttpClient.builder().apiKey("My API Key").build()
 
         assertThat(client).isNotNull()
-        assertThat(client.elements()).isNotNull()
+        assertThat(client.features()).isNotNull()
         assertThat(client.datasets()).isNotNull()
         assertThat(client.geocode()).isNotNull()
         assertThat(client.search()).isNotNull()
@@ -91,42 +90,23 @@ internal class ProGuardCompatibilityTest {
     }
 
     @Test
-    fun optimizeResultRoundtrip() {
+    fun geometryRoundtrip() {
         val jsonMapper = jsonMapper()
-        val optimizeResult =
-            OptimizeResult.ofCompleted(
-                OptimizeCompletedResult.builder()
-                    .addFeature(
-                        OptimizeCompletedResult.Feature.builder()
-                            .geometry(
-                                GeoJsonGeometry.builder()
-                                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                    .type(GeoJsonGeometry.Type.POINT)
-                                    .build()
-                            )
-                            .properties(
-                                OptimizeCompletedResult.Feature.Properties.builder()
-                                    .costS(0.0)
-                                    .cumulativeCostS(0.0)
-                                    .waypointIndex(0L)
-                                    .build()
-                            )
-                            .type(OptimizeCompletedResult.Feature.Type.FEATURE)
-                            .build()
-                    )
-                    .optimization("optimization")
-                    .roundtrip(true)
-                    .totalCostS(0.0)
-                    .type(OptimizeCompletedResult.Type.FEATURE_COLLECTION)
+        val geometry =
+            Geometry.ofPoint(
+                PointGeometry.builder()
+                    .addCoordinate(2.3522)
+                    .addCoordinate(48.8566)
+                    .type(PointGeometry.Type.POINT)
                     .build()
             )
 
-        val roundtrippedOptimizeResult =
+        val roundtrippedGeometry =
             jsonMapper.readValue(
-                jsonMapper.writeValueAsString(optimizeResult),
-                jacksonTypeRef<OptimizeResult>(),
+                jsonMapper.writeValueAsString(geometry),
+                jacksonTypeRef<Geometry>(),
             )
 
-        assertThat(roundtrippedOptimizeResult).isEqualTo(optimizeResult)
+        assertThat(roundtrippedGeometry).isEqualTo(geometry)
     }
 }

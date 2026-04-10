@@ -5,7 +5,6 @@ package com.plazafyi.models.mapmatch
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -17,12 +16,7 @@ internal class MapMatchResultTest {
             MapMatchResult.builder()
                 .addFeature(
                     MapMatchResult.Feature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             MapMatchResult.Feature.Properties.builder()
                                 .distanceM(0.0)
@@ -48,12 +42,7 @@ internal class MapMatchResultTest {
         assertThat(mapMatchResult.features())
             .containsExactly(
                 MapMatchResult.Feature.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .pointGeometry(listOf(2.3522, 48.8566))
                     .properties(
                         MapMatchResult.Feature.Properties.builder()
                             .distanceM(0.0)
@@ -84,12 +73,7 @@ internal class MapMatchResultTest {
             MapMatchResult.builder()
                 .addFeature(
                     MapMatchResult.Feature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             MapMatchResult.Feature.Properties.builder()
                                 .distanceM(0.0)

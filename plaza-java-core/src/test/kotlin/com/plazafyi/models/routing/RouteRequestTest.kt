@@ -4,6 +4,7 @@ package com.plazafyi.models.routing
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
+import com.plazafyi.models.PointGeometry
 import java.time.OffsetDateTime
 import kotlin.jvm.optionals.getOrNull
 import org.assertj.core.api.Assertions.assertThat
@@ -15,8 +16,20 @@ internal class RouteRequestTest {
     fun create() {
         val routeRequest =
             RouteRequest.builder()
-                .destination(RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
-                .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                .destination(
+                    PointGeometry.builder()
+                        .addCoordinate(2.2945)
+                        .addCoordinate(48.8584)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
+                .origin(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
                 .alternatives(0L)
                 .annotations(true)
                 .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -35,13 +48,31 @@ internal class RouteRequestTest {
                 .overview(RouteRequest.Overview.FULL)
                 .steps(true)
                 .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
-                .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
+                .addWaypoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
                 .build()
 
         assertThat(routeRequest.destination())
-            .isEqualTo(RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
+            .isEqualTo(
+                PointGeometry.builder()
+                    .addCoordinate(2.2945)
+                    .addCoordinate(48.8584)
+                    .type(PointGeometry.Type.POINT)
+                    .build()
+            )
         assertThat(routeRequest.origin())
-            .isEqualTo(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+            .isEqualTo(
+                PointGeometry.builder()
+                    .addCoordinate(2.3522)
+                    .addCoordinate(48.8566)
+                    .type(PointGeometry.Type.POINT)
+                    .build()
+            )
         assertThat(routeRequest.alternatives()).contains(0L)
         assertThat(routeRequest.annotations()).contains(true)
         assertThat(routeRequest.departAt())
@@ -63,7 +94,13 @@ internal class RouteRequestTest {
         assertThat(routeRequest.steps()).contains(true)
         assertThat(routeRequest.trafficModel()).contains(RouteRequest.TrafficModel.BEST_GUESS)
         assertThat(routeRequest.waypoints().getOrNull())
-            .containsExactly(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
+            .containsExactly(
+                PointGeometry.builder()
+                    .addCoordinate(2.3522)
+                    .addCoordinate(48.8566)
+                    .type(PointGeometry.Type.POINT)
+                    .build()
+            )
     }
 
     @Test
@@ -71,8 +108,20 @@ internal class RouteRequestTest {
         val jsonMapper = jsonMapper()
         val routeRequest =
             RouteRequest.builder()
-                .destination(RouteRequest.Destination.builder().lat(48.8584).lng(2.2945).build())
-                .origin(RouteRequest.Origin.builder().lat(48.8566).lng(2.3522).build())
+                .destination(
+                    PointGeometry.builder()
+                        .addCoordinate(2.2945)
+                        .addCoordinate(48.8584)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
+                .origin(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
                 .alternatives(0L)
                 .annotations(true)
                 .departAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -91,7 +140,13 @@ internal class RouteRequestTest {
                 .overview(RouteRequest.Overview.FULL)
                 .steps(true)
                 .trafficModel(RouteRequest.TrafficModel.BEST_GUESS)
-                .addWaypoint(RouteRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build())
+                .addWaypoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
                 .build()
 
         val roundtrippedRouteRequest =

@@ -18,8 +18,8 @@ private constructor(
 ) : Params {
 
     /**
-     * GPS trace to snap to the road network. Provide an array of coordinate objects representing
-     * the GPS points. Maximum 50 points per request.
+     * GPS trace to snap to the road network. Provide a GeoJSON LineString geometry representing the
+     * GPS trace.
      */
     fun mapMatchRequest(): MapMatchRequest = mapMatchRequest
 
@@ -62,8 +62,8 @@ private constructor(
         }
 
         /**
-         * GPS trace to snap to the road network. Provide an array of coordinate objects
-         * representing the GPS points. Maximum 50 points per request.
+         * GPS trace to snap to the road network. Provide a GeoJSON LineString geometry representing
+         * the GPS trace.
          */
         fun mapMatchRequest(mapMatchRequest: MapMatchRequest) = apply {
             this.mapMatchRequest = mapMatchRequest

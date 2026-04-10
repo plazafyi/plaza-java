@@ -24,7 +24,7 @@ private constructor(
     fun format(): Optional<String> = Optional.ofNullable(format)
 
     /**
-     * Request body for route calculation. Origin and destination are lat/lng coordinate objects.
+     * Request body for route calculation. Origin and destination are GeoJSON Point geometries.
      * Supports optional waypoints, alternative routes, turn-by-turn steps, and EV routing
      * parameters.
      */
@@ -76,9 +76,9 @@ private constructor(
         fun format(format: Optional<String>) = format(format.getOrNull())
 
         /**
-         * Request body for route calculation. Origin and destination are lat/lng coordinate
-         * objects. Supports optional waypoints, alternative routes, turn-by-turn steps, and EV
-         * routing parameters.
+         * Request body for route calculation. Origin and destination are GeoJSON Point geometries.
+         * Supports optional waypoints, alternative routes, turn-by-turn steps, and EV routing
+         * parameters.
          */
         fun routeRequest(routeRequest: RouteRequest) = apply { this.routeRequest = routeRequest }
 

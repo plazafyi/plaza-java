@@ -3,6 +3,7 @@
 package com.plazafyi.models.elevation
 
 import com.plazafyi.core.http.QueryParams
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,12 +13,17 @@ internal class ElevationLookupParamsTest {
     fun create() {
         ElevationLookupParams.builder()
             .format("format")
-            .lat(0.0)
-            .lng(0.0)
-            .locations("locations")
-            .outputFields("output[fields]")
-            .outputInclude("output[include]")
-            .outputPrecision(0L)
+            .elevationLookupRequest(
+                ElevationLookupRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .build()
+            )
             .build()
     }
 
@@ -26,36 +32,110 @@ internal class ElevationLookupParamsTest {
         val params =
             ElevationLookupParams.builder()
                 .format("format")
-                .lat(0.0)
-                .lng(0.0)
-                .locations("locations")
-                .outputFields("output[fields]")
-                .outputInclude("output[include]")
-                .outputPrecision(0L)
+                .elevationLookupRequest(
+                    ElevationLookupRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
                 .build()
 
         val queryParams = params._queryParams()
 
-        assertThat(queryParams)
+        assertThat(queryParams).isEqualTo(QueryParams.builder().put("format", "format").build())
+    }
+
+    @Test
+    fun queryParamsWithoutOptionalFields() {
+        val params =
+            ElevationLookupParams.builder()
+                .elevationLookupRequest(
+                    ElevationLookupRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
+    }
+
+    @Test
+    fun body() {
+        val params =
+            ElevationLookupParams.builder()
+                .format("format")
+                .elevationLookupRequest(
+                    ElevationLookupRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+
+        val body = params._body()
+
+        assertThat(body)
             .isEqualTo(
-                QueryParams.builder()
-                    .put("format", "format")
-                    .put("lat", "0.0")
-                    .put("lng", "0.0")
-                    .put("locations", "locations")
-                    .put("output[fields]", "output[fields]")
-                    .put("output[include]", "output[include]")
-                    .put("output[precision]", "0")
+                ElevationLookupRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
                     .build()
             )
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
-        val params = ElevationLookupParams.builder().build()
+    fun bodyWithoutOptionalFields() {
+        val params =
+            ElevationLookupParams.builder()
+                .elevationLookupRequest(
+                    ElevationLookupRequest.builder()
+                        .geometry(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
 
-        val queryParams = params._queryParams()
+        val body = params._body()
 
-        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
+        assertThat(body)
+            .isEqualTo(
+                ElevationLookupRequest.builder()
+                    .geometry(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .build()
+            )
     }
 }

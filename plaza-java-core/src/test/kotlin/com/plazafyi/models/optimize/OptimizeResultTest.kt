@@ -6,7 +6,6 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
 import com.plazafyi.errors.PlazaInvalidDataException
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -21,12 +20,7 @@ internal class OptimizeResultTest {
             OptimizeCompletedResult.builder()
                 .addFeature(
                     OptimizeCompletedResult.Feature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             OptimizeCompletedResult.Feature.Properties.builder()
                                 .costS(0.0)
@@ -57,12 +51,7 @@ internal class OptimizeResultTest {
                 OptimizeCompletedResult.builder()
                     .addFeature(
                         OptimizeCompletedResult.Feature.builder()
-                            .geometry(
-                                GeoJsonGeometry.builder()
-                                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                    .type(GeoJsonGeometry.Type.POINT)
-                                    .build()
-                            )
+                            .pointGeometry(listOf(2.3522, 48.8566))
                             .properties(
                                 OptimizeCompletedResult.Feature.Properties.builder()
                                     .costS(0.0)

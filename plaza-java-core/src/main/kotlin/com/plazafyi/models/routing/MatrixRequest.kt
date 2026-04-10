@@ -15,6 +15,7 @@ import com.plazafyi.core.checkKnown
 import com.plazafyi.core.checkRequired
 import com.plazafyi.core.toImmutable
 import com.plazafyi.errors.PlazaInvalidDataException
+import com.plazafyi.models.PointGeometry
 import java.util.Collections
 import java.util.Objects
 import java.util.Optional
@@ -28,8 +29,8 @@ import kotlin.jvm.optionals.getOrNull
 class MatrixRequest
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
-    private val destinations: JsonField<List<Destination>>,
-    private val origins: JsonField<List<Origin>>,
+    private val destinations: JsonField<List<PointGeometry>>,
+    private val origins: JsonField<List<PointGeometry>>,
     private val annotations: JsonField<String>,
     private val fallbackSpeed: JsonField<Double>,
     private val mode: JsonField<Mode>,
@@ -40,10 +41,10 @@ private constructor(
     private constructor(
         @JsonProperty("destinations")
         @ExcludeMissing
-        destinations: JsonField<List<Destination>> = JsonMissing.of(),
+        destinations: JsonField<List<PointGeometry>> = JsonMissing.of(),
         @JsonProperty("origins")
         @ExcludeMissing
-        origins: JsonField<List<Origin>> = JsonMissing.of(),
+        origins: JsonField<List<PointGeometry>> = JsonMissing.of(),
         @JsonProperty("annotations")
         @ExcludeMissing
         annotations: JsonField<String> = JsonMissing.of(),
@@ -54,20 +55,20 @@ private constructor(
     ) : this(destinations, origins, annotations, fallbackSpeed, mode, mutableMapOf())
 
     /**
-     * Array of destination coordinates (max 50)
+     * Array of destination coordinates as GeoJSON Points (max 50)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun destinations(): List<Destination> = destinations.getRequired("destinations")
+    fun destinations(): List<PointGeometry> = destinations.getRequired("destinations")
 
     /**
-     * Array of origin coordinates (max 50)
+     * Array of origin coordinates as GeoJSON Points (max 50)
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun origins(): List<Origin> = origins.getRequired("origins")
+    fun origins(): List<PointGeometry> = origins.getRequired("origins")
 
     /**
      * Comma-separated list of annotations to include: `duration` (always included), `distance`.
@@ -102,14 +103,16 @@ private constructor(
      */
     @JsonProperty("destinations")
     @ExcludeMissing
-    fun _destinations(): JsonField<List<Destination>> = destinations
+    fun _destinations(): JsonField<List<PointGeometry>> = destinations
 
     /**
      * Returns the raw JSON value of [origins].
      *
      * Unlike [origins], this method doesn't throw if the JSON field has an unexpected type.
      */
-    @JsonProperty("origins") @ExcludeMissing fun _origins(): JsonField<List<Origin>> = origins
+    @JsonProperty("origins")
+    @ExcludeMissing
+    fun _origins(): JsonField<List<PointGeometry>> = origins
 
     /**
      * Returns the raw JSON value of [annotations].
@@ -163,8 +166,8 @@ private constructor(
     /** A builder for [MatrixRequest]. */
     class Builder internal constructor() {
 
-        private var destinations: JsonField<MutableList<Destination>>? = null
-        private var origins: JsonField<MutableList<Origin>>? = null
+        private var destinations: JsonField<MutableList<PointGeometry>>? = null
+        private var origins: JsonField<MutableList<PointGeometry>>? = null
         private var annotations: JsonField<String> = JsonMissing.of()
         private var fallbackSpeed: JsonField<Double> = JsonMissing.of()
         private var mode: JsonField<Mode> = JsonMissing.of()
@@ -180,52 +183,53 @@ private constructor(
             additionalProperties = matrixRequest.additionalProperties.toMutableMap()
         }
 
-        /** Array of destination coordinates (max 50) */
-        fun destinations(destinations: List<Destination>) = destinations(JsonField.of(destinations))
+        /** Array of destination coordinates as GeoJSON Points (max 50) */
+        fun destinations(destinations: List<PointGeometry>) =
+            destinations(JsonField.of(destinations))
 
         /**
          * Sets [Builder.destinations] to an arbitrary JSON value.
          *
-         * You should usually call [Builder.destinations] with a well-typed `List<Destination>`
+         * You should usually call [Builder.destinations] with a well-typed `List<PointGeometry>`
          * value instead. This method is primarily for setting the field to an undocumented or not
          * yet supported value.
          */
-        fun destinations(destinations: JsonField<List<Destination>>) = apply {
+        fun destinations(destinations: JsonField<List<PointGeometry>>) = apply {
             this.destinations = destinations.map { it.toMutableList() }
         }
 
         /**
-         * Adds a single [Destination] to [destinations].
+         * Adds a single [PointGeometry] to [destinations].
          *
          * @throws IllegalStateException if the field was previously set to a non-list.
          */
-        fun addDestination(destination: Destination) = apply {
+        fun addDestination(destination: PointGeometry) = apply {
             destinations =
                 (destinations ?: JsonField.of(mutableListOf())).also {
                     checkKnown("destinations", it).add(destination)
                 }
         }
 
-        /** Array of origin coordinates (max 50) */
-        fun origins(origins: List<Origin>) = origins(JsonField.of(origins))
+        /** Array of origin coordinates as GeoJSON Points (max 50) */
+        fun origins(origins: List<PointGeometry>) = origins(JsonField.of(origins))
 
         /**
          * Sets [Builder.origins] to an arbitrary JSON value.
          *
-         * You should usually call [Builder.origins] with a well-typed `List<Origin>` value instead.
-         * This method is primarily for setting the field to an undocumented or not yet supported
-         * value.
+         * You should usually call [Builder.origins] with a well-typed `List<PointGeometry>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
-        fun origins(origins: JsonField<List<Origin>>) = apply {
+        fun origins(origins: JsonField<List<PointGeometry>>) = apply {
             this.origins = origins.map { it.toMutableList() }
         }
 
         /**
-         * Adds a single [Origin] to [origins].
+         * Adds a single [PointGeometry] to [origins].
          *
          * @throws IllegalStateException if the field was previously set to a non-list.
          */
-        fun addOrigin(origin: Origin) = apply {
+        fun addOrigin(origin: PointGeometry) = apply {
             origins =
                 (origins ?: JsonField.of(mutableListOf())).also {
                     checkKnown("origins", it).add(origin)
@@ -365,402 +369,6 @@ private constructor(
             (if (annotations.asKnown().isPresent) 1 else 0) +
             (if (fallbackSpeed.asKnown().isPresent) 1 else 0) +
             (mode.asKnown().getOrNull()?.validity() ?: 0)
-
-    /** Geographic coordinate as a JSON object with `lat` and `lng` fields. */
-    class Destination
-    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
-    private constructor(
-        private val lat: JsonField<Double>,
-        private val lng: JsonField<Double>,
-        private val additionalProperties: MutableMap<String, JsonValue>,
-    ) {
-
-        @JsonCreator
-        private constructor(
-            @JsonProperty("lat") @ExcludeMissing lat: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("lng") @ExcludeMissing lng: JsonField<Double> = JsonMissing.of(),
-        ) : this(lat, lng, mutableMapOf())
-
-        /**
-         * Latitude in decimal degrees (-90 to 90)
-         *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
-         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-         */
-        fun lat(): Double = lat.getRequired("lat")
-
-        /**
-         * Longitude in decimal degrees (-180 to 180)
-         *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
-         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-         */
-        fun lng(): Double = lng.getRequired("lng")
-
-        /**
-         * Returns the raw JSON value of [lat].
-         *
-         * Unlike [lat], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("lat") @ExcludeMissing fun _lat(): JsonField<Double> = lat
-
-        /**
-         * Returns the raw JSON value of [lng].
-         *
-         * Unlike [lng], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("lng") @ExcludeMissing fun _lng(): JsonField<Double> = lng
-
-        @JsonAnySetter
-        private fun putAdditionalProperty(key: String, value: JsonValue) {
-            additionalProperties.put(key, value)
-        }
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> =
-            Collections.unmodifiableMap(additionalProperties)
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Destination].
-             *
-             * The following fields are required:
-             * ```java
-             * .lat()
-             * .lng()
-             * ```
-             */
-            @JvmStatic fun builder() = Builder()
-        }
-
-        /** A builder for [Destination]. */
-        class Builder internal constructor() {
-
-            private var lat: JsonField<Double>? = null
-            private var lng: JsonField<Double>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            @JvmSynthetic
-            internal fun from(destination: Destination) = apply {
-                lat = destination.lat
-                lng = destination.lng
-                additionalProperties = destination.additionalProperties.toMutableMap()
-            }
-
-            /** Latitude in decimal degrees (-90 to 90) */
-            fun lat(lat: Double) = lat(JsonField.of(lat))
-
-            /**
-             * Sets [Builder.lat] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.lat] with a well-typed [Double] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun lat(lat: JsonField<Double>) = apply { this.lat = lat }
-
-            /** Longitude in decimal degrees (-180 to 180) */
-            fun lng(lng: Double) = lng(JsonField.of(lng))
-
-            /**
-             * Sets [Builder.lng] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.lng] with a well-typed [Double] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun lng(lng: JsonField<Double>) = apply { this.lng = lng }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            /**
-             * Returns an immutable instance of [Destination].
-             *
-             * Further updates to this [Builder] will not mutate the returned instance.
-             *
-             * The following fields are required:
-             * ```java
-             * .lat()
-             * .lng()
-             * ```
-             *
-             * @throws IllegalStateException if any required field is unset.
-             */
-            fun build(): Destination =
-                Destination(
-                    checkRequired("lat", lat),
-                    checkRequired("lng", lng),
-                    additionalProperties.toMutableMap(),
-                )
-        }
-
-        private var validated: Boolean = false
-
-        fun validate(): Destination = apply {
-            if (validated) {
-                return@apply
-            }
-
-            lat()
-            lng()
-            validated = true
-        }
-
-        fun isValid(): Boolean =
-            try {
-                validate()
-                true
-            } catch (e: PlazaInvalidDataException) {
-                false
-            }
-
-        /**
-         * Returns a score indicating how many valid values are contained in this object
-         * recursively.
-         *
-         * Used for best match union deserialization.
-         */
-        @JvmSynthetic
-        internal fun validity(): Int =
-            (if (lat.asKnown().isPresent) 1 else 0) + (if (lng.asKnown().isPresent) 1 else 0)
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return other is Destination &&
-                lat == other.lat &&
-                lng == other.lng &&
-                additionalProperties == other.additionalProperties
-        }
-
-        private val hashCode: Int by lazy { Objects.hash(lat, lng, additionalProperties) }
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Destination{lat=$lat, lng=$lng, additionalProperties=$additionalProperties}"
-    }
-
-    /** Geographic coordinate as a JSON object with `lat` and `lng` fields. */
-    class Origin
-    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
-    private constructor(
-        private val lat: JsonField<Double>,
-        private val lng: JsonField<Double>,
-        private val additionalProperties: MutableMap<String, JsonValue>,
-    ) {
-
-        @JsonCreator
-        private constructor(
-            @JsonProperty("lat") @ExcludeMissing lat: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("lng") @ExcludeMissing lng: JsonField<Double> = JsonMissing.of(),
-        ) : this(lat, lng, mutableMapOf())
-
-        /**
-         * Latitude in decimal degrees (-90 to 90)
-         *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
-         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-         */
-        fun lat(): Double = lat.getRequired("lat")
-
-        /**
-         * Longitude in decimal degrees (-180 to 180)
-         *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
-         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-         */
-        fun lng(): Double = lng.getRequired("lng")
-
-        /**
-         * Returns the raw JSON value of [lat].
-         *
-         * Unlike [lat], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("lat") @ExcludeMissing fun _lat(): JsonField<Double> = lat
-
-        /**
-         * Returns the raw JSON value of [lng].
-         *
-         * Unlike [lng], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("lng") @ExcludeMissing fun _lng(): JsonField<Double> = lng
-
-        @JsonAnySetter
-        private fun putAdditionalProperty(key: String, value: JsonValue) {
-            additionalProperties.put(key, value)
-        }
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> =
-            Collections.unmodifiableMap(additionalProperties)
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Origin].
-             *
-             * The following fields are required:
-             * ```java
-             * .lat()
-             * .lng()
-             * ```
-             */
-            @JvmStatic fun builder() = Builder()
-        }
-
-        /** A builder for [Origin]. */
-        class Builder internal constructor() {
-
-            private var lat: JsonField<Double>? = null
-            private var lng: JsonField<Double>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            @JvmSynthetic
-            internal fun from(origin: Origin) = apply {
-                lat = origin.lat
-                lng = origin.lng
-                additionalProperties = origin.additionalProperties.toMutableMap()
-            }
-
-            /** Latitude in decimal degrees (-90 to 90) */
-            fun lat(lat: Double) = lat(JsonField.of(lat))
-
-            /**
-             * Sets [Builder.lat] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.lat] with a well-typed [Double] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun lat(lat: JsonField<Double>) = apply { this.lat = lat }
-
-            /** Longitude in decimal degrees (-180 to 180) */
-            fun lng(lng: Double) = lng(JsonField.of(lng))
-
-            /**
-             * Sets [Builder.lng] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.lng] with a well-typed [Double] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun lng(lng: JsonField<Double>) = apply { this.lng = lng }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            /**
-             * Returns an immutable instance of [Origin].
-             *
-             * Further updates to this [Builder] will not mutate the returned instance.
-             *
-             * The following fields are required:
-             * ```java
-             * .lat()
-             * .lng()
-             * ```
-             *
-             * @throws IllegalStateException if any required field is unset.
-             */
-            fun build(): Origin =
-                Origin(
-                    checkRequired("lat", lat),
-                    checkRequired("lng", lng),
-                    additionalProperties.toMutableMap(),
-                )
-        }
-
-        private var validated: Boolean = false
-
-        fun validate(): Origin = apply {
-            if (validated) {
-                return@apply
-            }
-
-            lat()
-            lng()
-            validated = true
-        }
-
-        fun isValid(): Boolean =
-            try {
-                validate()
-                true
-            } catch (e: PlazaInvalidDataException) {
-                false
-            }
-
-        /**
-         * Returns a score indicating how many valid values are contained in this object
-         * recursively.
-         *
-         * Used for best match union deserialization.
-         */
-        @JvmSynthetic
-        internal fun validity(): Int =
-            (if (lat.asKnown().isPresent) 1 else 0) + (if (lng.asKnown().isPresent) 1 else 0)
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return other is Origin &&
-                lat == other.lat &&
-                lng == other.lng &&
-                additionalProperties == other.additionalProperties
-        }
-
-        private val hashCode: Int by lazy { Objects.hash(lat, lng, additionalProperties) }
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Origin{lat=$lat, lng=$lng, additionalProperties=$additionalProperties}"
-    }
 
     /** Travel mode (default: `auto`) */
     class Mode @JsonCreator private constructor(private val value: JsonField<String>) : Enum {

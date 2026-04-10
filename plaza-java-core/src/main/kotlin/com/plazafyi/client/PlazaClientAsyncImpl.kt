@@ -6,10 +6,10 @@ import com.plazafyi.core.ClientOptions
 import com.plazafyi.core.getPackageVersion
 import com.plazafyi.services.async.DatasetServiceAsync
 import com.plazafyi.services.async.DatasetServiceAsyncImpl
-import com.plazafyi.services.async.ElementServiceAsync
-import com.plazafyi.services.async.ElementServiceAsyncImpl
 import com.plazafyi.services.async.ElevationServiceAsync
 import com.plazafyi.services.async.ElevationServiceAsyncImpl
+import com.plazafyi.services.async.FeatureServiceAsync
+import com.plazafyi.services.async.FeatureServiceAsyncImpl
 import com.plazafyi.services.async.GeocodeServiceAsync
 import com.plazafyi.services.async.GeocodeServiceAsyncImpl
 import com.plazafyi.services.async.MapMatchServiceAsync
@@ -43,8 +43,8 @@ class PlazaClientAsyncImpl(private val clientOptions: ClientOptions) : PlazaClie
         WithRawResponseImpl(clientOptions)
     }
 
-    private val elements: ElementServiceAsync by lazy {
-        ElementServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val features: FeatureServiceAsync by lazy {
+        FeatureServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
     private val datasets: DatasetServiceAsync by lazy {
@@ -88,7 +88,7 @@ class PlazaClientAsyncImpl(private val clientOptions: ClientOptions) : PlazaClie
     override fun withOptions(modifier: Consumer<ClientOptions.Builder>): PlazaClientAsync =
         PlazaClientAsyncImpl(clientOptions.toBuilder().apply(modifier::accept).build())
 
-    override fun elements(): ElementServiceAsync = elements
+    override fun features(): FeatureServiceAsync = features
 
     override fun datasets(): DatasetServiceAsync = datasets
 
@@ -113,8 +113,8 @@ class PlazaClientAsyncImpl(private val clientOptions: ClientOptions) : PlazaClie
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         PlazaClientAsync.WithRawResponse {
 
-        private val elements: ElementServiceAsync.WithRawResponse by lazy {
-            ElementServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        private val features: FeatureServiceAsync.WithRawResponse by lazy {
+            FeatureServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
         private val datasets: DatasetServiceAsync.WithRawResponse by lazy {
@@ -160,7 +160,7 @@ class PlazaClientAsyncImpl(private val clientOptions: ClientOptions) : PlazaClie
                 clientOptions.toBuilder().apply(modifier::accept).build()
             )
 
-        override fun elements(): ElementServiceAsync.WithRawResponse = elements
+        override fun features(): FeatureServiceAsync.WithRawResponse = features
 
         override fun datasets(): DatasetServiceAsync.WithRawResponse = datasets
 

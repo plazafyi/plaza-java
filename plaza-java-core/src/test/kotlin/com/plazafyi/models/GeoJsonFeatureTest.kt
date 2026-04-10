@@ -14,12 +14,7 @@ internal class GeoJsonFeatureTest {
     fun create() {
         val geoJsonFeature =
             GeoJsonFeature.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     GeoJsonFeature.Properties.builder()
                         .putAdditionalProperty("@id", JsonValue.from("bar"))
@@ -35,10 +30,13 @@ internal class GeoJsonFeatureTest {
 
         assertThat(geoJsonFeature.geometry())
             .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
+                Geometry.ofPoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
             )
         assertThat(geoJsonFeature.properties())
             .isEqualTo(
@@ -59,12 +57,7 @@ internal class GeoJsonFeatureTest {
         val jsonMapper = jsonMapper()
         val geoJsonFeature =
             GeoJsonFeature.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     GeoJsonFeature.Properties.builder()
                         .putAdditionalProperty("@id", JsonValue.from("bar"))

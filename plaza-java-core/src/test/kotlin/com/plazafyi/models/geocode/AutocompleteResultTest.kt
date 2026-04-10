@@ -5,7 +5,6 @@ package com.plazafyi.models.geocode
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -17,12 +16,7 @@ internal class AutocompleteResultTest {
             AutocompleteResult.builder()
                 .addFeature(
                     GeocodingFeature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             GeocodingFeature.Properties.builder()
                                 .displayName("221B Baker Street, London, NW1 6XE, United Kingdom")
@@ -61,12 +55,7 @@ internal class AutocompleteResultTest {
         assertThat(autocompleteResult.features())
             .containsExactly(
                 GeocodingFeature.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .pointGeometry(listOf(2.3522, 48.8566))
                     .properties(
                         GeocodingFeature.Properties.builder()
                             .displayName("221B Baker Street, London, NW1 6XE, United Kingdom")
@@ -109,12 +98,7 @@ internal class AutocompleteResultTest {
             AutocompleteResult.builder()
                 .addFeature(
                     GeocodingFeature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             GeocodingFeature.Properties.builder()
                                 .displayName("221B Baker Street, London, NW1 6XE, United Kingdom")

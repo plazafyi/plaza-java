@@ -17,7 +17,6 @@ import com.plazafyi.core.http.parseable
 import com.plazafyi.core.prepare
 import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.search.SearchQueryParams
-import com.plazafyi.models.search.SearchQueryPostParams
 import java.util.function.Consumer
 
 class SearchServiceImpl internal constructor(private val clientOptions: ClientOptions) :
@@ -36,15 +35,8 @@ class SearchServiceImpl internal constructor(private val clientOptions: ClientOp
         params: SearchQueryParams,
         requestOptions: RequestOptions,
     ): FeatureCollection =
-        // get /api/v1/search
-        withRawResponse().query(params, requestOptions).parse()
-
-    override fun queryPost(
-        params: SearchQueryPostParams,
-        requestOptions: RequestOptions,
-    ): FeatureCollection =
         // post /api/v1/search
-        withRawResponse().queryPost(params, requestOptions).parse()
+        withRawResponse().query(params, requestOptions).parse()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         SearchService.WithRawResponse {
@@ -68,33 +60,6 @@ class SearchServiceImpl internal constructor(private val clientOptions: ClientOp
         ): HttpResponseFor<FeatureCollection> {
             val request =
                 HttpRequest.builder()
-                    .method(HttpMethod.GET)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "search")
-                    .build()
-                    .prepare(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            val response = clientOptions.httpClient.execute(request, requestOptions)
-            return errorHandler.handle(response).parseable {
-                response
-                    .use { queryHandler.handle(it) }
-                    .also {
-                        if (requestOptions.responseValidation!!) {
-                            it.validate()
-                        }
-                    }
-            }
-        }
-
-        private val queryPostHandler: Handler<FeatureCollection> =
-            jsonHandler<FeatureCollection>(clientOptions.jsonMapper)
-
-        override fun queryPost(
-            params: SearchQueryPostParams,
-            requestOptions: RequestOptions,
-        ): HttpResponseFor<FeatureCollection> {
-            val request =
-                HttpRequest.builder()
                     .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "search")
@@ -105,7 +70,7 @@ class SearchServiceImpl internal constructor(private val clientOptions: ClientOp
             val response = clientOptions.httpClient.execute(request, requestOptions)
             return errorHandler.handle(response).parseable {
                 response
-                    .use { queryPostHandler.handle(it) }
+                    .use { queryHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
                             it.validate()

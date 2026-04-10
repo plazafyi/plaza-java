@@ -4,6 +4,7 @@ package com.plazafyi.models.optimize
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
+import com.plazafyi.models.MultiPointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,21 +15,33 @@ internal class OptimizeRequestTest {
         val optimizeRequest =
             OptimizeRequest.builder()
                 .waypoints(
-                    listOf(
-                        OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
-                        OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
-                        OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
-                    )
+                    MultiPointGeometry.builder()
+                        .coordinates(
+                            listOf(
+                                listOf(2.3522, 48.8566),
+                                listOf(2.3376, 48.8606),
+                                listOf(2.2945, 48.8584),
+                            )
+                        )
+                        .type(MultiPointGeometry.Type.MULTI_POINT)
+                        .build()
                 )
                 .mode(OptimizeRequest.Mode.AUTO)
                 .roundtrip(false)
                 .build()
 
         assertThat(optimizeRequest.waypoints())
-            .containsExactly(
-                OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
-                OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
-                OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
+            .isEqualTo(
+                MultiPointGeometry.builder()
+                    .coordinates(
+                        listOf(
+                            listOf(2.3522, 48.8566),
+                            listOf(2.3376, 48.8606),
+                            listOf(2.2945, 48.8584),
+                        )
+                    )
+                    .type(MultiPointGeometry.Type.MULTI_POINT)
+                    .build()
             )
         assertThat(optimizeRequest.mode()).contains(OptimizeRequest.Mode.AUTO)
         assertThat(optimizeRequest.roundtrip()).contains(false)
@@ -40,11 +53,16 @@ internal class OptimizeRequestTest {
         val optimizeRequest =
             OptimizeRequest.builder()
                 .waypoints(
-                    listOf(
-                        OptimizeRequest.Waypoint.builder().lat(48.8566).lng(2.3522).build(),
-                        OptimizeRequest.Waypoint.builder().lat(48.8606).lng(2.3376).build(),
-                        OptimizeRequest.Waypoint.builder().lat(48.8584).lng(2.2945).build(),
-                    )
+                    MultiPointGeometry.builder()
+                        .coordinates(
+                            listOf(
+                                listOf(2.3522, 48.8566),
+                                listOf(2.3376, 48.8606),
+                                listOf(2.2945, 48.8584),
+                            )
+                        )
+                        .type(MultiPointGeometry.Type.MULTI_POINT)
+                        .build()
                 )
                 .mode(OptimizeRequest.Mode.AUTO)
                 .roundtrip(false)

@@ -16,12 +16,7 @@ internal class FeatureCollectionTest {
             FeatureCollection.builder()
                 .addFeature(
                     GeoJsonFeature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             GeoJsonFeature.Properties.builder()
                                 .putAdditionalProperty("@id", JsonValue.from("bar"))
@@ -41,12 +36,7 @@ internal class FeatureCollectionTest {
         assertThat(featureCollection.features())
             .containsExactly(
                 GeoJsonFeature.builder()
-                    .geometry(
-                        GeoJsonGeometry.builder()
-                            .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                            .type(GeoJsonGeometry.Type.POINT)
-                            .build()
-                    )
+                    .pointGeometry(listOf(2.3522, 48.8566))
                     .properties(
                         GeoJsonFeature.Properties.builder()
                             .putAdditionalProperty("@id", JsonValue.from("bar"))
@@ -70,12 +60,7 @@ internal class FeatureCollectionTest {
             FeatureCollection.builder()
                 .addFeature(
                     GeoJsonFeature.builder()
-                        .geometry(
-                            GeoJsonGeometry.builder()
-                                .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                                .type(GeoJsonGeometry.Type.POINT)
-                                .build()
-                        )
+                        .pointGeometry(listOf(2.3522, 48.8566))
                         .properties(
                             GeoJsonFeature.Properties.builder()
                                 .putAdditionalProperty("@id", JsonValue.from("bar"))

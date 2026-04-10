@@ -4,7 +4,8 @@ package com.plazafyi.models.routing
 
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
+import com.plazafyi.models.Geometry
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,12 +15,7 @@ internal class NearestResultTest {
     fun create() {
         val nearestResult =
             NearestResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     NearestResult.Properties.builder()
                         .distanceM(12.4)
@@ -35,10 +31,13 @@ internal class NearestResultTest {
 
         assertThat(nearestResult.geometry())
             .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
+                Geometry.ofPoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
             )
         assertThat(nearestResult.properties())
             .isEqualTo(
@@ -59,12 +58,7 @@ internal class NearestResultTest {
         val jsonMapper = jsonMapper()
         val nearestResult =
             NearestResult.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     NearestResult.Properties.builder()
                         .distanceM(12.4)

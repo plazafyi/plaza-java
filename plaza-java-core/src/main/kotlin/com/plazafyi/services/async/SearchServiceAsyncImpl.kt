@@ -17,7 +17,6 @@ import com.plazafyi.core.http.parseable
 import com.plazafyi.core.prepareAsync
 import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.search.SearchQueryParams
-import com.plazafyi.models.search.SearchQueryPostParams
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
@@ -37,15 +36,8 @@ class SearchServiceAsyncImpl internal constructor(private val clientOptions: Cli
         params: SearchQueryParams,
         requestOptions: RequestOptions,
     ): CompletableFuture<FeatureCollection> =
-        // get /api/v1/search
-        withRawResponse().query(params, requestOptions).thenApply { it.parse() }
-
-    override fun queryPost(
-        params: SearchQueryPostParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<FeatureCollection> =
         // post /api/v1/search
-        withRawResponse().queryPost(params, requestOptions).thenApply { it.parse() }
+        withRawResponse().query(params, requestOptions).thenApply { it.parse() }
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         SearchServiceAsync.WithRawResponse {
@@ -69,36 +61,6 @@ class SearchServiceAsyncImpl internal constructor(private val clientOptions: Cli
         ): CompletableFuture<HttpResponseFor<FeatureCollection>> {
             val request =
                 HttpRequest.builder()
-                    .method(HttpMethod.GET)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "search")
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { queryHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
-        private val queryPostHandler: Handler<FeatureCollection> =
-            jsonHandler<FeatureCollection>(clientOptions.jsonMapper)
-
-        override fun queryPost(
-            params: SearchQueryPostParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> {
-            val request =
-                HttpRequest.builder()
                     .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "search")
@@ -111,7 +73,7 @@ class SearchServiceAsyncImpl internal constructor(private val clientOptions: Cli
                 .thenApply { response ->
                     errorHandler.handle(response).parseable {
                         response
-                            .use { queryPostHandler.handle(it) }
+                            .use { queryHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()
