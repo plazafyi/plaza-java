@@ -5,12 +5,16 @@ package com.plazafyi.errors
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.checkRequired
 import com.plazafyi.core.http.Headers
+import com.plazafyi.core.jsonMapper
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
 class UnauthorizedException
 private constructor(private val headers: Headers, private val body: JsonValue, cause: Throwable?) :
-    PlazaServiceException("401: $body", cause) {
+    PlazaServiceException(
+        "401: ${if (body.isMissing()) "Unknown" else jsonMapper().writeValueAsString(body)}",
+        cause,
+    ) {
 
     override fun statusCode(): Int = 401
 
