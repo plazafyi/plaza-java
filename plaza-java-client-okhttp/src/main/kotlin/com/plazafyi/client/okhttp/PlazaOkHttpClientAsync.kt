@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper
 import com.plazafyi.client.PlazaClientAsync
 import com.plazafyi.client.PlazaClientAsyncImpl
 import com.plazafyi.core.ClientOptions
+import com.plazafyi.core.LogLevel
 import com.plazafyi.core.Sleeper
 import com.plazafyi.core.Timeout
 import com.plazafyi.core.http.Headers
@@ -282,6 +283,15 @@ class PlazaOkHttpClientAsync private constructor() {
          * Defaults to 2.
          */
         fun maxRetries(maxRetries: Int) = apply { clientOptions.maxRetries(maxRetries) }
+
+        /**
+         * The level at which to log request and response information.
+         *
+         * [fromEnv] will set the level from environment variables. See [LogLevel.fromEnv].
+         *
+         * Defaults to [LogLevel.fromEnv].
+         */
+        fun logLevel(logLevel: LogLevel) = apply { clientOptions.logLevel(logLevel) }
 
         /** Plaza API key */
         fun apiKey(apiKey: String) = apply { clientOptions.apiKey(apiKey) }
