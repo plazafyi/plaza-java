@@ -6,11 +6,9 @@ import com.plazafyi.core.ClientOptions
 import com.plazafyi.core.RequestOptions
 import com.plazafyi.core.http.HttpResponse
 import com.plazafyi.core.http.HttpResponseFor
-import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.datasets.Dataset
 import com.plazafyi.models.datasets.DatasetCreateParams
 import com.plazafyi.models.datasets.DatasetDeleteParams
-import com.plazafyi.models.datasets.DatasetFeaturesParams
 import com.plazafyi.models.datasets.DatasetList
 import com.plazafyi.models.datasets.DatasetListParams
 import com.plazafyi.models.datasets.DatasetRetrieveParams
@@ -31,7 +29,7 @@ interface DatasetServiceAsync {
      */
     fun withOptions(modifier: Consumer<ClientOptions.Builder>): DatasetServiceAsync
 
-    /** Create a new dataset (admin only) */
+    /** Create a new dataset */
     fun create(params: DatasetCreateParams): CompletableFuture<Dataset> =
         create(params, RequestOptions.none())
 
@@ -72,7 +70,7 @@ interface DatasetServiceAsync {
     fun retrieve(id: String, requestOptions: RequestOptions): CompletableFuture<Dataset> =
         retrieve(id, DatasetRetrieveParams.none(), requestOptions)
 
-    /** List all datasets */
+    /** List datasets */
     fun list(): CompletableFuture<DatasetList> = list(DatasetListParams.none())
 
     /** @see list */
@@ -118,38 +116,6 @@ interface DatasetServiceAsync {
     /** @see delete */
     fun delete(id: String, requestOptions: RequestOptions): CompletableFuture<Void?> =
         delete(id, DatasetDeleteParams.none(), requestOptions)
-
-    /** Query features in a dataset */
-    fun features(id: String): CompletableFuture<FeatureCollection> =
-        features(id, DatasetFeaturesParams.none())
-
-    /** @see features */
-    fun features(
-        id: String,
-        params: DatasetFeaturesParams = DatasetFeaturesParams.none(),
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<FeatureCollection> =
-        features(params.toBuilder().id(id).build(), requestOptions)
-
-    /** @see features */
-    fun features(
-        id: String,
-        params: DatasetFeaturesParams = DatasetFeaturesParams.none(),
-    ): CompletableFuture<FeatureCollection> = features(id, params, RequestOptions.none())
-
-    /** @see features */
-    fun features(
-        params: DatasetFeaturesParams,
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<FeatureCollection>
-
-    /** @see features */
-    fun features(params: DatasetFeaturesParams): CompletableFuture<FeatureCollection> =
-        features(params, RequestOptions.none())
-
-    /** @see features */
-    fun features(id: String, requestOptions: RequestOptions): CompletableFuture<FeatureCollection> =
-        features(id, DatasetFeaturesParams.none(), requestOptions)
 
     /**
      * A view of [DatasetServiceAsync] that provides access to raw HTTP responses for each method.
@@ -271,46 +237,5 @@ interface DatasetServiceAsync {
         /** @see delete */
         fun delete(id: String, requestOptions: RequestOptions): CompletableFuture<HttpResponse> =
             delete(id, DatasetDeleteParams.none(), requestOptions)
-
-        /**
-         * Returns a raw HTTP response for `get /api/v1/datasets/{id}/features`, but is otherwise
-         * the same as [DatasetServiceAsync.features].
-         */
-        fun features(id: String): CompletableFuture<HttpResponseFor<FeatureCollection>> =
-            features(id, DatasetFeaturesParams.none())
-
-        /** @see features */
-        fun features(
-            id: String,
-            params: DatasetFeaturesParams = DatasetFeaturesParams.none(),
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
-            features(params.toBuilder().id(id).build(), requestOptions)
-
-        /** @see features */
-        fun features(
-            id: String,
-            params: DatasetFeaturesParams = DatasetFeaturesParams.none(),
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
-            features(id, params, RequestOptions.none())
-
-        /** @see features */
-        fun features(
-            params: DatasetFeaturesParams,
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>>
-
-        /** @see features */
-        fun features(
-            params: DatasetFeaturesParams
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
-            features(params, RequestOptions.none())
-
-        /** @see features */
-        fun features(
-            id: String,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
-            features(id, DatasetFeaturesParams.none(), requestOptions)
     }
 }

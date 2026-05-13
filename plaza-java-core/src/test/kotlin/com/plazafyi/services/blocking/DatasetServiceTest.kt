@@ -5,7 +5,7 @@ package com.plazafyi.services.blocking
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
 import com.plazafyi.models.datasets.DatasetCreateParams
-import com.plazafyi.models.datasets.DatasetFeaturesParams
+import com.plazafyi.models.datasets.DatasetListParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -30,6 +30,7 @@ internal class DatasetServiceTest {
                     .description("description")
                     .license("license")
                     .sourceUrl("https://example.com")
+                    .strictMode(true)
                     .build()
             )
 
@@ -59,7 +60,7 @@ internal class DatasetServiceTest {
                 .build()
         val datasetService = client.datasets()
 
-        val datasetList = datasetService.list()
+        val datasetList = datasetService.list(DatasetListParams.builder().scope("scope").build())
 
         datasetList.validate()
     }
@@ -74,34 +75,5 @@ internal class DatasetServiceTest {
         val datasetService = client.datasets()
 
         datasetService.delete("id")
-    }
-
-    @Test
-    fun features() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val datasetService = client.datasets()
-
-        val featureCollection =
-            datasetService.features(
-                DatasetFeaturesParams.builder()
-                    .id("id")
-                    .cursor("cursor")
-                    .limit(0L)
-                    .outputBuffer(0.0)
-                    .outputCentroid(true)
-                    .outputFields("output[fields]")
-                    .outputGeometry(true)
-                    .outputInclude("output[include]")
-                    .outputPrecision(0L)
-                    .outputSimplify(0.0)
-                    .outputSort("output[sort]")
-                    .build()
-            )
-
-        featureCollection.validate()
     }
 }

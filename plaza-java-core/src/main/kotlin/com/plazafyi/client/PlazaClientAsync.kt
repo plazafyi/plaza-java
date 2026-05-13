@@ -4,8 +4,8 @@ package com.plazafyi.client
 
 import com.plazafyi.core.ClientOptions
 import com.plazafyi.services.async.DatasetServiceAsync
-import com.plazafyi.services.async.ElementServiceAsync
 import com.plazafyi.services.async.ElevationServiceAsync
+import com.plazafyi.services.async.FeatureServiceAsync
 import com.plazafyi.services.async.GeocodeServiceAsync
 import com.plazafyi.services.async.MapMatchServiceAsync
 import com.plazafyi.services.async.OptimizeServiceAsync
@@ -51,7 +51,7 @@ interface PlazaClientAsync {
      */
     fun withOptions(modifier: Consumer<ClientOptions.Builder>): PlazaClientAsync
 
-    fun elements(): ElementServiceAsync
+    fun features(): FeatureServiceAsync
 
     fun datasets(): DatasetServiceAsync
 
@@ -94,7 +94,7 @@ interface PlazaClientAsync {
          */
         fun withOptions(modifier: Consumer<ClientOptions.Builder>): PlazaClientAsync.WithRawResponse
 
-        fun elements(): ElementServiceAsync.WithRawResponse
+        fun features(): FeatureServiceAsync.WithRawResponse
 
         fun datasets(): DatasetServiceAsync.WithRawResponse
 

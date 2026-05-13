@@ -4,13 +4,14 @@ package com.plazafyi.services.blocking
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
+import com.plazafyi.models.PointGeometry
+import com.plazafyi.models.geocode.AutocompleteRequest
 import com.plazafyi.models.geocode.GeocodeAutocompleteParams
-import com.plazafyi.models.geocode.GeocodeAutocompletePostParams
 import com.plazafyi.models.geocode.GeocodeBatchParams
 import com.plazafyi.models.geocode.GeocodeForwardParams
-import com.plazafyi.models.geocode.GeocodeForwardPostParams
+import com.plazafyi.models.geocode.GeocodeForwardRequest
 import com.plazafyi.models.geocode.GeocodeReverseParams
-import com.plazafyi.models.geocode.GeocodeReversePostParams
+import com.plazafyi.models.geocode.GeocodeReverseRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -29,38 +30,23 @@ internal class GeocodeServiceTest {
         val autocompleteResult =
             geocodeService.autocomplete(
                 GeocodeAutocompleteParams.builder()
-                    .q("q")
-                    .countryCode("country_code")
-                    .lang("lang")
-                    .lat(0.0)
-                    .layer("layer")
-                    .limit(0L)
-                    .lng(0.0)
-                    .build()
-            )
-
-        autocompleteResult.validate()
-    }
-
-    @Test
-    fun autocompletePost() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val geocodeService = client.geocode()
-
-        val autocompleteResult =
-            geocodeService.autocompletePost(
-                GeocodeAutocompletePostParams.builder()
-                    .q("q")
-                    .countryCode("country_code")
-                    .lang("lang")
-                    .lat(0.0)
-                    .layer("layer")
-                    .limit(0L)
-                    .lng(0.0)
+                    .format("format")
+                    .autocompleteRequest(
+                        AutocompleteRequest.builder()
+                            .q("221B Bak")
+                            .countryCode("xx")
+                            .focus(
+                                PointGeometry.builder()
+                                    .addCoordinate(2.3522)
+                                    .addCoordinate(48.8566)
+                                    .type(PointGeometry.Type.POINT)
+                                    .build()
+                            )
+                            .lang("lang")
+                            .layer("layer")
+                            .limit(1L)
+                            .build()
+                    )
                     .build()
             )
 
@@ -94,40 +80,23 @@ internal class GeocodeServiceTest {
         val geocodeResult =
             geocodeService.forward(
                 GeocodeForwardParams.builder()
-                    .q("q")
-                    .bbox("bbox")
-                    .countryCode("country_code")
-                    .lang("lang")
-                    .lat(0.0)
-                    .layer("layer")
-                    .limit(0L)
-                    .lng(0.0)
-                    .build()
-            )
-
-        geocodeResult.validate()
-    }
-
-    @Test
-    fun forwardPost() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val geocodeService = client.geocode()
-
-        val geocodeResult =
-            geocodeService.forwardPost(
-                GeocodeForwardPostParams.builder()
-                    .q("q")
-                    .bbox("bbox")
-                    .countryCode("country_code")
-                    .lang("lang")
-                    .lat(0.0)
-                    .layer("layer")
-                    .limit(0L)
-                    .lng(0.0)
+                    .format("format")
+                    .geocodeForwardRequest(
+                        GeocodeForwardRequest.builder()
+                            .q("221B Baker Street, London")
+                            .countryCode("xx")
+                            .focus(
+                                PointGeometry.builder()
+                                    .addCoordinate(2.3522)
+                                    .addCoordinate(48.8566)
+                                    .type(PointGeometry.Type.POINT)
+                                    .build()
+                            )
+                            .lang("lang")
+                            .layer("layer")
+                            .limit(1L)
+                            .build()
+                    )
                     .build()
             )
 
@@ -146,38 +115,21 @@ internal class GeocodeServiceTest {
         val reverseGeocodeResult =
             geocodeService.reverse(
                 GeocodeReverseParams.builder()
-                    .lang("lang")
-                    .lat(0.0)
-                    .layer("layer")
-                    .limit(0L)
-                    .lng(0.0)
-                    .near("near")
-                    .radius(0L)
-                    .build()
-            )
-
-        reverseGeocodeResult.validate()
-    }
-
-    @Test
-    fun reversePost() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val geocodeService = client.geocode()
-
-        val reverseGeocodeResult =
-            geocodeService.reversePost(
-                GeocodeReversePostParams.builder()
-                    .lang("lang")
-                    .lat(0.0)
-                    .layer("layer")
-                    .limit(0L)
-                    .lng(0.0)
-                    .near("near")
-                    .radius(0L)
+                    .format("format")
+                    .geocodeReverseRequest(
+                        GeocodeReverseRequest.builder()
+                            .geometry(
+                                PointGeometry.builder()
+                                    .addCoordinate(2.3522)
+                                    .addCoordinate(48.8566)
+                                    .type(PointGeometry.Type.POINT)
+                                    .build()
+                            )
+                            .lang("lang")
+                            .limit(1L)
+                            .radius(1.0)
+                            .build()
+                    )
                     .build()
             )
 

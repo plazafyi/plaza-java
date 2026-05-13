@@ -20,7 +20,7 @@ import java.util.Objects
 import java.util.Optional
 import kotlin.jvm.optionals.getOrNull
 
-/** Create a new dataset (admin only) */
+/** Create a new dataset */
 class DatasetCreateParams
 private constructor(
     private val body: Body,
@@ -77,6 +77,14 @@ private constructor(
     fun sourceUrl(): Optional<String> = body.sourceUrl()
 
     /**
+     * Enable strict schema validation (default true)
+     *
+     * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+     *   server responded with an unexpected value).
+     */
+    fun strictMode(): Optional<Boolean> = body.strictMode()
+
+    /**
      * Returns the raw JSON value of [name].
      *
      * Unlike [name], this method doesn't throw if the JSON field has an unexpected type.
@@ -117,6 +125,13 @@ private constructor(
      * Unlike [sourceUrl], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _sourceUrl(): JsonField<String> = body._sourceUrl()
+
+    /**
+     * Returns the raw JSON value of [strictMode].
+     *
+     * Unlike [strictMode], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    fun _strictMode(): JsonField<Boolean> = body._strictMode()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -250,6 +265,28 @@ private constructor(
          * value.
          */
         fun sourceUrl(sourceUrl: JsonField<String>) = apply { body.sourceUrl(sourceUrl) }
+
+        /** Enable strict schema validation (default true) */
+        fun strictMode(strictMode: Boolean?) = apply { body.strictMode(strictMode) }
+
+        /**
+         * Alias for [Builder.strictMode].
+         *
+         * This unboxed primitive overload exists for backwards compatibility.
+         */
+        fun strictMode(strictMode: Boolean) = strictMode(strictMode as Boolean?)
+
+        /** Alias for calling [Builder.strictMode] with `strictMode.orElse(null)`. */
+        fun strictMode(strictMode: Optional<Boolean>) = strictMode(strictMode.getOrNull())
+
+        /**
+         * Sets [Builder.strictMode] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.strictMode] with a well-typed [Boolean] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
+        fun strictMode(strictMode: JsonField<Boolean>) = apply { body.strictMode(strictMode) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -395,7 +432,7 @@ private constructor(
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
-    /** Request body to create a new dataset. Admin access required. */
+    /** Request body to create a new dataset. */
     class Body
     @JsonCreator(mode = JsonCreator.Mode.DISABLED)
     private constructor(
@@ -405,6 +442,7 @@ private constructor(
         private val description: JsonField<String>,
         private val license: JsonField<String>,
         private val sourceUrl: JsonField<String>,
+        private val strictMode: JsonField<Boolean>,
         private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
 
@@ -422,7 +460,19 @@ private constructor(
             @JsonProperty("source_url")
             @ExcludeMissing
             sourceUrl: JsonField<String> = JsonMissing.of(),
-        ) : this(name, slug, attribution, description, license, sourceUrl, mutableMapOf())
+            @JsonProperty("strict_mode")
+            @ExcludeMissing
+            strictMode: JsonField<Boolean> = JsonMissing.of(),
+        ) : this(
+            name,
+            slug,
+            attribution,
+            description,
+            license,
+            sourceUrl,
+            strictMode,
+            mutableMapOf(),
+        )
 
         /**
          * Human-readable dataset name
@@ -473,6 +523,14 @@ private constructor(
         fun sourceUrl(): Optional<String> = sourceUrl.getOptional("source_url")
 
         /**
+         * Enable strict schema validation (default true)
+         *
+         * @throws PlazaInvalidDataException if the JSON field has an unexpected type (e.g. if the
+         *   server responded with an unexpected value).
+         */
+        fun strictMode(): Optional<Boolean> = strictMode.getOptional("strict_mode")
+
+        /**
          * Returns the raw JSON value of [name].
          *
          * Unlike [name], this method doesn't throw if the JSON field has an unexpected type.
@@ -518,6 +576,15 @@ private constructor(
          */
         @JsonProperty("source_url") @ExcludeMissing fun _sourceUrl(): JsonField<String> = sourceUrl
 
+        /**
+         * Returns the raw JSON value of [strictMode].
+         *
+         * Unlike [strictMode], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("strict_mode")
+        @ExcludeMissing
+        fun _strictMode(): JsonField<Boolean> = strictMode
+
         @JsonAnySetter
         private fun putAdditionalProperty(key: String, value: JsonValue) {
             additionalProperties.put(key, value)
@@ -553,6 +620,7 @@ private constructor(
             private var description: JsonField<String> = JsonMissing.of()
             private var license: JsonField<String> = JsonMissing.of()
             private var sourceUrl: JsonField<String> = JsonMissing.of()
+            private var strictMode: JsonField<Boolean> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             @JvmSynthetic
@@ -563,6 +631,7 @@ private constructor(
                 description = body.description
                 license = body.license
                 sourceUrl = body.sourceUrl
+                strictMode = body.strictMode
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
@@ -654,6 +723,28 @@ private constructor(
              */
             fun sourceUrl(sourceUrl: JsonField<String>) = apply { this.sourceUrl = sourceUrl }
 
+            /** Enable strict schema validation (default true) */
+            fun strictMode(strictMode: Boolean?) = strictMode(JsonField.ofNullable(strictMode))
+
+            /**
+             * Alias for [Builder.strictMode].
+             *
+             * This unboxed primitive overload exists for backwards compatibility.
+             */
+            fun strictMode(strictMode: Boolean) = strictMode(strictMode as Boolean?)
+
+            /** Alias for calling [Builder.strictMode] with `strictMode.orElse(null)`. */
+            fun strictMode(strictMode: Optional<Boolean>) = strictMode(strictMode.getOrNull())
+
+            /**
+             * Sets [Builder.strictMode] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.strictMode] with a well-typed [Boolean] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun strictMode(strictMode: JsonField<Boolean>) = apply { this.strictMode = strictMode }
+
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
                 putAllAdditionalProperties(additionalProperties)
@@ -694,12 +785,22 @@ private constructor(
                     description,
                     license,
                     sourceUrl,
+                    strictMode,
                     additionalProperties.toMutableMap(),
                 )
         }
 
         private var validated: Boolean = false
 
+        /**
+         * Validates that the types of all values in this object match their expected types
+         * recursively.
+         *
+         * This method is _not_ forwards compatible with new types from the API for existing fields.
+         *
+         * @throws PlazaInvalidDataException if any value type in this object doesn't match its
+         *   expected type.
+         */
         fun validate(): Body = apply {
             if (validated) {
                 return@apply
@@ -711,6 +812,7 @@ private constructor(
             description()
             license()
             sourceUrl()
+            strictMode()
             validated = true
         }
 
@@ -735,7 +837,8 @@ private constructor(
                 (if (attribution.asKnown().isPresent) 1 else 0) +
                 (if (description.asKnown().isPresent) 1 else 0) +
                 (if (license.asKnown().isPresent) 1 else 0) +
-                (if (sourceUrl.asKnown().isPresent) 1 else 0)
+                (if (sourceUrl.asKnown().isPresent) 1 else 0) +
+                (if (strictMode.asKnown().isPresent) 1 else 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -749,6 +852,7 @@ private constructor(
                 description == other.description &&
                 license == other.license &&
                 sourceUrl == other.sourceUrl &&
+                strictMode == other.strictMode &&
                 additionalProperties == other.additionalProperties
         }
 
@@ -760,6 +864,7 @@ private constructor(
                 description,
                 license,
                 sourceUrl,
+                strictMode,
                 additionalProperties,
             )
         }
@@ -767,7 +872,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Body{name=$name, slug=$slug, attribution=$attribution, description=$description, license=$license, sourceUrl=$sourceUrl, additionalProperties=$additionalProperties}"
+            "Body{name=$name, slug=$slug, attribution=$attribution, description=$description, license=$license, sourceUrl=$sourceUrl, strictMode=$strictMode, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

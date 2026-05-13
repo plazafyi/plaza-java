@@ -18,7 +18,7 @@ import java.util.Collections
 import java.util.Objects
 import kotlin.jvm.optionals.getOrNull
 
-/** List of all available datasets. */
+/** List of datasets visible to the authenticated user. */
 class DatasetList
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
@@ -151,6 +151,14 @@ private constructor(
 
     private var validated: Boolean = false
 
+    /**
+     * Validates that the types of all values in this object match their expected types recursively.
+     *
+     * This method is _not_ forwards compatible with new types from the API for existing fields.
+     *
+     * @throws PlazaInvalidDataException if any value type in this object doesn't match its expected
+     *   type.
+     */
     fun validate(): DatasetList = apply {
         if (validated) {
             return@apply

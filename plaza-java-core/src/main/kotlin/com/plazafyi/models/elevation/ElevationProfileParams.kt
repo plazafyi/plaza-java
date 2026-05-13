@@ -18,8 +18,8 @@ private constructor(
 ) : Params {
 
     /**
-     * Request body for elevation profile along a path. Provide at least 2 coordinates defining the
-     * path. Maximum 50 coordinates per request.
+     * Request body for elevation profile along a path. Provide a GeoJSON LineString geometry
+     * defining the path.
      */
     fun elevationProfileRequest(): ElevationProfileRequest = elevationProfileRequest
 
@@ -62,8 +62,8 @@ private constructor(
         }
 
         /**
-         * Request body for elevation profile along a path. Provide at least 2 coordinates defining
-         * the path. Maximum 50 coordinates per request.
+         * Request body for elevation profile along a path. Provide a GeoJSON LineString geometry
+         * defining the path.
          */
         fun elevationProfileRequest(elevationProfileRequest: ElevationProfileRequest) = apply {
             this.elevationProfileRequest = elevationProfileRequest

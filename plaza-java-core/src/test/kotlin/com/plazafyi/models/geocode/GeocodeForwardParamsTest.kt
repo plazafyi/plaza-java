@@ -3,6 +3,7 @@
 package com.plazafyi.models.geocode
 
 import com.plazafyi.core.http.QueryParams
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,14 +12,23 @@ internal class GeocodeForwardParamsTest {
     @Test
     fun create() {
         GeocodeForwardParams.builder()
-            .q("q")
-            .bbox("bbox")
-            .countryCode("country_code")
-            .lang("lang")
-            .lat(0.0)
-            .layer("layer")
-            .limit(0L)
-            .lng(0.0)
+            .format("format")
+            .geocodeForwardRequest(
+                GeocodeForwardRequest.builder()
+                    .q("221B Baker Street, London")
+                    .countryCode("xx")
+                    .focus(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .lang("lang")
+                    .layer("layer")
+                    .limit(1L)
+                    .build()
+            )
             .build()
     }
 
@@ -26,39 +36,100 @@ internal class GeocodeForwardParamsTest {
     fun queryParams() {
         val params =
             GeocodeForwardParams.builder()
-                .q("q")
-                .bbox("bbox")
-                .countryCode("country_code")
-                .lang("lang")
-                .lat(0.0)
-                .layer("layer")
-                .limit(0L)
-                .lng(0.0)
+                .format("format")
+                .geocodeForwardRequest(
+                    GeocodeForwardRequest.builder()
+                        .q("221B Baker Street, London")
+                        .countryCode("xx")
+                        .focus(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .lang("lang")
+                        .layer("layer")
+                        .limit(1L)
+                        .build()
+                )
                 .build()
 
         val queryParams = params._queryParams()
 
-        assertThat(queryParams)
+        assertThat(queryParams).isEqualTo(QueryParams.builder().put("format", "format").build())
+    }
+
+    @Test
+    fun queryParamsWithoutOptionalFields() {
+        val params =
+            GeocodeForwardParams.builder()
+                .geocodeForwardRequest(
+                    GeocodeForwardRequest.builder().q("221B Baker Street, London").build()
+                )
+                .build()
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
+    }
+
+    @Test
+    fun body() {
+        val params =
+            GeocodeForwardParams.builder()
+                .format("format")
+                .geocodeForwardRequest(
+                    GeocodeForwardRequest.builder()
+                        .q("221B Baker Street, London")
+                        .countryCode("xx")
+                        .focus(
+                            PointGeometry.builder()
+                                .addCoordinate(2.3522)
+                                .addCoordinate(48.8566)
+                                .type(PointGeometry.Type.POINT)
+                                .build()
+                        )
+                        .lang("lang")
+                        .layer("layer")
+                        .limit(1L)
+                        .build()
+                )
+                .build()
+
+        val body = params._body()
+
+        assertThat(body)
             .isEqualTo(
-                QueryParams.builder()
-                    .put("q", "q")
-                    .put("bbox", "bbox")
-                    .put("country_code", "country_code")
-                    .put("lang", "lang")
-                    .put("lat", "0.0")
-                    .put("layer", "layer")
-                    .put("limit", "0")
-                    .put("lng", "0.0")
+                GeocodeForwardRequest.builder()
+                    .q("221B Baker Street, London")
+                    .countryCode("xx")
+                    .focus(
+                        PointGeometry.builder()
+                            .addCoordinate(2.3522)
+                            .addCoordinate(48.8566)
+                            .type(PointGeometry.Type.POINT)
+                            .build()
+                    )
+                    .lang("lang")
+                    .layer("layer")
+                    .limit(1L)
                     .build()
             )
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
-        val params = GeocodeForwardParams.builder().q("q").build()
+    fun bodyWithoutOptionalFields() {
+        val params =
+            GeocodeForwardParams.builder()
+                .geocodeForwardRequest(
+                    GeocodeForwardRequest.builder().q("221B Baker Street, London").build()
+                )
+                .build()
 
-        val queryParams = params._queryParams()
+        val body = params._body()
 
-        assertThat(queryParams).isEqualTo(QueryParams.builder().put("q", "q").build())
+        assertThat(body)
+            .isEqualTo(GeocodeForwardRequest.builder().q("221B Baker Street, London").build())
     }
 }

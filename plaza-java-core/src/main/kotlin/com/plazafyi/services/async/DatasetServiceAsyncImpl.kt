@@ -17,11 +17,9 @@ import com.plazafyi.core.http.HttpResponseFor
 import com.plazafyi.core.http.json
 import com.plazafyi.core.http.parseable
 import com.plazafyi.core.prepareAsync
-import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.datasets.Dataset
 import com.plazafyi.models.datasets.DatasetCreateParams
 import com.plazafyi.models.datasets.DatasetDeleteParams
-import com.plazafyi.models.datasets.DatasetFeaturesParams
 import com.plazafyi.models.datasets.DatasetList
 import com.plazafyi.models.datasets.DatasetListParams
 import com.plazafyi.models.datasets.DatasetRetrieveParams
@@ -68,13 +66,6 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
     ): CompletableFuture<Void?> =
         // delete /api/v1/datasets/{id}
         withRawResponse().delete(params, requestOptions).thenAccept {}
-
-    override fun features(
-        params: DatasetFeaturesParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<FeatureCollection> =
-        // get /api/v1/datasets/{id}/features
-        withRawResponse().features(params, requestOptions).thenApply { it.parse() }
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         DatasetServiceAsync.WithRawResponse {
@@ -205,39 +196,6 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
                 .thenApply { response ->
                     errorHandler.handle(response).parseable {
                         response.use { deleteHandler.handle(it) }
-                    }
-                }
-        }
-
-        private val featuresHandler: Handler<FeatureCollection> =
-            jsonHandler<FeatureCollection>(clientOptions.jsonMapper)
-
-        override fun features(
-            params: DatasetFeaturesParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> {
-            // We check here instead of in the params builder because this can be specified
-            // positionally or in the params class.
-            checkRequired("id", params.id().getOrNull())
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.GET)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "datasets", params._pathParam(0), "features")
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { featuresHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
                     }
                 }
         }

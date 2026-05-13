@@ -7,7 +7,6 @@ import com.plazafyi.core.RequestOptions
 import com.plazafyi.core.http.HttpResponseFor
 import com.plazafyi.models.FeatureCollection
 import com.plazafyi.models.search.SearchQueryParams
-import com.plazafyi.models.search.SearchQueryPostParams
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 
@@ -35,16 +34,6 @@ interface SearchServiceAsync {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletableFuture<FeatureCollection>
 
-    /** Search OSM features by name */
-    fun queryPost(params: SearchQueryPostParams): CompletableFuture<FeatureCollection> =
-        queryPost(params, RequestOptions.none())
-
-    /** @see queryPost */
-    fun queryPost(
-        params: SearchQueryPostParams,
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<FeatureCollection>
-
     /**
      * A view of [SearchServiceAsync] that provides access to raw HTTP responses for each method.
      */
@@ -60,7 +49,7 @@ interface SearchServiceAsync {
         ): SearchServiceAsync.WithRawResponse
 
         /**
-         * Returns a raw HTTP response for `get /api/v1/search`, but is otherwise the same as
+         * Returns a raw HTTP response for `post /api/v1/search`, but is otherwise the same as
          * [SearchServiceAsync.query].
          */
         fun query(
@@ -71,21 +60,6 @@ interface SearchServiceAsync {
         /** @see query */
         fun query(
             params: SearchQueryParams,
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>>
-
-        /**
-         * Returns a raw HTTP response for `post /api/v1/search`, but is otherwise the same as
-         * [SearchServiceAsync.queryPost].
-         */
-        fun queryPost(
-            params: SearchQueryPostParams
-        ): CompletableFuture<HttpResponseFor<FeatureCollection>> =
-            queryPost(params, RequestOptions.none())
-
-        /** @see queryPost */
-        fun queryPost(
-            params: SearchQueryPostParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): CompletableFuture<HttpResponseFor<FeatureCollection>>
     }

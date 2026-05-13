@@ -11,10 +11,9 @@ import com.plazafyi.core.ExcludeMissing
 import com.plazafyi.core.JsonField
 import com.plazafyi.core.JsonMissing
 import com.plazafyi.core.JsonValue
-import com.plazafyi.core.checkKnown
 import com.plazafyi.core.checkRequired
-import com.plazafyi.core.toImmutable
 import com.plazafyi.errors.PlazaInvalidDataException
+import com.plazafyi.models.MultiPointGeometry
 import java.util.Collections
 import java.util.Objects
 import java.util.Optional
@@ -28,7 +27,7 @@ import kotlin.jvm.optionals.getOrNull
 class OptimizeRequest
 @JsonCreator(mode = JsonCreator.Mode.DISABLED)
 private constructor(
-    private val waypoints: JsonField<List<Waypoint>>,
+    private val waypoints: JsonField<MultiPointGeometry>,
     private val mode: JsonField<Mode>,
     private val roundtrip: JsonField<Boolean>,
     private val additionalProperties: MutableMap<String, JsonValue>,
@@ -38,18 +37,18 @@ private constructor(
     private constructor(
         @JsonProperty("waypoints")
         @ExcludeMissing
-        waypoints: JsonField<List<Waypoint>> = JsonMissing.of(),
+        waypoints: JsonField<MultiPointGeometry> = JsonMissing.of(),
         @JsonProperty("mode") @ExcludeMissing mode: JsonField<Mode> = JsonMissing.of(),
         @JsonProperty("roundtrip") @ExcludeMissing roundtrip: JsonField<Boolean> = JsonMissing.of(),
     ) : this(waypoints, mode, roundtrip, mutableMapOf())
 
     /**
-     * Waypoints to visit in optimized order (2-50 points)
+     * GeoJSON MultiPoint geometry per RFC 7946. An array of positions.
      *
      * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is unexpectedly
      *   missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun waypoints(): List<Waypoint> = waypoints.getRequired("waypoints")
+    fun waypoints(): MultiPointGeometry = waypoints.getRequired("waypoints")
 
     /**
      * Travel mode (default: `auto`)
@@ -74,7 +73,7 @@ private constructor(
      */
     @JsonProperty("waypoints")
     @ExcludeMissing
-    fun _waypoints(): JsonField<List<Waypoint>> = waypoints
+    fun _waypoints(): JsonField<MultiPointGeometry> = waypoints
 
     /**
      * Returns the raw JSON value of [mode].
@@ -118,43 +117,31 @@ private constructor(
     /** A builder for [OptimizeRequest]. */
     class Builder internal constructor() {
 
-        private var waypoints: JsonField<MutableList<Waypoint>>? = null
+        private var waypoints: JsonField<MultiPointGeometry>? = null
         private var mode: JsonField<Mode> = JsonMissing.of()
         private var roundtrip: JsonField<Boolean> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         @JvmSynthetic
         internal fun from(optimizeRequest: OptimizeRequest) = apply {
-            waypoints = optimizeRequest.waypoints.map { it.toMutableList() }
+            waypoints = optimizeRequest.waypoints
             mode = optimizeRequest.mode
             roundtrip = optimizeRequest.roundtrip
             additionalProperties = optimizeRequest.additionalProperties.toMutableMap()
         }
 
-        /** Waypoints to visit in optimized order (2-50 points) */
-        fun waypoints(waypoints: List<Waypoint>) = waypoints(JsonField.of(waypoints))
+        /** GeoJSON MultiPoint geometry per RFC 7946. An array of positions. */
+        fun waypoints(waypoints: MultiPointGeometry) = waypoints(JsonField.of(waypoints))
 
         /**
          * Sets [Builder.waypoints] to an arbitrary JSON value.
          *
-         * You should usually call [Builder.waypoints] with a well-typed `List<Waypoint>` value
+         * You should usually call [Builder.waypoints] with a well-typed [MultiPointGeometry] value
          * instead. This method is primarily for setting the field to an undocumented or not yet
          * supported value.
          */
-        fun waypoints(waypoints: JsonField<List<Waypoint>>) = apply {
-            this.waypoints = waypoints.map { it.toMutableList() }
-        }
-
-        /**
-         * Adds a single [Waypoint] to [waypoints].
-         *
-         * @throws IllegalStateException if the field was previously set to a non-list.
-         */
-        fun addWaypoint(waypoint: Waypoint) = apply {
-            waypoints =
-                (waypoints ?: JsonField.of(mutableListOf())).also {
-                    checkKnown("waypoints", it).add(waypoint)
-                }
+        fun waypoints(waypoints: JsonField<MultiPointGeometry>) = apply {
+            this.waypoints = waypoints
         }
 
         /** Travel mode (default: `auto`) */
@@ -213,7 +200,7 @@ private constructor(
          */
         fun build(): OptimizeRequest =
             OptimizeRequest(
-                checkRequired("waypoints", waypoints).map { it.toImmutable() },
+                checkRequired("waypoints", waypoints),
                 mode,
                 roundtrip,
                 additionalProperties.toMutableMap(),
@@ -222,12 +209,20 @@ private constructor(
 
     private var validated: Boolean = false
 
+    /**
+     * Validates that the types of all values in this object match their expected types recursively.
+     *
+     * This method is _not_ forwards compatible with new types from the API for existing fields.
+     *
+     * @throws PlazaInvalidDataException if any value type in this object doesn't match its expected
+     *   type.
+     */
     fun validate(): OptimizeRequest = apply {
         if (validated) {
             return@apply
         }
 
-        waypoints().forEach { it.validate() }
+        waypoints().validate()
         mode().ifPresent { it.validate() }
         roundtrip()
         validated = true
@@ -248,207 +243,9 @@ private constructor(
      */
     @JvmSynthetic
     internal fun validity(): Int =
-        (waypoints.asKnown().getOrNull()?.sumOf { it.validity().toInt() } ?: 0) +
+        (waypoints.asKnown().getOrNull()?.validity() ?: 0) +
             (mode.asKnown().getOrNull()?.validity() ?: 0) +
             (if (roundtrip.asKnown().isPresent) 1 else 0)
-
-    /** Geographic coordinate as a JSON object with `lat` and `lng` fields. */
-    class Waypoint
-    @JsonCreator(mode = JsonCreator.Mode.DISABLED)
-    private constructor(
-        private val lat: JsonField<Double>,
-        private val lng: JsonField<Double>,
-        private val additionalProperties: MutableMap<String, JsonValue>,
-    ) {
-
-        @JsonCreator
-        private constructor(
-            @JsonProperty("lat") @ExcludeMissing lat: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("lng") @ExcludeMissing lng: JsonField<Double> = JsonMissing.of(),
-        ) : this(lat, lng, mutableMapOf())
-
-        /**
-         * Latitude in decimal degrees (-90 to 90)
-         *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
-         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-         */
-        fun lat(): Double = lat.getRequired("lat")
-
-        /**
-         * Longitude in decimal degrees (-180 to 180)
-         *
-         * @throws PlazaInvalidDataException if the JSON field has an unexpected type or is
-         *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-         */
-        fun lng(): Double = lng.getRequired("lng")
-
-        /**
-         * Returns the raw JSON value of [lat].
-         *
-         * Unlike [lat], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("lat") @ExcludeMissing fun _lat(): JsonField<Double> = lat
-
-        /**
-         * Returns the raw JSON value of [lng].
-         *
-         * Unlike [lng], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("lng") @ExcludeMissing fun _lng(): JsonField<Double> = lng
-
-        @JsonAnySetter
-        private fun putAdditionalProperty(key: String, value: JsonValue) {
-            additionalProperties.put(key, value)
-        }
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> =
-            Collections.unmodifiableMap(additionalProperties)
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Waypoint].
-             *
-             * The following fields are required:
-             * ```java
-             * .lat()
-             * .lng()
-             * ```
-             */
-            @JvmStatic fun builder() = Builder()
-        }
-
-        /** A builder for [Waypoint]. */
-        class Builder internal constructor() {
-
-            private var lat: JsonField<Double>? = null
-            private var lng: JsonField<Double>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            @JvmSynthetic
-            internal fun from(waypoint: Waypoint) = apply {
-                lat = waypoint.lat
-                lng = waypoint.lng
-                additionalProperties = waypoint.additionalProperties.toMutableMap()
-            }
-
-            /** Latitude in decimal degrees (-90 to 90) */
-            fun lat(lat: Double) = lat(JsonField.of(lat))
-
-            /**
-             * Sets [Builder.lat] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.lat] with a well-typed [Double] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun lat(lat: JsonField<Double>) = apply { this.lat = lat }
-
-            /** Longitude in decimal degrees (-180 to 180) */
-            fun lng(lng: Double) = lng(JsonField.of(lng))
-
-            /**
-             * Sets [Builder.lng] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.lng] with a well-typed [Double] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun lng(lng: JsonField<Double>) = apply { this.lng = lng }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            /**
-             * Returns an immutable instance of [Waypoint].
-             *
-             * Further updates to this [Builder] will not mutate the returned instance.
-             *
-             * The following fields are required:
-             * ```java
-             * .lat()
-             * .lng()
-             * ```
-             *
-             * @throws IllegalStateException if any required field is unset.
-             */
-            fun build(): Waypoint =
-                Waypoint(
-                    checkRequired("lat", lat),
-                    checkRequired("lng", lng),
-                    additionalProperties.toMutableMap(),
-                )
-        }
-
-        private var validated: Boolean = false
-
-        fun validate(): Waypoint = apply {
-            if (validated) {
-                return@apply
-            }
-
-            lat()
-            lng()
-            validated = true
-        }
-
-        fun isValid(): Boolean =
-            try {
-                validate()
-                true
-            } catch (e: PlazaInvalidDataException) {
-                false
-            }
-
-        /**
-         * Returns a score indicating how many valid values are contained in this object
-         * recursively.
-         *
-         * Used for best match union deserialization.
-         */
-        @JvmSynthetic
-        internal fun validity(): Int =
-            (if (lat.asKnown().isPresent) 1 else 0) + (if (lng.asKnown().isPresent) 1 else 0)
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return other is Waypoint &&
-                lat == other.lat &&
-                lng == other.lng &&
-                additionalProperties == other.additionalProperties
-        }
-
-        private val hashCode: Int by lazy { Objects.hash(lat, lng, additionalProperties) }
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Waypoint{lat=$lat, lng=$lng, additionalProperties=$additionalProperties}"
-    }
 
     /** Travel mode (default: `auto`) */
     class Mode @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
@@ -543,6 +340,15 @@ private constructor(
 
         private var validated: Boolean = false
 
+        /**
+         * Validates that the types of all values in this object match their expected types
+         * recursively.
+         *
+         * This method is _not_ forwards compatible with new types from the API for existing fields.
+         *
+         * @throws PlazaInvalidDataException if any value type in this object doesn't match its
+         *   expected type.
+         */
         fun validate(): Mode = apply {
             if (validated) {
                 return@apply

@@ -2,6 +2,7 @@
 
 package com.plazafyi.models.geocode
 
+import com.plazafyi.core.JsonValue
 import com.plazafyi.core.Params
 import com.plazafyi.core.checkRequired
 import com.plazafyi.core.http.Headers
@@ -13,41 +14,20 @@ import kotlin.jvm.optionals.getOrNull
 /** Forward geocode an address */
 class GeocodeForwardParams
 private constructor(
-    private val q: String,
-    private val bbox: String?,
-    private val countryCode: String?,
-    private val lang: String?,
-    private val lat: Double?,
-    private val layer: String?,
-    private val limit: Long?,
-    private val lng: Double?,
+    private val format: String?,
+    private val geocodeForwardRequest: GeocodeForwardRequest,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** Address or place name */
-    fun q(): String = q
+    /** Response format: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
 
-    /** Bounding box filter: south,west,north,east */
-    fun bbox(): Optional<String> = Optional.ofNullable(bbox)
+    /** Request body for forward geocoding. Converts an address or place name to coordinates. */
+    fun geocodeForwardRequest(): GeocodeForwardRequest = geocodeForwardRequest
 
-    /** ISO 3166-1 alpha-2 country code filter */
-    fun countryCode(): Optional<String> = Optional.ofNullable(countryCode)
-
-    /** Language code for localized names (e.g. en, de, fr) */
-    fun lang(): Optional<String> = Optional.ofNullable(lang)
-
-    /** Focus latitude */
-    fun lat(): Optional<Double> = Optional.ofNullable(lat)
-
-    /** Filter by layer: address, poi, or admin */
-    fun layer(): Optional<String> = Optional.ofNullable(layer)
-
-    /** Maximum results (default 20, max 100) */
-    fun limit(): Optional<Long> = Optional.ofNullable(limit)
-
-    /** Focus longitude */
-    fun lng(): Optional<Double> = Optional.ofNullable(lng)
+    fun _additionalBodyProperties(): Map<String, JsonValue> =
+        geocodeForwardRequest._additionalProperties()
 
     /** Additional headers to send with the request. */
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -64,7 +44,7 @@ private constructor(
          *
          * The following fields are required:
          * ```java
-         * .q()
+         * .geocodeForwardRequest()
          * ```
          */
         @JvmStatic fun builder() = Builder()
@@ -73,96 +53,29 @@ private constructor(
     /** A builder for [GeocodeForwardParams]. */
     class Builder internal constructor() {
 
-        private var q: String? = null
-        private var bbox: String? = null
-        private var countryCode: String? = null
-        private var lang: String? = null
-        private var lat: Double? = null
-        private var layer: String? = null
-        private var limit: Long? = null
-        private var lng: Double? = null
+        private var format: String? = null
+        private var geocodeForwardRequest: GeocodeForwardRequest? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         @JvmSynthetic
         internal fun from(geocodeForwardParams: GeocodeForwardParams) = apply {
-            q = geocodeForwardParams.q
-            bbox = geocodeForwardParams.bbox
-            countryCode = geocodeForwardParams.countryCode
-            lang = geocodeForwardParams.lang
-            lat = geocodeForwardParams.lat
-            layer = geocodeForwardParams.layer
-            limit = geocodeForwardParams.limit
-            lng = geocodeForwardParams.lng
+            format = geocodeForwardParams.format
+            geocodeForwardRequest = geocodeForwardParams.geocodeForwardRequest
             additionalHeaders = geocodeForwardParams.additionalHeaders.toBuilder()
             additionalQueryParams = geocodeForwardParams.additionalQueryParams.toBuilder()
         }
 
-        /** Address or place name */
-        fun q(q: String) = apply { this.q = q }
+        /** Response format: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
 
-        /** Bounding box filter: south,west,north,east */
-        fun bbox(bbox: String?) = apply { this.bbox = bbox }
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
 
-        /** Alias for calling [Builder.bbox] with `bbox.orElse(null)`. */
-        fun bbox(bbox: Optional<String>) = bbox(bbox.getOrNull())
-
-        /** ISO 3166-1 alpha-2 country code filter */
-        fun countryCode(countryCode: String?) = apply { this.countryCode = countryCode }
-
-        /** Alias for calling [Builder.countryCode] with `countryCode.orElse(null)`. */
-        fun countryCode(countryCode: Optional<String>) = countryCode(countryCode.getOrNull())
-
-        /** Language code for localized names (e.g. en, de, fr) */
-        fun lang(lang: String?) = apply { this.lang = lang }
-
-        /** Alias for calling [Builder.lang] with `lang.orElse(null)`. */
-        fun lang(lang: Optional<String>) = lang(lang.getOrNull())
-
-        /** Focus latitude */
-        fun lat(lat: Double?) = apply { this.lat = lat }
-
-        /**
-         * Alias for [Builder.lat].
-         *
-         * This unboxed primitive overload exists for backwards compatibility.
-         */
-        fun lat(lat: Double) = lat(lat as Double?)
-
-        /** Alias for calling [Builder.lat] with `lat.orElse(null)`. */
-        fun lat(lat: Optional<Double>) = lat(lat.getOrNull())
-
-        /** Filter by layer: address, poi, or admin */
-        fun layer(layer: String?) = apply { this.layer = layer }
-
-        /** Alias for calling [Builder.layer] with `layer.orElse(null)`. */
-        fun layer(layer: Optional<String>) = layer(layer.getOrNull())
-
-        /** Maximum results (default 20, max 100) */
-        fun limit(limit: Long?) = apply { this.limit = limit }
-
-        /**
-         * Alias for [Builder.limit].
-         *
-         * This unboxed primitive overload exists for backwards compatibility.
-         */
-        fun limit(limit: Long) = limit(limit as Long?)
-
-        /** Alias for calling [Builder.limit] with `limit.orElse(null)`. */
-        fun limit(limit: Optional<Long>) = limit(limit.getOrNull())
-
-        /** Focus longitude */
-        fun lng(lng: Double?) = apply { this.lng = lng }
-
-        /**
-         * Alias for [Builder.lng].
-         *
-         * This unboxed primitive overload exists for backwards compatibility.
-         */
-        fun lng(lng: Double) = lng(lng as Double?)
-
-        /** Alias for calling [Builder.lng] with `lng.orElse(null)`. */
-        fun lng(lng: Optional<Double>) = lng(lng.getOrNull())
+        /** Request body for forward geocoding. Converts an address or place name to coordinates. */
+        fun geocodeForwardRequest(geocodeForwardRequest: GeocodeForwardRequest) = apply {
+            this.geocodeForwardRequest = geocodeForwardRequest
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -269,39 +182,28 @@ private constructor(
          *
          * The following fields are required:
          * ```java
-         * .q()
+         * .geocodeForwardRequest()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
          */
         fun build(): GeocodeForwardParams =
             GeocodeForwardParams(
-                checkRequired("q", q),
-                bbox,
-                countryCode,
-                lang,
-                lat,
-                layer,
-                limit,
-                lng,
+                format,
+                checkRequired("geocodeForwardRequest", geocodeForwardRequest),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
+
+    fun _body(): GeocodeForwardRequest = geocodeForwardRequest
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams =
         QueryParams.builder()
             .apply {
-                put("q", q)
-                bbox?.let { put("bbox", it) }
-                countryCode?.let { put("country_code", it) }
-                lang?.let { put("lang", it) }
-                lat?.let { put("lat", it.toString()) }
-                layer?.let { put("layer", it) }
-                limit?.let { put("limit", it.toString()) }
-                lng?.let { put("lng", it.toString()) }
+                format?.let { put("format", it) }
                 putAll(additionalQueryParams)
             }
             .build()
@@ -312,32 +214,15 @@ private constructor(
         }
 
         return other is GeocodeForwardParams &&
-            q == other.q &&
-            bbox == other.bbox &&
-            countryCode == other.countryCode &&
-            lang == other.lang &&
-            lat == other.lat &&
-            layer == other.layer &&
-            limit == other.limit &&
-            lng == other.lng &&
+            format == other.format &&
+            geocodeForwardRequest == other.geocodeForwardRequest &&
             additionalHeaders == other.additionalHeaders &&
             additionalQueryParams == other.additionalQueryParams
     }
 
     override fun hashCode(): Int =
-        Objects.hash(
-            q,
-            bbox,
-            countryCode,
-            lang,
-            lat,
-            layer,
-            limit,
-            lng,
-            additionalHeaders,
-            additionalQueryParams,
-        )
+        Objects.hash(format, geocodeForwardRequest, additionalHeaders, additionalQueryParams)
 
     override fun toString() =
-        "GeocodeForwardParams{q=$q, bbox=$bbox, countryCode=$countryCode, lang=$lang, lat=$lat, layer=$layer, limit=$limit, lng=$lng, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "GeocodeForwardParams{format=$format, geocodeForwardRequest=$geocodeForwardRequest, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

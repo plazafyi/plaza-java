@@ -17,14 +17,11 @@ import com.plazafyi.core.http.parseable
 import com.plazafyi.core.prepareAsync
 import com.plazafyi.models.geocode.AutocompleteResult
 import com.plazafyi.models.geocode.GeocodeAutocompleteParams
-import com.plazafyi.models.geocode.GeocodeAutocompletePostParams
 import com.plazafyi.models.geocode.GeocodeBatchParams
 import com.plazafyi.models.geocode.GeocodeBatchResponse
 import com.plazafyi.models.geocode.GeocodeForwardParams
-import com.plazafyi.models.geocode.GeocodeForwardPostParams
 import com.plazafyi.models.geocode.GeocodeResult
 import com.plazafyi.models.geocode.GeocodeReverseParams
-import com.plazafyi.models.geocode.GeocodeReversePostParams
 import com.plazafyi.models.geocode.ReverseGeocodeResult
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
@@ -45,15 +42,8 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
         params: GeocodeAutocompleteParams,
         requestOptions: RequestOptions,
     ): CompletableFuture<AutocompleteResult> =
-        // get /api/v1/geocode/autocomplete
-        withRawResponse().autocomplete(params, requestOptions).thenApply { it.parse() }
-
-    override fun autocompletePost(
-        params: GeocodeAutocompletePostParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<AutocompleteResult> =
         // post /api/v1/geocode/autocomplete
-        withRawResponse().autocompletePost(params, requestOptions).thenApply { it.parse() }
+        withRawResponse().autocomplete(params, requestOptions).thenApply { it.parse() }
 
     override fun batch(
         params: GeocodeBatchParams,
@@ -66,29 +56,15 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
         params: GeocodeForwardParams,
         requestOptions: RequestOptions,
     ): CompletableFuture<GeocodeResult> =
-        // get /api/v1/geocode
-        withRawResponse().forward(params, requestOptions).thenApply { it.parse() }
-
-    override fun forwardPost(
-        params: GeocodeForwardPostParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<GeocodeResult> =
         // post /api/v1/geocode
-        withRawResponse().forwardPost(params, requestOptions).thenApply { it.parse() }
+        withRawResponse().forward(params, requestOptions).thenApply { it.parse() }
 
     override fun reverse(
         params: GeocodeReverseParams,
         requestOptions: RequestOptions,
     ): CompletableFuture<ReverseGeocodeResult> =
-        // get /api/v1/geocode/reverse
-        withRawResponse().reverse(params, requestOptions).thenApply { it.parse() }
-
-    override fun reversePost(
-        params: GeocodeReversePostParams,
-        requestOptions: RequestOptions,
-    ): CompletableFuture<ReverseGeocodeResult> =
         // post /api/v1/geocode/reverse
-        withRawResponse().reversePost(params, requestOptions).thenApply { it.parse() }
+        withRawResponse().reverse(params, requestOptions).thenApply { it.parse() }
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         GeocodeServiceAsync.WithRawResponse {
@@ -112,9 +88,10 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
         ): CompletableFuture<HttpResponseFor<AutocompleteResult>> {
             val request =
                 HttpRequest.builder()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "geocode", "autocomplete")
+                    .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -124,37 +101,6 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     errorHandler.handle(response).parseable {
                         response
                             .use { autocompleteHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
-        private val autocompletePostHandler: Handler<AutocompleteResult> =
-            jsonHandler<AutocompleteResult>(clientOptions.jsonMapper)
-
-        override fun autocompletePost(
-            params: GeocodeAutocompletePostParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<AutocompleteResult>> {
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.POST)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "geocode", "autocomplete")
-                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { autocompletePostHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()
@@ -204,9 +150,10 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
         ): CompletableFuture<HttpResponseFor<GeocodeResult>> {
             val request =
                 HttpRequest.builder()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "geocode")
+                    .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -225,37 +172,6 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
                 }
         }
 
-        private val forwardPostHandler: Handler<GeocodeResult> =
-            jsonHandler<GeocodeResult>(clientOptions.jsonMapper)
-
-        override fun forwardPost(
-            params: GeocodeForwardPostParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<GeocodeResult>> {
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.POST)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "geocode")
-                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { forwardPostHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
         private val reverseHandler: Handler<ReverseGeocodeResult> =
             jsonHandler<ReverseGeocodeResult>(clientOptions.jsonMapper)
 
@@ -265,9 +181,10 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
         ): CompletableFuture<HttpResponseFor<ReverseGeocodeResult>> {
             val request =
                 HttpRequest.builder()
-                    .method(HttpMethod.GET)
+                    .method(HttpMethod.POST)
                     .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("api", "v1", "geocode", "reverse")
+                    .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -277,37 +194,6 @@ class GeocodeServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     errorHandler.handle(response).parseable {
                         response
                             .use { reverseHandler.handle(it) }
-                            .also {
-                                if (requestOptions.responseValidation!!) {
-                                    it.validate()
-                                }
-                            }
-                    }
-                }
-        }
-
-        private val reversePostHandler: Handler<ReverseGeocodeResult> =
-            jsonHandler<ReverseGeocodeResult>(clientOptions.jsonMapper)
-
-        override fun reversePost(
-            params: GeocodeReversePostParams,
-            requestOptions: RequestOptions,
-        ): CompletableFuture<HttpResponseFor<ReverseGeocodeResult>> {
-            val request =
-                HttpRequest.builder()
-                    .method(HttpMethod.POST)
-                    .baseUrl(clientOptions.baseUrl())
-                    .addPathSegments("api", "v1", "geocode", "reverse")
-                    .apply { params._body().ifPresent { body(json(clientOptions.jsonMapper, it)) } }
-                    .build()
-                    .prepareAsync(clientOptions, params)
-            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
-            return request
-                .thenComposeAsync { clientOptions.httpClient.executeAsync(it, requestOptions) }
-                .thenApply { response ->
-                    errorHandler.handle(response).parseable {
-                        response
-                            .use { reversePostHandler.handle(it) }
                             .also {
                                 if (requestOptions.responseValidation!!) {
                                     it.validate()

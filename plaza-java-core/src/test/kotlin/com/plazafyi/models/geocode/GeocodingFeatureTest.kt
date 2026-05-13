@@ -5,7 +5,8 @@ package com.plazafyi.models.geocode
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.plazafyi.core.JsonValue
 import com.plazafyi.core.jsonMapper
-import com.plazafyi.models.GeoJsonGeometry
+import com.plazafyi.models.Geometry
+import com.plazafyi.models.PointGeometry
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,12 +16,7 @@ internal class GeocodingFeatureTest {
     fun create() {
         val geocodingFeature =
             GeocodingFeature.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     GeocodingFeature.Properties.builder()
                         .displayName("221B Baker Street, London, NW1 6XE, United Kingdom")
@@ -55,10 +51,13 @@ internal class GeocodingFeatureTest {
 
         assertThat(geocodingFeature.geometry())
             .isEqualTo(
-                GeoJsonGeometry.builder()
-                    .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                    .type(GeoJsonGeometry.Type.POINT)
-                    .build()
+                Geometry.ofPoint(
+                    PointGeometry.builder()
+                        .addCoordinate(2.3522)
+                        .addCoordinate(48.8566)
+                        .type(PointGeometry.Type.POINT)
+                        .build()
+                )
             )
         assertThat(geocodingFeature.properties())
             .isEqualTo(
@@ -98,12 +97,7 @@ internal class GeocodingFeatureTest {
         val jsonMapper = jsonMapper()
         val geocodingFeature =
             GeocodingFeature.builder()
-                .geometry(
-                    GeoJsonGeometry.builder()
-                        .coordinatesOfPoint(listOf(2.3522, 48.8566))
-                        .type(GeoJsonGeometry.Type.POINT)
-                        .build()
-                )
+                .pointGeometry(listOf(2.3522, 48.8566))
                 .properties(
                     GeocodingFeature.Properties.builder()
                         .displayName("221B Baker Street, London, NW1 6XE, United Kingdom")

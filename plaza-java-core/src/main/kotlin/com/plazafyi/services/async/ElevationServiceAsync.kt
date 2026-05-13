@@ -5,10 +5,8 @@ package com.plazafyi.services.async
 import com.plazafyi.core.ClientOptions
 import com.plazafyi.core.RequestOptions
 import com.plazafyi.core.http.HttpResponseFor
-import com.plazafyi.models.elevation.ElevationBatchParams
-import com.plazafyi.models.elevation.ElevationBatchResult
 import com.plazafyi.models.elevation.ElevationLookupParams
-import com.plazafyi.models.elevation.ElevationLookupPostParams
+import com.plazafyi.models.elevation.ElevationLookupRequest
 import com.plazafyi.models.elevation.ElevationLookupResult
 import com.plazafyi.models.elevation.ElevationProfileParams
 import com.plazafyi.models.elevation.ElevationProfileRequest
@@ -30,52 +28,31 @@ interface ElevationServiceAsync {
      */
     fun withOptions(modifier: Consumer<ClientOptions.Builder>): ElevationServiceAsync
 
-    /** Look up elevation for multiple coordinates */
-    fun batch(params: ElevationBatchParams): CompletableFuture<ElevationBatchResult> =
-        batch(params, RequestOptions.none())
-
-    /** @see batch */
-    fun batch(
-        params: ElevationBatchParams,
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<ElevationBatchResult>
-
     /** Look up elevation at one or more points */
-    fun lookup(): CompletableFuture<ElevationLookupResult> = lookup(ElevationLookupParams.none())
+    fun lookup(params: ElevationLookupParams): CompletableFuture<ElevationLookupResult> =
+        lookup(params, RequestOptions.none())
 
     /** @see lookup */
     fun lookup(
-        params: ElevationLookupParams = ElevationLookupParams.none(),
+        params: ElevationLookupParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletableFuture<ElevationLookupResult>
 
     /** @see lookup */
     fun lookup(
-        params: ElevationLookupParams = ElevationLookupParams.none()
-    ): CompletableFuture<ElevationLookupResult> = lookup(params, RequestOptions.none())
+        elevationLookupRequest: ElevationLookupRequest,
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): CompletableFuture<ElevationLookupResult> =
+        lookup(
+            ElevationLookupParams.builder().elevationLookupRequest(elevationLookupRequest).build(),
+            requestOptions,
+        )
 
     /** @see lookup */
-    fun lookup(requestOptions: RequestOptions): CompletableFuture<ElevationLookupResult> =
-        lookup(ElevationLookupParams.none(), requestOptions)
-
-    /** Look up elevation at one or more points */
-    fun lookupPost(): CompletableFuture<ElevationLookupResult> =
-        lookupPost(ElevationLookupPostParams.none())
-
-    /** @see lookupPost */
-    fun lookupPost(
-        params: ElevationLookupPostParams = ElevationLookupPostParams.none(),
-        requestOptions: RequestOptions = RequestOptions.none(),
-    ): CompletableFuture<ElevationLookupResult>
-
-    /** @see lookupPost */
-    fun lookupPost(
-        params: ElevationLookupPostParams = ElevationLookupPostParams.none()
-    ): CompletableFuture<ElevationLookupResult> = lookupPost(params, RequestOptions.none())
-
-    /** @see lookupPost */
-    fun lookupPost(requestOptions: RequestOptions): CompletableFuture<ElevationLookupResult> =
-        lookupPost(ElevationLookupPostParams.none(), requestOptions)
+    fun lookup(
+        elevationLookupRequest: ElevationLookupRequest
+    ): CompletableFuture<ElevationLookupResult> =
+        lookup(elevationLookupRequest, RequestOptions.none())
 
     /** Elevation profile along coordinates */
     fun profile(params: ElevationProfileParams): CompletableFuture<ElevationProfileResult> =
@@ -120,69 +97,37 @@ interface ElevationServiceAsync {
         ): ElevationServiceAsync.WithRawResponse
 
         /**
-         * Returns a raw HTTP response for `post /api/v1/elevation/batch`, but is otherwise the same
-         * as [ElevationServiceAsync.batch].
-         */
-        fun batch(
-            params: ElevationBatchParams
-        ): CompletableFuture<HttpResponseFor<ElevationBatchResult>> =
-            batch(params, RequestOptions.none())
-
-        /** @see batch */
-        fun batch(
-            params: ElevationBatchParams,
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<ElevationBatchResult>>
-
-        /**
-         * Returns a raw HTTP response for `get /api/v1/elevation`, but is otherwise the same as
+         * Returns a raw HTTP response for `post /api/v1/elevation`, but is otherwise the same as
          * [ElevationServiceAsync.lookup].
          */
-        fun lookup(): CompletableFuture<HttpResponseFor<ElevationLookupResult>> =
-            lookup(ElevationLookupParams.none())
-
-        /** @see lookup */
         fun lookup(
-            params: ElevationLookupParams = ElevationLookupParams.none(),
-            requestOptions: RequestOptions = RequestOptions.none(),
-        ): CompletableFuture<HttpResponseFor<ElevationLookupResult>>
-
-        /** @see lookup */
-        fun lookup(
-            params: ElevationLookupParams = ElevationLookupParams.none()
+            params: ElevationLookupParams
         ): CompletableFuture<HttpResponseFor<ElevationLookupResult>> =
             lookup(params, RequestOptions.none())
 
         /** @see lookup */
         fun lookup(
-            requestOptions: RequestOptions
-        ): CompletableFuture<HttpResponseFor<ElevationLookupResult>> =
-            lookup(ElevationLookupParams.none(), requestOptions)
-
-        /**
-         * Returns a raw HTTP response for `post /api/v1/elevation`, but is otherwise the same as
-         * [ElevationServiceAsync.lookupPost].
-         */
-        fun lookupPost(): CompletableFuture<HttpResponseFor<ElevationLookupResult>> =
-            lookupPost(ElevationLookupPostParams.none())
-
-        /** @see lookupPost */
-        fun lookupPost(
-            params: ElevationLookupPostParams = ElevationLookupPostParams.none(),
+            params: ElevationLookupParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): CompletableFuture<HttpResponseFor<ElevationLookupResult>>
 
-        /** @see lookupPost */
-        fun lookupPost(
-            params: ElevationLookupPostParams = ElevationLookupPostParams.none()
+        /** @see lookup */
+        fun lookup(
+            elevationLookupRequest: ElevationLookupRequest,
+            requestOptions: RequestOptions = RequestOptions.none(),
         ): CompletableFuture<HttpResponseFor<ElevationLookupResult>> =
-            lookupPost(params, RequestOptions.none())
+            lookup(
+                ElevationLookupParams.builder()
+                    .elevationLookupRequest(elevationLookupRequest)
+                    .build(),
+                requestOptions,
+            )
 
-        /** @see lookupPost */
-        fun lookupPost(
-            requestOptions: RequestOptions
+        /** @see lookup */
+        fun lookup(
+            elevationLookupRequest: ElevationLookupRequest
         ): CompletableFuture<HttpResponseFor<ElevationLookupResult>> =
-            lookupPost(ElevationLookupPostParams.none(), requestOptions)
+            lookup(elevationLookupRequest, RequestOptions.none())
 
         /**
          * Returns a raw HTTP response for `post /api/v1/elevation/profile`, but is otherwise the

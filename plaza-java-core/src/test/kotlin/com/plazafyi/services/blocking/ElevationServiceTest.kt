@@ -4,39 +4,16 @@ package com.plazafyi.services.blocking
 
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClient
-import com.plazafyi.models.elevation.ElevationBatchParams
+import com.plazafyi.models.LineStringGeometry
+import com.plazafyi.models.PointGeometry
 import com.plazafyi.models.elevation.ElevationLookupParams
-import com.plazafyi.models.elevation.ElevationLookupPostParams
+import com.plazafyi.models.elevation.ElevationLookupRequest
 import com.plazafyi.models.elevation.ElevationProfileRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 internal class ElevationServiceTest {
-
-    @Test
-    fun batch() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val elevationService = client.elevation()
-
-        val elevationBatchResult =
-            elevationService.batch(
-                ElevationBatchParams.builder()
-                    .addCoordinate(
-                        ElevationBatchParams.Coordinate.builder().lat(48.8566).lng(2.3522).build()
-                    )
-                    .addCoordinate(
-                        ElevationBatchParams.Coordinate.builder().lat(45.764).lng(4.8357).build()
-                    )
-                    .build()
-            )
-
-        elevationBatchResult.validate()
-    }
 
     @Test
     fun lookup() {
@@ -50,36 +27,18 @@ internal class ElevationServiceTest {
         val elevationLookupResult =
             elevationService.lookup(
                 ElevationLookupParams.builder()
-                    .lat(0.0)
-                    .lng(0.0)
-                    .locations("locations")
-                    .outputFields("output[fields]")
-                    .outputInclude("output[include]")
-                    .outputPrecision(0L)
-                    .build()
-            )
-
-        elevationLookupResult.validate()
-    }
-
-    @Test
-    fun lookupPost() {
-        val client =
-            PlazaOkHttpClient.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val elevationService = client.elevation()
-
-        val elevationLookupResult =
-            elevationService.lookupPost(
-                ElevationLookupPostParams.builder()
-                    .lat(0.0)
-                    .lng(0.0)
-                    .locations("locations")
-                    .outputFields("output[fields]")
-                    .outputInclude("output[include]")
-                    .outputPrecision(0L)
+                    .format("format")
+                    .elevationLookupRequest(
+                        ElevationLookupRequest.builder()
+                            .geometry(
+                                PointGeometry.builder()
+                                    .addCoordinate(2.3522)
+                                    .addCoordinate(48.8566)
+                                    .type(PointGeometry.Type.POINT)
+                                    .build()
+                            )
+                            .build()
+                    )
                     .build()
             )
 
@@ -98,21 +57,17 @@ internal class ElevationServiceTest {
         val elevationProfileResult =
             elevationService.profile(
                 ElevationProfileRequest.builder()
-                    .coordinates(
-                        listOf(
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.8566)
-                                .lng(2.3522)
-                                .build(),
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.858)
-                                .lng(2.34)
-                                .build(),
-                            ElevationProfileRequest.Coordinate.builder()
-                                .lat(48.8584)
-                                .lng(2.2945)
-                                .build(),
-                        )
+                    .geometry(
+                        LineStringGeometry.builder()
+                            .coordinates(
+                                listOf(
+                                    listOf(2.3522, 48.8566),
+                                    listOf(2.34, 48.858),
+                                    listOf(2.2945, 48.8584),
+                                )
+                            )
+                            .type(LineStringGeometry.Type.LINE_STRING)
+                            .build()
                     )
                     .build()
             )

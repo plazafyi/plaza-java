@@ -3,7 +3,7 @@
 package com.plazafyi.services
 
 import com.github.tomakehurst.wiremock.client.WireMock.anyUrl
-import com.github.tomakehurst.wiremock.client.WireMock.get
+import com.github.tomakehurst.wiremock.client.WireMock.post
 import com.github.tomakehurst.wiremock.client.WireMock.status
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
@@ -22,7 +22,8 @@ import com.plazafyi.errors.RateLimitException
 import com.plazafyi.errors.UnauthorizedException
 import com.plazafyi.errors.UnexpectedStatusCodeException
 import com.plazafyi.errors.UnprocessableEntityException
-import com.plazafyi.models.elements.ElementQueryParams
+import com.plazafyi.models.features.FeatureQueryParams
+import com.plazafyi.models.features.SpatialPredicate
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.BeforeEach
@@ -59,10 +60,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery400() {
-        val elementService = client.elements()
+    fun featuresQuery400() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(400).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -70,28 +71,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<BadRequestException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -102,10 +102,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery400WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery400WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(400).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -113,28 +113,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<BadRequestException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -145,10 +144,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery401() {
-        val elementService = client.elements()
+    fun featuresQuery401() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(401).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -156,28 +155,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnauthorizedException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -188,10 +186,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery401WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery401WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(401).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -199,28 +197,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnauthorizedException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -231,10 +228,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery403() {
-        val elementService = client.elements()
+    fun featuresQuery403() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(403).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -242,28 +239,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<PermissionDeniedException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -274,10 +270,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery403WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery403WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(403).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -285,28 +281,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<PermissionDeniedException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -317,10 +312,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery404() {
-        val elementService = client.elements()
+    fun featuresQuery404() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(404).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -328,28 +323,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<NotFoundException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -360,10 +354,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery404WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery404WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(404).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -371,28 +365,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<NotFoundException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -403,10 +396,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery422() {
-        val elementService = client.elements()
+    fun featuresQuery422() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(422).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -414,28 +407,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnprocessableEntityException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -446,10 +438,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery422WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery422WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(422).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -457,28 +449,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnprocessableEntityException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -489,10 +480,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery429() {
-        val elementService = client.elements()
+    fun featuresQuery429() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(429).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -500,28 +491,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<RateLimitException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -532,10 +522,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery429WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery429WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(429).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -543,28 +533,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<RateLimitException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -575,10 +564,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery500() {
-        val elementService = client.elements()
+    fun featuresQuery500() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(500).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -586,28 +575,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<InternalServerException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -618,10 +606,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery500WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery500WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(500).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -629,28 +617,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<InternalServerException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -661,10 +648,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery999() {
-        val elementService = client.elements()
+    fun featuresQuery999() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(999).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -672,28 +659,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnexpectedStatusCodeException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -704,10 +690,10 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQuery999WithRawResponse() {
-        val elementService = client.elements().withRawResponse()
+    fun featuresQuery999WithRawResponse() {
+        val featureService = client.features().withRawResponse()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(
                     status(999).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
                 )
@@ -715,28 +701,27 @@ internal class ErrorHandlingTest {
 
         val e =
             assertThrows<UnexpectedStatusCodeException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }
@@ -747,37 +732,36 @@ internal class ErrorHandlingTest {
     }
 
     @Test
-    fun elementsQueryInvalidJsonBody() {
-        val elementService = client.elements()
+    fun featuresQueryInvalidJsonBody() {
+        val featureService = client.features()
         stubFor(
-            get(anyUrl())
+            post(anyUrl())
                 .willReturn(status(200).withHeader(HEADER_NAME, HEADER_VALUE).withBody(NOT_JSON))
         )
 
         val e =
             assertThrows<PlazaException> {
-                elementService.query(
-                    ElementQueryParams.builder()
-                        .bbox("bbox")
-                        .contains("contains")
-                        .crosses("crosses")
+                featureService.query(
+                    FeatureQueryParams.builder()
                         .cursor("cursor")
+                        .format("format")
                         .h3("h3")
-                        .intersects("intersects")
                         .limit(0L)
-                        .near("near")
-                        .outputBuffer(0.0)
-                        .outputCentroid(true)
-                        .outputFields("output[fields]")
-                        .outputGeometry(true)
-                        .outputInclude("output[include]")
-                        .outputPrecision(0L)
-                        .outputSimplify(0.0)
-                        .outputSort("output[sort]")
-                        .radius(0.0)
-                        .touches("touches")
                         .type("type")
-                        .within("within")
+                        .spatialPredicate(
+                            SpatialPredicate.builder()
+                                .pointAround(listOf(2.3522, 48.8566))
+                                .pointContains(listOf(2.3522, 48.8566))
+                                .pointCrosses(listOf(2.3522, 48.8566))
+                                .pointIntersects(listOf(2.3522, 48.8566))
+                                .pointNotContains(listOf(2.3522, 48.8566))
+                                .pointNotIntersects(listOf(2.3522, 48.8566))
+                                .pointNotWithin(listOf(2.3522, 48.8566))
+                                .radius(500.0)
+                                .pointTouches(listOf(2.3522, 48.8566))
+                                .pointWithin(listOf(2.3522, 48.8566))
+                                .build()
+                        )
                         .build()
                 )
             }

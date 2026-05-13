@@ -5,7 +5,7 @@ package com.plazafyi.services.async
 import com.plazafyi.TestServerExtension
 import com.plazafyi.client.okhttp.PlazaOkHttpClientAsync
 import com.plazafyi.models.datasets.DatasetCreateParams
-import com.plazafyi.models.datasets.DatasetFeaturesParams
+import com.plazafyi.models.datasets.DatasetListParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -30,6 +30,7 @@ internal class DatasetServiceAsyncTest {
                     .description("description")
                     .license("license")
                     .sourceUrl("https://example.com")
+                    .strictMode(true)
                     .build()
             )
 
@@ -61,7 +62,8 @@ internal class DatasetServiceAsyncTest {
                 .build()
         val datasetServiceAsync = client.datasets()
 
-        val datasetListFuture = datasetServiceAsync.list()
+        val datasetListFuture =
+            datasetServiceAsync.list(DatasetListParams.builder().scope("scope").build())
 
         val datasetList = datasetListFuture.get()
         datasetList.validate()
@@ -79,35 +81,5 @@ internal class DatasetServiceAsyncTest {
         val future = datasetServiceAsync.delete("id")
 
         val response = future.get()
-    }
-
-    @Test
-    fun features() {
-        val client =
-            PlazaOkHttpClientAsync.builder()
-                .baseUrl(TestServerExtension.BASE_URL)
-                .apiKey("My API Key")
-                .build()
-        val datasetServiceAsync = client.datasets()
-
-        val featureCollectionFuture =
-            datasetServiceAsync.features(
-                DatasetFeaturesParams.builder()
-                    .id("id")
-                    .cursor("cursor")
-                    .limit(0L)
-                    .outputBuffer(0.0)
-                    .outputCentroid(true)
-                    .outputFields("output[fields]")
-                    .outputGeometry(true)
-                    .outputInclude("output[include]")
-                    .outputPrecision(0L)
-                    .outputSimplify(0.0)
-                    .outputSort("output[sort]")
-                    .build()
-            )
-
-        val featureCollection = featureCollectionFuture.get()
-        featureCollection.validate()
     }
 }

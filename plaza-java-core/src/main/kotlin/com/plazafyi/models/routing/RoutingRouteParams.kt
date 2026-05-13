@@ -8,17 +8,23 @@ import com.plazafyi.core.checkRequired
 import com.plazafyi.core.http.Headers
 import com.plazafyi.core.http.QueryParams
 import java.util.Objects
+import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
 /** Calculate a route between two points */
 class RoutingRouteParams
 private constructor(
+    private val format: String?,
     private val routeRequest: RouteRequest,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /** Response format for alternatives: json (default), geojson, csv, ndjson */
+    fun format(): Optional<String> = Optional.ofNullable(format)
+
     /**
-     * Request body for route calculation. Origin and destination are lat/lng coordinate objects.
+     * Request body for route calculation. Origin and destination are GeoJSON Point geometries.
      * Supports optional waypoints, alternative routes, turn-by-turn steps, and EV routing
      * parameters.
      */
@@ -50,21 +56,29 @@ private constructor(
     /** A builder for [RoutingRouteParams]. */
     class Builder internal constructor() {
 
+        private var format: String? = null
         private var routeRequest: RouteRequest? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         @JvmSynthetic
         internal fun from(routingRouteParams: RoutingRouteParams) = apply {
+            format = routingRouteParams.format
             routeRequest = routingRouteParams.routeRequest
             additionalHeaders = routingRouteParams.additionalHeaders.toBuilder()
             additionalQueryParams = routingRouteParams.additionalQueryParams.toBuilder()
         }
 
+        /** Response format for alternatives: json (default), geojson, csv, ndjson */
+        fun format(format: String?) = apply { this.format = format }
+
+        /** Alias for calling [Builder.format] with `format.orElse(null)`. */
+        fun format(format: Optional<String>) = format(format.getOrNull())
+
         /**
-         * Request body for route calculation. Origin and destination are lat/lng coordinate
-         * objects. Supports optional waypoints, alternative routes, turn-by-turn steps, and EV
-         * routing parameters.
+         * Request body for route calculation. Origin and destination are GeoJSON Point geometries.
+         * Supports optional waypoints, alternative routes, turn-by-turn steps, and EV routing
+         * parameters.
          */
         fun routeRequest(routeRequest: RouteRequest) = apply { this.routeRequest = routeRequest }
 
@@ -180,6 +194,7 @@ private constructor(
          */
         fun build(): RoutingRouteParams =
             RoutingRouteParams(
+                format,
                 checkRequired("routeRequest", routeRequest),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -190,7 +205,13 @@ private constructor(
 
     override fun _headers(): Headers = additionalHeaders
 
-    override fun _queryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams =
+        QueryParams.builder()
+            .apply {
+                format?.let { put("format", it) }
+                putAll(additionalQueryParams)
+            }
+            .build()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -198,14 +219,15 @@ private constructor(
         }
 
         return other is RoutingRouteParams &&
+            format == other.format &&
             routeRequest == other.routeRequest &&
             additionalHeaders == other.additionalHeaders &&
             additionalQueryParams == other.additionalQueryParams
     }
 
     override fun hashCode(): Int =
-        Objects.hash(routeRequest, additionalHeaders, additionalQueryParams)
+        Objects.hash(format, routeRequest, additionalHeaders, additionalQueryParams)
 
     override fun toString() =
-        "RoutingRouteParams{routeRequest=$routeRequest, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "RoutingRouteParams{format=$format, routeRequest=$routeRequest, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }
